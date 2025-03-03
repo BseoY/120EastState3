@@ -1,0 +1,1 @@
+Defines the database tables, columns, and relationships, creating the database STRUCTURE

@@ -1,0 +1,1 @@
+# Stores configuration variables (like database or API Keys)

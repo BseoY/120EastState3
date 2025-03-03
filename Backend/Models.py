@@ -1,0 +1,1 @@
+#Defines databse schema and maps python classes to database tables using sqlalchemy
