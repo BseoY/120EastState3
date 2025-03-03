@@ -1,0 +1,6 @@
+The assets folder will simply be used for images, icons, fonts, 
+and other static resources that don’t change dynamically like the 
+120 East State logo
+
+Files in the public/ folder can be accessed directly via their URLs (e.g., /logo.png).
+
