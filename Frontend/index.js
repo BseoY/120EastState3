@@ -1,0 +1,1 @@
+Renders the App.py component into the root element in index.html
