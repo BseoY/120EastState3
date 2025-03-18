@@ -3,9 +3,11 @@
 # (Main flask file? not sure what to do here)
 
 from flask import Flask, jsonify, render_template
+import flask
 from flask_sqlalchemy import SQLAlchemy
 import os
-
+import Auth
+import dotenv
 #-----------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -14,6 +16,10 @@ app = Flask(__name__)
 
 # Configure your PostgreSQL database connection.
 # Change username, password, and dbname as needed.
+
+dotenv.load_dotenv()
+
+app.secret_key = os.environ['APP_SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://postgres:password@localhost/archive'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -37,6 +43,22 @@ def about():
 @app.route('/ContactUs')
 def contact():
     return render_template("contact.html")
+
+@app.route('/Login')
+def login():
+    user_info = Auth.authenticate()
+    # print(user_info)
+    username = user_info['email']
+
+    prev_author = flask.request.cookies.get('prev_author')
+    if prev_author is None:
+        prev_author = '(None)'
+
+    html_code = flask.render_template('searchform.html',
+        username=username,
+        prev_author=prev_author)
+    response = flask.make_response(html_code)
+    return response
 
 
 # API endpoint to get all archive items
