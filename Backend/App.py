@@ -2,7 +2,7 @@
 # Main react component that renders everything by combining all components
 # (Main flask file? not sure what to do here)
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -27,7 +27,7 @@ class ArchiveItem(db.Model):
 
 @app.route('/')
 def index():
-    return "Hello, this is the Flask backend."
+    return render_template("index.html")
 
 # API endpoint to get all archive items
 @app.route('/api/items', methods=['GET'])
