@@ -29,6 +29,16 @@ class ArchiveItem(db.Model):
 def index():
     return render_template("index.html")
 
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
+
+@app.route('/ContactUs')
+def contact():
+    return render_template("contact.html")
+
+
 # API endpoint to get all archive items
 @app.route('/api/items', methods=['GET'])
 def get_items():
