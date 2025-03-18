@@ -11,11 +11,13 @@ import dotenv
 #-----------------------------------------------------------------------
 
 app = Flask(__name__)
+import datetime
 
 #-----------------------------------------------------------------------
 
 # Configure your PostgreSQL database connection.
 # Change username, password, and dbname as needed.
+# Secret Key is "36a3b936b986082dcfcbb314151043b741224c612ddc21917a9e4eb0fb030423"
 
 dotenv.load_dotenv()
 
