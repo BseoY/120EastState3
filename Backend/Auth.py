@@ -5,7 +5,6 @@
 # Author: Bob Dondero
 #   With lots of help from https://realpython.com/flask-google-login/
 #-----------------------------------------------------------------------
-
 import os
 import json
 import requests

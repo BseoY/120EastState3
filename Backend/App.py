@@ -20,13 +20,14 @@ import datetime
 # Secret Key is "36a3b936b986082dcfcbb314151043b741224c612ddc21917a9e4eb0fb030423"
 
 dotenv.load_dotenv()
-
+"""
 app.secret_key = os.environ['APP_SECRET_KEY']
+"""
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://postgres:password@localhost/archive'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
+"""
 # User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -95,7 +96,8 @@ class AdminAction(db.Model):
 
     def __repr__(self):
         return f'<AdminAction {self.action}>'
-    
+"""
+
 @app.route('/')
 def index():
     return render_template("index.html")
