@@ -6,7 +6,9 @@ from flask import Flask, jsonify, render_template
 import flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+"""
 import Auth
+"""
 import dotenv
 #-----------------------------------------------------------------------
 
