@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+
+# Build directories
+build/
+dist/
+
+# React build files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# MacOS specific files
+.DS_Store
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Operating system files
+Thumbs.db
+ehthumbs.db
