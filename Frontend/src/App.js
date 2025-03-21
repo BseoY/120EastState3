@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import "./styles/App.css"
 
 function App() {
   const [items, setItems] = useState([]);
@@ -13,7 +14,7 @@ function App() {
 
   return (
     <div>
-      <h1>Community Archive</h1>
+      <h1 className='red'>Community Archive</h1>
       <p>Items from the backend:</p>
       <ul>
         {items.length > 0 ? (
