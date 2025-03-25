@@ -2,10 +2,13 @@
 # Main react component that renders everything by combining all components
 # (Main flask file? not sure what to do here)
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_cors import CORS
+from Models import Message
+from Models import db
 """
 import Auth
 """
@@ -13,6 +16,8 @@ import dotenv
 #-----------------------------------------------------------------------
 
 app = Flask(__name__)
+CORS(app)
+
 import datetime
 
 #-----------------------------------------------------------------------
@@ -25,80 +30,31 @@ dotenv.load_dotenv()
 """
 app.secret_key = os.environ['APP_SECRET_KEY']
 """
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://postgres:password@localhost/archive'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://test1:120ES3@127.0.0.1:5432/testdb')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
 
-db = SQLAlchemy(app)
-"""
-# User Table
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    google_id = db.Column(db.String(120), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    name = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # e.g., writer or admin
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<User {self.name}>'
-
-# Posts Table
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    tag = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(50), nullable=False)  # e.g., pending, approved, rejected
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    date_updated = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user = db.relationship('User', backref=db.backref('posts', lazy=True))
-
-    def __repr__(self):
-        return f'<Post {self.title}>'
-
-# Media Table
-class Media(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    url = db.Column(db.String(200), nullable=False)
-    media_type = db.Column(db.String(50), nullable=False)  # e.g., image, video
-    caption = db.Column(db.String(500), nullable=True)
-
-    post = db.relationship('Post', backref=db.backref('media', lazy=True))
-
-    def __repr__(self):
-        return f'<Media {self.url}>'
-
-# Announcements Table
-class Announcement(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user = db.relationship('User', backref=db.backref('announcements', lazy=True))
-
-    def __repr__(self):
-        return f'<Announcement {self.title}>'
-
-# Administration Actions Table
-class AdminAction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    action = db.Column(db.String(100), nullable=False)  # e.g., approved, rejected, deleted
-    date_of_action = db.Column(db.DateTime, default=datetime.utcnow)
-    feedback = db.Column(db.String(500), nullable=True)
-
-    user = db.relationship('User', backref=db.backref('admin_actions', lazy=True))
-    post = db.relationship('Post', backref=db.backref('admin_actions', lazy=True))
-
-    def __repr__(self):
-        return f'<AdminAction {self.action}>'
-"""
+@app.route('/api/message', methods=['GET', 'POST'])
+def handle_messages():
+    if request.method == 'POST':
+        # Get JSON data from React
+        data = request.get_json()
+        print("Parsed JSON:", data)
+        
+        # Create a new message in the database
+        new_message = Message(content=data['message'])
+        db.session.add(new_message)
+        db.session.commit()
+        
+        # Return success response
+        return jsonify({"message": "Message saved successfully!"}), 201
+    
+    elif request.method == 'GET':
+        # Fetch all messages from the database
+        messages = Message.query.all()
+        
+        # Convert messages to JSON and return
+        return jsonify([{"id": msg.id, "content": msg.content} for msg in messages])
 
 @app.route('/')
 def index():
@@ -131,6 +87,7 @@ def login():
 
 
 # API endpoint to get all archive items
+"""
 @app.route('/api/items', methods=['GET'])
 def get_items():
     items = ArchiveItem.query.all()
@@ -138,9 +95,10 @@ def get_items():
         {'id': item.id, 'title': item.title, 'description': item.description}
         for item in items
     ])
+"""
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     # Create tables if they don't exist
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

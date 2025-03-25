@@ -7,7 +7,13 @@ function App() {
 
   useEffect(() => {
     // Fetch items from the backend API
-    fetch('http://localhost:5000/api/items')
+    fetch('http://localhost:5000/api/items', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    })
       .then(response => response.json())
       .then(data => setItems(data))
       .catch(error => console.error("Error fetching items:", error));

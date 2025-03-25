@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import axios from 'axios';
 
 function Form() {
   const [formData, setFormData] = useState({
@@ -12,9 +13,17 @@ function Form() {
       [name]: value,
     });
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const response = await axios.post('http://localhost:5000/api/message', formData);
+      alert(response.data.message);  // "Item added successfully!"
+      // Clear form after submission
+      setFormData({ name: '', description: '' });
+    } catch (error) {
+      console.error('Error adding item:', error);
+      alert('Failed to add item');
+    }
   }
 
   return (
