@@ -7,7 +7,7 @@ function App() {
 
   useEffect(() => {
     // Fetch items from the backend API
-    fetch('http://localhost:5000/api/items', {
+    fetch('http://localhost:5001/api/message', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
