@@ -23,3 +23,6 @@ dist/
 # Operating system files
 Thumbs.db
 ehthumbs.db
+
+__pycache__/
+*.pyc
