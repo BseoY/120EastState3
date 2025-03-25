@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import "../styles/App.css";
 import Form from "./Form.js";
+import Grid from "./Grid.js";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -42,17 +43,9 @@ function App() {
       <img src="Assets/Image/headimg.png"></img>
       <h2>Our Mission</h2>
       <p>120 East Group aims to preserve and share the hidden story of a historic church with nearly 300 years of history. A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?</p>
-      <p>Items from the backend:</p>
-      <ul>
-        {messages.length > 0 ? (
-          messages.map(message => (
-            <li key={message.id}>{message.content}</li>
-          ))
-        ) : (
-          <li>No items found.</li>
-        )}
-      </ul>
       <Form onNewMessage={newMessage => setMessages([...messages, newMessage])} />
+      <p>Items from the backend:</p>
+      <Grid messages={messages} loading={loading} error={error} />
     </div>
   );
 }
