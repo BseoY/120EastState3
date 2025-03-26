@@ -1,11 +1,20 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 10px;
+  gap: 20px;
   padding: 20px;
 }
 
+.post-footer {
+  margin-top: auto; /* Pushes tag & date to the bottom */
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Adds spacing between tag and date */
+}
+
 .post-box {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
   background-color: #F1BA55;  /* Light background color for the post box */
   border: 1px solid #ccc;  /* Border around the post box */
   border-radius: 8px;  /* Rounded corners */
@@ -33,6 +42,7 @@
 }
 
 .post-tag {
+  margin-top: auto;
   font-style: italic;  /* Make the tag text italic */
   color: #695c39;         /* Light color for the tag */
   margin-top: 5px;     /* Spacing between content and tag */
@@ -41,7 +51,8 @@
 .post-date {
   font-size: 12px;     /* Smaller font size for date */
   color: #888;         /* Lighter color for the date */
-  margin-top: 10px;
+  margin-top: auto;
+  align-items: end;
 }
 
 .error {

@@ -15,11 +15,13 @@ function Grid({ posts = [], loading, error }) {
             <div className="post-content">
               <p>{post.content}</p>
             </div>
-            <div className="post-tag">
-              <span>{post.tag ? post.tag : "No tag"}</span>
-            </div>
-            <p className="post-date" style={{ textIndent: '20px' }}>Created at {post.date_created}</p>
+            <div className="post-footer">
+          <div className="post-tag">
+            <span>{post.tag ? post.tag : "No tag"}</span>
           </div>
+          <p className="post-date">Created at {post.date_created}</p>
+        </div>
+      </div>
         ))
       ) : (
         <p>No items found.</p>
