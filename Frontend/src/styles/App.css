@@ -121,36 +121,37 @@ img.header-image {
 }
 
 #title input{
-  width: 150px;
+  width: 80%;
 }
 
 #tag input{
-  width:150px;
+  width: 80%;
 }
 /* Flexbox container for Title and Tag */
 .form-row {
   border: #000000;
-  display: flex;
-  justify-content: space-between;  /* Space out the Title and Tag */
-  gap: 20px;  /* Add some space between Title and Tag */
+  display: flex; /* Space out the Title and Tag */ /* Add some space between Title and Tag */
 }
 
 /* Style for individual form groups */
 .form-group {
-  width: 48%;  /* Adjust the width of title and tag inputs */
+  width: 50%;  /* Adjust the width of title and tag inputs */
 }
 
 textarea {
-  width: 100%;
+  width: 90%;
   height: 200px;  /* Make the content textarea bigger */
   padding: 10px;
 }
 
 /* Optional: Styling for the form */
 form {
-  max-width: 800px;  /* Limit form width */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 850px;  /* Limit form width */
   margin: 0 auto;  /* Center the form */
-  padding: 20px;
+  padding: 0px;
   background-color: #f9f9f9;
   border-radius: 8px;
 }

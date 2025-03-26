@@ -17,6 +17,7 @@
 .post-box:hover {
   background-color: #1F8CB5;  /* Change background color when hovered */
   transform: scale(1.05);  /* Slight zoom effect on hover */
+  cursor: pointer;
 }
 
 .post-title {
