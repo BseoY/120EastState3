@@ -1,19 +1,20 @@
 import React from 'react';
 import "../styles/Nav.css";
+import Sidebar from "./Sidebar.js"
 
 function Nav() {
   return (
     <nav className='navbar'>
       <div class='nav-logo'>
-        <a>LOGO</a>
+        <img src="/120logo.png"></img>
       </div>
       
       <div className='nav-profile'>
-        Log in
+        <button>Log in</button>
       </div>
 
       <div className='dropdown'>
-        drop
+        <Sidebar />
       </div>
     </nav>
   );

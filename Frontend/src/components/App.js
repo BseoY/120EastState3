@@ -39,6 +39,10 @@ function App() {
 
   return (
     <div className="app-container">
+      <header>
+        <Nav />
+      </header>
+
       <div className="content-container">
         <p id="ESStart">120 East State's</p>
         <h1>Trenton Archive</h1>
