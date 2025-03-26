@@ -2,12 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import "../styles/App.css";
 import Grid from "./Grid.js";
-<<<<<<< HEAD
 import Nav from "./Nav.js";
-=======
 import Form from "./Form.js";
-
->>>>>>> e2a5c635c746e110b748a735dc38eda9abff121d
 
 function App() {
   const [posts, setPosts] = useState([]);
