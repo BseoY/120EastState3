@@ -1,6 +1,6 @@
 import React from 'react';
 import "../styles/Nav.css";
-import Sidebar from "./Sidebar.js"
+import Sidebar from "./Sidebar"
 
 function Nav() {
   return (
