@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import "../styles/App.css";
 import Form from "./Form.js";
 import Grid from "./Grid.js";
+import Nav from "./Nav.js";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -38,6 +39,7 @@ function App() {
 
   return (
     <div>
+      <Nav />
       <h3>120 East State's</h3>
       <h1>Trenton Archive</h1>
       <img src="Assets/Image/headimg.png"></img>
