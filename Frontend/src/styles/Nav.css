@@ -1,6 +1,14 @@
 .navbar {
   display: flex;
-  width: 100vw;
   justify-content: space-between;
-  background-color: rgb(186, 186, 186);
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid grey;
+}
+.nav-logo {
+  display: flex;
+  justify-content: center;
+}
+.nav-logo img {
+  max-width: 50px;
 }
