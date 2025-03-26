@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
-from Models import db, Message
+from Models import db, Post
 import os
 import dotenv
 from datetime import datetime
@@ -22,36 +22,61 @@ with app.app_context():
     db.create_all()
 
 # API Routes
-@app.route('/api/message', methods=['GET', 'POST','OPTIONS'])
+@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
 def handle_message():
     if request.method == 'OPTIONS':
-        # Handle preflight request
+        # Handle preflight request for CORS
         response = jsonify({'status': 'preflight'})
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
         response.headers.add('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Max-Age', '86400')  # 24 hours
         return response
-    
+
     elif request.method == 'POST':
         data = request.get_json()
-        if not data or 'content' not in data:
-            return jsonify({'error': 'Content is required'}), 400
-            
+        # Check if title and content are provided
+        if not data or 'title' not in data or 'content' not in data:
+            return jsonify({'error': 'Title and content are required'}), 400
+
         try:
-            new_message = Message(content=data['content'])
-            db.session.add(new_message)
+            # Create the new post
+            new_post = Post(  # Use Post model
+                title=data['title'],
+                content=data['content'],
+                tag=data.get('tag', None)  # Optional field
+            )
+            db.session.add(new_post)
             db.session.commit()
-            return jsonify({'message': 'Message added successfully!'}), 201
+            return jsonify({
+                'message': 'Post added successfully!',
+                'post': {
+                    'id': new_post.id,
+                    'title': new_post.title,
+                    'content': new_post.content,
+                    'tag': new_post.tag
+                }
+            }), 201
         except Exception as e:
             db.session.rollback()
+            print(f"Error occurred: {e}")  # Log the error
             return jsonify({'error': str(e)}), 500
-    
-    elif request.method == 'GET':
-        messages = Message.query.all()
-        return jsonify([{'id': msg.id, 'content': msg.content} for msg in messages])
 
-# Frontend Routes
+    elif request.method == 'GET':
+        # Retrieve all posts from the database
+        try:
+            posts = Post.query.all()  # Use Post model here
+            return jsonify([{
+                'id': post.id,
+                'title': post.title,  # Include title
+                'content': post.content,  # Include content
+                'tag': post.tag,  # Include tag
+                'date_created':post.date_created
+            } for post in posts])
+        except Exception as e:
+            print(f"Error occurred while fetching posts: {e}")  # Log the error
+            return jsonify({'error': str(e)}), 500
+        
 @app.route('/')
 def index():
     return render_template("index.html")
