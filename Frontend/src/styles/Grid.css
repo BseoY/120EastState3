@@ -3,9 +3,48 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
   padding: 20px;
-  border: 1px solid black;
 }
 
-.grid-item {
-  border: 1px solid black;
+.post-box {
+  background-color: #F1BA55;  /* Light background color for the post box */
+  border: 1px solid #ccc;  /* Border around the post box */
+  border-radius: 8px;  /* Rounded corners */
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Adds a subtle shadow */
+  transition: background-color 0.3s ease, transform 0.3s ease;  /* Smooth transition for hover effect */
+}
+
+.post-box:hover {
+  background-color: #1F8CB5;  /* Change background color when hovered */
+  transform: scale(1.05);  /* Slight zoom effect on hover */
+}
+
+.post-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.post-content {
+  font-size: 3px !important; 
+  color: #000000;      /* Optional: change text color for better readability */
+  line-height: 1.6;  /* Optional: adjust line spacing for readability */
+}
+
+.post-tag {
+  font-style: italic;  /* Make the tag text italic */
+  color: #695c39;         /* Light color for the tag */
+  margin-top: 5px;     /* Spacing between content and tag */
+}
+
+.post-date {
+  font-size: 12px;     /* Smaller font size for date */
+  color: #888;         /* Lighter color for the date */
+  margin-top: 10px;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
 }
