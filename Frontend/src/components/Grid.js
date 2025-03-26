@@ -1,24 +1,31 @@
 import React from 'react';
 import "../styles/Grid.css";
 
-function Grid({messages, loading, error}) {
-  //if (loading) return <p>Loading messages...</p>;
+function Grid({ posts = [], loading, error }) {
   if (error) return <p className="error">Error: {error}</p>;
 
   return (
     <div className='grid-container'>
-      {messages.length > 0 ? (
-        messages.map(message => (
-          <div key={message.id} className="grid-item">
-            <h3>Message #{message.id}</h3>
-            <p>{message.content}</p>
+      {posts.length > 0 ? (
+        posts.map((post, index) => (
+          <div className='post-box' key={post.id || index}>
+            <div className="post-title">
+              <strong>{post.title}</strong>
+            </div>
+            <div className="post-content">
+              <p>{post.content}</p>
+            </div>
+            <div className="post-tag">
+              <span>{post.tag ? post.tag : "No tag"}</span>
+            </div>
+            <p className="post-date" style={{ textIndent: '20px' }}>Created at {post.date_created}</p>
           </div>
         ))
       ) : (
-        <p>No items found in the archive.</p>
+        <p>No items found.</p>
       )}
     </div>
-  )
+  );
 }
 
 export default Grid;
