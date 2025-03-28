@@ -15,6 +15,9 @@ CORS(app)
 # Configure Cloudinary
 configure_cloudinary()
 
+
+
+
 # Load environment variables
 dotenv.load_dotenv()
 

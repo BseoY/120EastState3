@@ -43,41 +43,40 @@ function Form() {
       fileInputRef.current.value = "";
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) {
       setError("Title and content are required");
       return;
     }
-
+  
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-
+  
     try {
       let imageUrl = null;
-
+  
       // Upload image if selected
       if (selectedImage) {
-        const formData = new FormData();
-        formData.append('file', selectedImage);
-        
+        const imageFormData = new FormData();
+        imageFormData.append('file', selectedImage);
+  
         const uploadResponse = await axios.post(
           'http://localhost:5001/api/upload',
-          formData,
+          imageFormData,
           {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           }
         );
-        
+  
         if (uploadResponse.data.success) {
           imageUrl = uploadResponse.data.image_url;
         }
       }
-
+  
       // Submit post with image URL if available
       const response = await axios.post(
         'http://localhost:5001/api/posts',
@@ -86,7 +85,7 @@ function Form() {
           content: formData.content,
           tag: formData.tag || null,
           image: imageUrl,
-          date_created: formData.date_created
+          date_created: new Date().toISOString(), // Add the current timestamp here
         },
         {
           headers: {
@@ -94,7 +93,7 @@ function Form() {
           },
         }
       );
-
+  
       setSuccess(true);
       setFormData({ title: "", content: "", tag: "" }); // Clear form on success
       setSelectedImage(null);
@@ -114,7 +113,6 @@ function Form() {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div>
       <form onSubmit={handleSubmit}>
