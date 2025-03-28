@@ -16,6 +16,7 @@ class Post(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     tag = db.Column(db.String(100), nullable=True)
+    image_url = db.Column(db.String(500), nullable=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     """
     user = db.relationship('User', backref=db.backref('posts', lazy=True))

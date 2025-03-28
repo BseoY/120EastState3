@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from 'axios';
 import "../styles/App.css";
 
@@ -8,6 +8,9 @@ function Form() {
     content: "",  // Add content field
     tag: "",      // Add tag field
   });
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -18,6 +21,27 @@ function Form() {
       ...formData,
       [name]: value,
     });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -32,12 +56,36 @@ function Form() {
     setSuccess(false);
 
     try {
+      let imageUrl = null;
+
+      // Upload image if selected
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append('file', selectedImage);
+        
+        const uploadResponse = await axios.post(
+          'http://localhost:5001/api/upload',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        
+        if (uploadResponse.data.success) {
+          imageUrl = uploadResponse.data.image_url;
+        }
+      }
+
+      // Submit post with image URL if available
       const response = await axios.post(
-        'http://localhost:5001/api/posts',  // Ensure this is the correct endpoint
+        'http://localhost:5001/api/posts',
         {
           title: formData.title,
           content: formData.content,
-          tag: formData.tag || null,  // If tag is empty, send null
+          tag: formData.tag || null,
+          image: imageUrl,
           date_created: formData.date_created
         },
         {
@@ -49,13 +97,18 @@ function Form() {
 
       setSuccess(true);
       setFormData({ title: "", content: "", tag: "" }); // Clear form on success
+      setSelectedImage(null);
+      setImagePreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       console.log('Server response:', response.data);
     } catch (error) {
-      console.error('Error adding message:', error);
+      console.error('Error adding post:', error);
       setError(
         error.response?.data?.message || 
         error.message || 
-        'Failed to send message'
+        'Failed to submit post'
       );
     } finally {
       setIsSubmitting(false);
@@ -104,6 +157,37 @@ function Form() {
             required
             placeholder="Write your post content here"
           />
+        </div>
+
+        {/* Image Upload */}
+        <div className="form-group">
+          <label htmlFor="image">Image (optional)</label>
+          <div className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleImageChange}
+              accept="image/*"
+              ref={fileInputRef}
+              className="image-input"
+            />
+            <div className="file-upload-label">Choose a file</div>
+          </div>
+          
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="image-preview-container">
+              <img src={imagePreview} alt="Preview" className="image-preview" />
+              <button 
+                type="button" 
+                onClick={handleImageRemove} 
+                className="remove-image-btn"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
   
         {/* Submit Button */}

@@ -21,6 +21,7 @@
   padding: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Adds a subtle shadow */
   transition: background-color 0.3s ease, transform 0.3s ease;  /* Smooth transition for hover effect */
+  height: 100%;
 }
 
 .post-box:hover {
@@ -59,4 +60,59 @@
   color: red;
   font-weight: bold;
   margin-top: 10px;
+}
+
+/* Image styles */
+.post-image {
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 200px;
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+/* Image preview styles for the form */
+.image-preview-container {
+  margin-top: 10px;
+  position: relative;
+  max-width: 300px;
+}
+
+.image-preview {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+}
+
+.remove-image-btn:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.image-input {
+  margin-top: 5px;
+  width: 100%;
 }

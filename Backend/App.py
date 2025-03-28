@@ -4,10 +4,16 @@ from Models import db, Post
 import os
 import dotenv
 from datetime import datetime
+import cloudinary
+import cloudinary.uploader
+from cloudinary_config import configure_cloudinary
 
 # Initialize app
 app = Flask(__name__)
 CORS(app)
+
+# Configure Cloudinary
+configure_cloudinary()
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -40,11 +46,23 @@ def handle_message():
             return jsonify({'error': 'Title and content are required'}), 400
 
         try:
+            # Handle image upload if present
+            image_url = None
+            if 'image' in data and data['image']:
+                # Upload image to Cloudinary
+                upload_result = cloudinary.uploader.upload(
+                    data['image'],
+                    folder="120EastState3",  # Organize images in a folder
+                    resource_type="auto"
+                )
+                image_url = upload_result.get('secure_url')
+
             # Create the new post
             new_post = Post(  # Use Post model
                 title=data['title'],
                 content=data['content'],
-                tag=data.get('tag', None)  # Optional field
+                tag=data.get('tag', None),  # Optional field
+                image_url=image_url  # Add the image URL
             )
             db.session.add(new_post)
             db.session.commit()
@@ -54,7 +72,8 @@ def handle_message():
                     'id': new_post.id,
                     'title': new_post.title,
                     'content': new_post.content,
-                    'tag': new_post.tag
+                    'tag': new_post.tag,
+                    'image_url': new_post.image_url
                 }
             }), 201
         except Exception as e:
@@ -71,6 +90,7 @@ def handle_message():
                 'title': post.title,  # Include title
                 'content': post.content,  # Include content
                 'tag': post.tag,  # Include tag
+                'image_url': post.image_url,  # Include image URL
                 'date_created':post.date_created
             } for post in posts])
         except Exception as e:
@@ -88,6 +108,32 @@ def about():
 @app.route('/ContactUs')
 def contact():
     return render_template("contact.html")
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    try:
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder="120EastState3",
+            resource_type="auto"
+        )
+        
+        # Return the image URL
+        return jsonify({
+            'success': True,
+            'image_url': upload_result.get('secure_url')
+        })
+    except Exception as e:
+        print(f"Error uploading to Cloudinary: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

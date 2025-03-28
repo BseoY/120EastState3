@@ -5,8 +5,8 @@ import Sidebar from "./Sidebar"
 function Nav() {
   return (
     <nav className='navbar'>
-      <div class='nav-logo'>
-        <img src="/120logo.png"></img>
+      <div className='nav-logo'>
+        <img src="/120logo.png" alt="120 East State Logo"></img>
       </div>
       
       <div className='nav-profile'>
