@@ -1,7 +1,7 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 45px 10px;
   padding: 20px;
 }
 
@@ -64,17 +64,15 @@
 
 /* Image styles */
 .post-image {
-  margin: 10px 0;
-  border-radius: 8px;
-  overflow: hidden;
-  max-height: 200px;
+  border-radius: 12px; /* Apply the border-radius to the container */
+  overflow: hidden;    /* Ensure the image fits within the container without spilling over */
+  width: 100%;         /* Ensures the container width is consistent */
 }
 
 .post-image img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  display: block;
+  width: 100%;         /* The image will fill the container's width */
+  height: auto;        /* Maintain the aspect ratio */
+  object-fit: contain; /* Make sure the image fits inside the container */
 }
 
 /* Image preview styles for the form */
@@ -116,3 +114,4 @@
   margin-top: 5px;
   width: 100%;
 }
+

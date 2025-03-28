@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import "../styles/Grid.css";
 
 function Grid({ posts = [], loading, error }) {
+  const [imageDimensions, setImageDimensions] = useState({});
+
+  const handleImageLoad = (e, postId) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    setImageDimensions(prevState => ({
+      ...prevState,
+      [postId]: { width: naturalWidth, height: naturalHeight },
+    }));
+  };
+
   if (error) return <p className="error">Error: {error}</p>;
 
   return (
@@ -14,7 +24,17 @@ function Grid({ posts = [], loading, error }) {
             </div>
             {post.image_url && (
               <div className="post-image">
-                <img src={post.image_url} alt={post.title} />
+                <img 
+                  src={post.image_url} 
+                  alt={post.title} 
+                  onLoad={(e) => handleImageLoad(e, post.id || index)} 
+                  style={{
+                    maxWidth: '100%',  // Ensures image width is contained within the parent
+                    maxHeight: '300px', // Optional: Adjust to fit your design
+                    borderRadius: '12px',  // Make the image corners round
+                    objectFit: 'contain',  // Make sure the image fits without distortion
+                  }}
+                />
               </div>
             )}
             <div className="post-content">
