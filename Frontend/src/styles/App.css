@@ -5,6 +5,8 @@
 .form-group {
   margin-bottom: 15px; /* Space between form elements */
   text-align:center;
+  flex-direction: column;
+  display: flex;
 }
 
 label {
@@ -179,7 +181,13 @@ img.header-image {
 
 /* Style for individual form groups */
 .form-group {
-  width: 50%;  /* Adjust the width of title and tag inputs */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;  /* Ensure full width */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 textarea {
@@ -268,4 +276,21 @@ textarea {
   font-size: 30px;  /* Adjust the font size */
   margin-bottom: 15px;  /* Space below the text */
   color: #333;  /* Set text color */
+}
+
+.custom-file-upload {
+  display: flex;
+  justify-content: center;   /* Horizontally center the content */
+  align-items: center;       /* Vertically center the content */
+}
+
+
+.image-preview-container {
+  display: flex;
+  justify-content: center;    /* Horizontally center the image */
+  align-items: center;        /* Vertically center the image */
+  margin-top: 20px;           /* Optional: Add spacing above the preview */
+  width: 100%;                /* Ensure the container spans full width */
+  margin-left: auto;          /* Center horizontally within parent */
+  margin-right: auto;         /* Center horizontally within parent */
 }
