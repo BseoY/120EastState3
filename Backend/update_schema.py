@@ -2,7 +2,7 @@ from flask import Flask
 from Models import db, Post
 import os
 import dotenv
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, text
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -23,7 +23,9 @@ with app.app_context():
     
     if 'image_url' not in columns:
         print("Adding image_url column to Post table...")
-        db.engine.execute('ALTER TABLE post ADD COLUMN image_url VARCHAR(500)')
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE post ADD COLUMN image_url VARCHAR(500)'))
+            conn.commit()
         print("Column added successfully!")
     else:
         print("image_url column already exists in Post table.")
