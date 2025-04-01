@@ -1,8 +1,21 @@
 import React from 'react';
+import axios from 'axios';
 import "../styles/Nav.css";
 import Sidebar from "./Sidebar"
 
-function Nav() {
+function Nav({ user, isAuthenticated, onLogout }) {
+  const handleGoogleLogin = async () => {
+    try {
+      // Get the Google login URL from the backend
+      const response = await axios.get('http://localhost:5001/api/auth/login');
+      
+      // Redirect to Google login page
+      window.location.href = response.data.redirect_url;
+    } catch (error) {
+      console.error('Error initiating Google login:', error);
+    }
+  };
+
   return (
     <nav className='navbar'>
       <div className='nav-logo'>
@@ -10,7 +23,20 @@ function Nav() {
       </div>
       
       <div className='nav-profile'>
-        <button>Log in</button>
+        {isAuthenticated ? (
+          <div className="user-nav-info">
+            {user?.profile_pic && (
+              <img 
+                src={user.profile_pic} 
+                alt={user.name} 
+                className="nav-profile-pic"
+              />
+            )}
+            <button onClick={onLogout}>Log out</button>
+          </div>
+        ) : (
+          <button onClick={handleGoogleLogin}>Log in</button>
+        )}
       </div>
 
       <div className='dropdown'>

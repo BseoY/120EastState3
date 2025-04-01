@@ -4,11 +4,43 @@ import "./styles/App.css";
 import Grid from "./components/Grid";
 import Nav from "./components/Nav";
 import Form from "./components/Form";
+import Login from "./components/Login";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Check authentication status when the component mounts
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/api/auth/user", {
+          withCredentials: true
+        });
+        
+        if (response.data.authenticated) {
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    
+    checkAuth();
+  }, []);
 
   // Fetch posts when the component mounts
   useEffect(() => {
@@ -18,6 +50,7 @@ function App() {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true
         });
 
         setPosts(response.data); // Store the posts in state
@@ -37,10 +70,36 @@ function App() {
     setPosts((prevPosts) => [...prevPosts, newPost]);
   };
 
+  // Handle user login
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      // Call the logout endpoint with POST method
+      await axios.post('http://localhost:5001/api/auth/logout', {}, {
+        withCredentials: true
+      });
+      
+      // Update local state
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <div className="app-container">
       <header>
-        <Nav />
+        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        {/* UserProfile is now optional since Nav will show login/logout */}
+        {false && isAuthenticated && user && (
+          <UserProfile user={user} onLogout={handleLogout} />
+        )}
       </header>
 
       <div className="content-container">
@@ -50,9 +109,14 @@ function App() {
         <h2>Our Mission</h2>
         <p>120 East Group aims to preserve and share the hidden story of a historic church with nearly 300 years of history. A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?</p>
         
-        {/* Pass the handleNewPost function to Form */}
-        <Form onNewPost={handleNewPost} />
-  
+        {/* Show login or form based on authentication status */}
+        {authChecked && (
+          isAuthenticated ? (
+            <Form onNewPost={handleNewPost} user={user} />
+          ) : (
+            <Login onLoginSuccess={handleLoginSuccess} />
+          )
+        )}
       </div>
       <p id="CreatedStories">Created Stories:</p>
       {/* Grid stays outside of the content-container */}

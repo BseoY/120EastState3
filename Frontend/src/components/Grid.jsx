@@ -19,8 +19,22 @@ function Grid({ posts = [], loading, error }) {
       {posts.length > 0 ? (
         posts.map((post, index) => (
           <div className='post-box' key={post.id || index}>
-            <div className="post-title">
-              <strong>{post.title}</strong>
+            <div className="post-header">
+              <div className="post-author">
+                {post.profile_pic ? (
+                  <img 
+                    src={post.profile_pic} 
+                    alt={post.author} 
+                    className="author-profile-pic"
+                  />
+                ) : (
+                  <div className="author-profile-pic-placeholder"></div>
+                )}
+                <span className="author-name">{post.author}</span>
+              </div>
+            </div>
+            <div className="post-title-container">
+              <strong className="post-title">{post.title}</strong>
             </div>
             {post.image_url && (
               <div className="post-image">
@@ -33,6 +47,19 @@ function Grid({ posts = [], loading, error }) {
                     maxHeight: '300px', // Optional: Adjust to fit your design
                     borderRadius: '12px',  // Make the image corners round
                     objectFit: 'contain',  // Make sure the image fits without distortion
+                  }}
+                />
+              </div>
+            )}
+            {post.video_url && (
+              <div className="post-video">
+                <video
+                  src={post.video_url}
+                  controls
+                  style={{
+                    maxWidth: '100%',  // Ensures video width is contained within the parent
+                    maxHeight: '300px', // Optional: Adjust to fit your design
+                    borderRadius: '12px',  // Make the video corners round
                   }}
                 />
               </div>
