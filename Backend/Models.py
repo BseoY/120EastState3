@@ -17,20 +17,20 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     tag = db.Column(db.String(100), nullable=True)
     image_url = db.Column(db.String(500), nullable=True)
+    video_url = db.Column(db.String(500), nullable=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    """
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Allow null for backward compatibility
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
-    """
     def __repr__(self):
         return f'<Post {self.title}>'
-"""
 # User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     google_id = db.Column(db.String(120), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # e.g., writer or admin
+    profile_pic = db.Column(db.String(500), nullable=True)  # URL to Google profile picture
+    role = db.Column(db.String(50), default='user')  # e.g., user, writer, admin
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -78,4 +78,3 @@ class AdminAction(db.Model):
 
     def __repr__(self):
         return f'<AdminAction {self.action}>'
-"""
