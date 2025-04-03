@@ -23,6 +23,7 @@ class Post(db.Model):
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
     def __repr__(self):
         return f'<Post {self.title}>'
+    
 # User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

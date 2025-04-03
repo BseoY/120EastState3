@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
+import Carousel from "./components/Carousel";
 import Nav from "./components/Nav";
 import Form from "./components/Form";
 import Login from "./components/Login";
@@ -109,6 +110,8 @@ function App() {
         <h2>Our Mission</h2>
         <p>120 East Group aims to preserve and share the hidden story of a historic church with nearly 300 years of history. A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?</p>
         
+        <Carousel posts={posts} loading={loading} error={error} />
+
         {/* Show login or form based on authentication status */}
         {authChecked && (
           isAuthenticated ? (
