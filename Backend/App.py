@@ -267,17 +267,6 @@ def handle_message():
             print(f"Error occurred while fetching posts: {e}")  # Log the error
             return jsonify({'error': str(e)}), 500
         
-@app.route('/')
-def index():
-    return render_template("index.html")
-
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-@app.route('/ContactUs')
-def contact():
-    return render_template("contact.html")
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
 def upload_file():
@@ -341,6 +330,19 @@ if __name__ == '__main__':
 # This route was removed to avoid conflicts with the Google auth login route
 
 
+"""       
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
+@app.route('/ContactUs')
+def contact():
+    return render_template("contact.html")
+"""
 # API endpoint to get all archive items
 """
 @app.route('/api/items', methods=['GET'])
