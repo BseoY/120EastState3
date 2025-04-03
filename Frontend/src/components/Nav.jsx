@@ -18,8 +18,8 @@ function Nav({ user, isAuthenticated, onLogout }) {
 
   return (
     <nav className='navbar'>
-      <div className='nav-logo'>
-        <img src="/120logo.png" alt="120 East State Logo"></img>
+      <div>
+        <a href="/" className='nav-logo'><img src="/120logo.png" alt="120 East State Logo"></img></a>
       </div>
       
       <div className='nav-profile'>

@@ -103,14 +103,28 @@ function App() {
         )}
       </header>
 
-      <div className="content-container">
-        <p id="ESStart">120 East State's</p>
-        <h1>Trenton Archive</h1>
+      <section className="content-container">
+        <div className='title-div'>
+          <p id="ESStart">120 East State's</p>
+          <h1>Trenton Archive</h1>
+        </div>
+        <div className="hero-page">
         <img src="/headimg.png" alt="Header" className="header-image" />
-        <h2>Our Mission</h2>
-        <p>120 East Group aims to preserve and share the hidden story of a historic church with nearly 300 years of history. A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?</p>
-        
-        <Carousel posts={posts} loading={loading} error={error} />
+        <div className="hero-text">
+          <h2>Our Mission</h2>
+          <p>120 East Group aims to preserve and share the hidden story of a historic church
+            with nearly 300 years of history. A platform for local and global communities to
+              connect and rebuild an auditory of life in the old city of Trenton. What was life
+              like decades ago?
+          </p>
+        </div>
+        </div>
+        <p id="explore-text">Explore the archive</p>
+        <p id="caron">&#711;</p>
+      </section>
+
+      <section className="carousel-section">
+      <Carousel posts={posts} loading={loading} error={error} />
 
         {/* Show login or form based on authentication status */}
         {authChecked && (
@@ -120,10 +134,13 @@ function App() {
             <Login onLoginSuccess={handleLoginSuccess} />
           )
         )}
-      </div>
-      <p id="CreatedStories">Created Stories:</p>
-      {/* Grid stays outside of the content-container */}
-      <Grid posts={posts} loading={loading} error={error} />
+      </section>
+
+      <section className="stories">
+        <p id="CreatedStories">Created Stories:</p>
+        {/* Grid stays outside of the content-container */}
+        <Grid posts={posts} loading={loading} error={error} />
+      </section>
     </div>
   );
 }

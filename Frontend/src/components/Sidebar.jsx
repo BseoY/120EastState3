@@ -13,11 +13,10 @@ export default function Sidebar() {
     </button>
 
     <div className={`sidebar ${open ? "open" : ""}`}>
-      <button className='close-btn' onClick={() => setOpen(false)}>
-        &#x2715;
+      <button className='menu-btn' onClick={() => setOpen(false)}>
+        &#9776;
       </button>
 
-      <h2>120 East State</h2>
       <ul className='list'>
         <a>Home</a>
         <a>About</a>
