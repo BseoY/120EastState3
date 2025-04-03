@@ -1,3 +1,6 @@
+* {
+  margin: 0;
+}
 .App {
   width: 500px;
   background-color: red;
@@ -123,23 +126,96 @@ h1, h2, h3 {
   flex-direction: column;  /* Ensure content and grid stack vertically */
 }
 
-@media (max-width: 1000px) {
-  .content-container {
-    max-width: 350px;  /* Set a max-width */
-    width: 100%;        /* Allow it to fill the available space, but limited by max-width */
-    margin: 0 auto;     /* Center the content */
-    padding: 20px;
-  }
-}
-@media (width >= 1250px) {
+@media (width < 1000px) {
   .content-container {
     max-width: 100vw;  /* Set a max-width */
     width: 100%;        /* Allow it to fill the available space, but limited by max-width */
     margin: 0 auto;     /* Center the content */
   }
+
+  .title-div {
+    margin-top: 10px;
+    margin-bottom: 30px;
+  }
+
+  .header-image {
+    border-radius: 10px; /* Rounds the corners */
+    width: 500px;  /* Adjust the width to whatever size you want */
+    height: auto;  /* Maintain aspect ratio */
+    left: 0;
+  }
+
+  .hero-page {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 80%;
+    margin: 0 auto;
+  }
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+  #explore-text {
+    margin-top: 30px;
+    margin-bottom: 0;
+  }
+}
+@media (width >= 1000px) {
+  .content-container {
+    max-width: 100vw;  /* Set a max-width */
+    width: 100%;        /* Allow it to fill the available space, but limited by max-width */
+    margin: 0 auto;     /* Center the content */
+  }
+
+  .title-div {
+    margin-top: 10px;
+    margin-bottom: 50px;
+  }
+
+  .header-image {
+    border-radius: 10px; /* Rounds the corners */
+    width: 500px;  /* Adjust the width to whatever size you want */
+    height: auto;  /* Maintain aspect ratio */
+    left: 0;
+  }
+  .hero-page {
+    display: flex;
+    gap: 50px;
+    width: 80%;
+    margin: 0 auto;
+  }
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  #explore-text {
+    margin-top: 50px;
+    margin-bottom: 0;
+    font-weight: 300;
+  }
+}
+#caron {
+  font-size: 50px;
+  font-weight: 300;
+  color: #F9B800;
+  cursor: pointer;
+  width: 10px;
+  margin: 0 auto;
+  transition: scale, transform 0.2s;
+}
+#caron:hover {
+  scale: 1.1;
+  transform: translateY(3px);
 }
 
 
+.carousel-section {
+}
 
 body {
   background-color: #FFF9EB;
@@ -170,11 +246,7 @@ li {
   font-size: 16pt;
 }
 
-img.header-image {
-  border-radius: 10px; /* Rounds the corners */
-  width: 350px;  /* Adjust the width to whatever size you want */
-  height: auto;  /* Maintain aspect ratio */
-}
+
 
 #title input{
   width: 80%;
