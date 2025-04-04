@@ -1,5 +1,0 @@
-Flask
-gunicorn
-oauthlib
-python-dotenv
-requests
