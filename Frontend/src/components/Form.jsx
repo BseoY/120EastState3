@@ -2,6 +2,9 @@ import React, { useState, useRef } from "react";
 import axios from 'axios';
 import "../styles/App.css";
 
+// Predefined tags for dropdown selection
+const PREDEFINED_TAGS = ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5'];
+
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({
     title: "",    // Add title field
@@ -199,14 +202,18 @@ function Form({ onNewPost, user }) {
   
           <div className="form-group">
             <label htmlFor="tag-input">Tag (optional)</label>
-            <input
-              type="text"
+            <select
               id="tag-input"
               name="tag"
               value={formData.tag}
               onChange={handleChange}
-              placeholder="Enter a tag"
-            />
+              className="tag-dropdown"
+            >
+              <option value="">Select a tag</option>
+              {PREDEFINED_TAGS.map(tag => (
+                <option key={tag} value={tag}>{tag}</option>
+              ))}
+            </select>
           </div>
         </div>
   

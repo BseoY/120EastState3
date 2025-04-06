@@ -208,14 +208,66 @@ h1, h2, h3 {
   margin: 0 auto;
   transition: scale, transform 0.2s;
 }
-#caron:hover {
+p#caron:hover {
   scale: 1.1;
   transform: translateY(3px);
 }
 
-
-.carousel-section {
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
 }
+
+.archive-btn {
+  display: inline-block;
+  background-color: #1F8CB5;
+  color: white;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.archive-btn:hover {
+  background-color: #176d8c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Login Page Styles */
+.login-page-container {
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.login-container {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-container h2 {
+  color: #1F8CB5;
+  font-size: 24px;
+  margin-bottom: 10px;
+  font-family: 'Times New Roman', serif;
+}
+
+.login-container p {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* .carousel-section {
+} */
 
 body {
   background-color: #FFF9EB;
