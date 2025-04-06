@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
@@ -7,6 +8,48 @@ import Nav from "./components/Nav";
 import Form from "./components/Form";
 import Login from "./components/Login";
 import UserProfile from "./components/UserProfile";
+import Archive from "./components/Archive";
+
+function HomePage({ posts, loading, error, user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
+  return (
+    <div className="app-container">
+      <header>
+        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        {/* UserProfile is now optional since Nav will show login/logout */}
+        {false && isAuthenticated && user && (
+          <UserProfile user={user} onLogout={handleLogout} />
+        )}
+      </header>
+
+      <section className="content-container">
+        <div className='title-div'>
+          <p id="ESStart">120 East State's</p>
+          <h1>Trenton Archive</h1>
+        </div>
+        <div className="hero-page">
+        <img src="/headimg.png" alt="Header" className="header-image" />
+        <div className="hero-text">
+          <h2>Our Mission</h2>
+          <p>120 East Group aims to preserve and share the hidden story of a historic church
+            with nearly 300 years of history. A platform for local and global communities to
+              connect and rebuild an auditory of life in the old city of Trenton. What was life
+              like decades ago?
+          </p>
+        </div>
+        </div>
+        <p id="explore-text">Explore the archive</p>
+        <div className="action-buttons">
+          <Link to="/archive" className="archive-btn">View Archive</Link>
+        </div>
+        <p id="caron">&#711;</p>
+      </section>
+
+      <section className="carousel-section">
+        <Carousel posts={posts} loading={loading} error={error} />
+      </section>
+    </div>
+  );
+}
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -94,54 +137,33 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <header>
-        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-        {/* UserProfile is now optional since Nav will show login/logout */}
-        {false && isAuthenticated && user && (
-          <UserProfile user={user} onLogout={handleLogout} />
-        )}
-      </header>
-
-      <section className="content-container">
-        <div className='title-div'>
-          <p id="ESStart">120 East State's</p>
-          <h1>Trenton Archive</h1>
-        </div>
-        <div className="hero-page">
-        <img src="/headimg.png" alt="Header" className="header-image" />
-        <div className="hero-text">
-          <h2>Our Mission</h2>
-          <p>120 East Group aims to preserve and share the hidden story of a historic church
-            with nearly 300 years of history. A platform for local and global communities to
-              connect and rebuild an auditory of life in the old city of Trenton. What was life
-              like decades ago?
-          </p>
-        </div>
-        </div>
-        <p id="explore-text">Explore the archive</p>
-        <p id="caron">&#711;</p>
-      </section>
-
-      <section className="carousel-section">
-      <Carousel posts={posts} loading={loading} error={error} />
-
-        {/* Show login or form based on authentication status */}
-        {authChecked && (
-          isAuthenticated ? (
-            <Form onNewPost={handleNewPost} user={user} />
-          ) : (
-            <Login onLoginSuccess={handleLoginSuccess} />
-          )
-        )}
-      </section>
-
-      <section className="stories">
-        <p id="CreatedStories">Created Stories:</p>
-        {/* Grid stays outside of the content-container */}
-        <Grid posts={posts} loading={loading} error={error} />
-      </section>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={
+          <HomePage 
+            posts={posts} 
+            loading={loading} 
+            error={error} 
+            user={user} 
+            isAuthenticated={isAuthenticated} 
+            authChecked={authChecked} 
+            handleNewPost={handleNewPost} 
+            handleLoginSuccess={handleLoginSuccess} 
+            handleLogout={handleLogout} 
+          />
+        } />
+        <Route path="/archive" element={
+          <Archive 
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleNewPost={handleNewPost}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
+        } />
+      </Routes>
+    </Router>
   );
 }
 

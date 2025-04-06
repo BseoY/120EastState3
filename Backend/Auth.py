@@ -36,6 +36,17 @@ def login():
     authorization_endpoint = (
         google_provider_cfg['authorization_endpoint'])
 
+    # Store the referrer path in session to redirect back after login
+    referrer = flask.request.referrer or ''
+    if 'localhost:3000' in referrer:
+        path = referrer.split('localhost:3000')[-1]
+        if path:
+            flask.session['redirect_after_login'] = path
+        else:
+            flask.session['redirect_after_login'] = '/archive'
+    else:
+        flask.session['redirect_after_login'] = '/archive'
+        
     # Construct the request URL for Google login, providing scopes
     # to fetch the user's profile data.
     request_uri = client.prepare_request_uri(
@@ -134,7 +145,11 @@ def callback():
     # Save the user profile data in the session.
     flask.session['user_info'] = userinfo_response.json()
 
-    return flask.redirect(flask.url_for('index'))
+    # Get the intended destination from session or default to archive
+    redirect_path = flask.session.get('redirect_after_login', '/archive')
+    
+    # Redirect to the frontend with login success parameter
+    return flask.redirect(f'http://localhost:3000{redirect_path}?login_success=true')
 
 #-----------------------------------------------------------------------
 
