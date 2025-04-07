@@ -1,8 +1,9 @@
+import os
+import dotenv
+dotenv.load_dotenv()
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 from flask_cors import CORS
 from Models import db, Post, User
-import os
-import dotenv
 from datetime import timedelta
 import cloudinary
 import cloudinary.uploader
@@ -12,7 +13,6 @@ import requests
 import oauthlib.oauth2
 
 # Load environment variables
-dotenv.load_dotenv()
 
 # Initialize app
 app = Flask(__name__)
@@ -26,6 +26,9 @@ CORS(app, supports_credentials=True, resources={r"/*": {
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }})
+
+print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
+
 
 # Session config
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
