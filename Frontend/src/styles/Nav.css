@@ -4,6 +4,7 @@
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid grey;
+  width: 100%;
 }
 
 .nav-logo {
@@ -44,4 +45,52 @@
   object-fit: cover;
   border: 1px solid #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Nav Links Styles */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #4285f4;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #4285f4;
+  transition: width 0.3s;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.admin-link {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  color: #d73a49;
+  font-weight: 600;
+}
+
+.admin-link:hover {
+  background-color: #f1f2f3;
+  color: #cb2431;
 }

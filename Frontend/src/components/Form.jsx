@@ -3,7 +3,7 @@ import axios from 'axios';
 import "../styles/App.css";
 
 // Predefined tags for dropdown selection
-const PREDEFINED_TAGS = ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5'];
+const PREDEFINED_TAGS = ['Church', 'Family', 'History', 'Trenton', 'Community'];
 
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({

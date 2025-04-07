@@ -1,8 +1,17 @@
 .archive-container {
+  color: #11161A;
+}
+
+.archive-container > *:not(header) {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  color: #11161A;
+  padding: 0 20px;
+}
+
+.archive-container header {
+  width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 .archive-header {
