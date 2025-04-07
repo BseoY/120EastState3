@@ -84,7 +84,7 @@ def login():
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
     
     # Construct the request URL for Google login
-    redirect_uri = request.base_url + '/callback'
+    redirect_uri = url_for('callback', _external=True)
     request_uri = oauth_client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=redirect_uri,
