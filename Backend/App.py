@@ -134,75 +134,53 @@ def get_user():
     else:
         return jsonify({'authenticated': False})
 
-@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/posts', methods=['GET', 'POST'])
 def handle_message():
-    if request.method == 'OPTIONS':
-        # Handle preflight request for CORS
-        response = jsonify({'status': 'preflight'})
-        response.headers.add('Access-Control-Allow-Origin', os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"))
-        response.headers.add('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')  # Allow credentials
-        response.headers.add('Access-Control-Max-Age', '86400')  # 24 hours
-        return response
-
-    elif request.method == 'POST':
-        # Check if user is authenticated
+    if request.method == 'POST':
         user = get_current_user()
         if not user:
             return jsonify({'error': 'Authentication required'}), 401
             
         data = request.get_json()
-        # Check if title and content are provided
         if not data or 'title' not in data or 'content' not in data:
             return jsonify({'error': 'Title and content are required'}), 400
 
         try:
-            # Handle image upload if present
             image_url = None
             video_url = None
-            
-            # For now, just use the URLs if they're provided directly
+
             if 'image_url' in data and data['image_url']:
                 image_url = data['image_url']
-            
             if 'video_url' in data and data['video_url']:
                 video_url = data['video_url']
-                
-            # If base64 image data is provided instead of URL
             if 'image' in data and data['image'] and not image_url:
                 try:
-                    # Upload image to Cloudinary
                     upload_result = cloudinary.uploader.upload(
                         data['image'],
-                        folder="120EastState3",  # Organize images in a folder
+                        folder="120EastState3",
                         resource_type="auto"
                     )
                     image_url = upload_result.get('secure_url')
                 except Exception as e:
                     print(f"Error uploading image: {e}")
-                
-            # Handle video upload if present
             if 'video' in data and data['video'] and not video_url:
                 try:
-                    # Upload video to Cloudinary
                     upload_result = cloudinary.uploader.upload(
                         data['video'],
-                        folder="120EastState3/videos",  # Organize videos in a subfolder
+                        folder="120EastState3/videos",
                         resource_type="video"
                     )
                     video_url = upload_result.get('secure_url')
                 except Exception as e:
                     print(f"Error uploading video: {e}")
 
-            # Create the new post
-            new_post = Post(  # Use Post model
+            new_post = Post(
                 title=data['title'],
                 content=data['content'],
-                tag=data.get('tag', None),  # Optional field
-                image_url=image_url,  # Add the image URL
-                video_url=video_url,   # Add the video URL
-                user_id=user.id  # Associate post with user
+                tag=data.get('tag'),
+                image_url=image_url,
+                video_url=video_url,
+                user_id=user.id
             )
             db.session.add(new_post)
             db.session.commit()
@@ -219,7 +197,26 @@ def handle_message():
             }), 201
         except Exception as e:
             db.session.rollback()
-            print(f"Error occurred: {e}")  # Log the error
+            print(f"Error occurred: {e}")
+            return jsonify({'error': str(e)}), 500
+
+    elif request.method == 'GET':
+        try:
+            posts = Post.query.all()
+            return jsonify([{
+                'id': post.id,
+                'title': post.title,
+                'content': post.content,
+                'tag': post.tag,
+                'image_url': post.image_url,
+                'video_url': post.video_url,
+                'date_created': post.date_created,
+                'user_id': post.user_id,
+                'author': post.user.name if post.user else 'Anonymous',
+                'profile_pic': post.user.profile_pic if post.user else None
+            } for post in posts])
+        except Exception as e:
+            print(f"Error occurred while fetching posts: {e}")
             return jsonify({'error': str(e)}), 500
 
     elif request.method == 'GET':
@@ -243,47 +240,33 @@ def handle_message():
             return jsonify({'error': str(e)}), 500
         
 
-@app.route('/api/upload', methods=['POST', 'OPTIONS'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
-    # Handle preflight request for CORS
-    if request.method == 'OPTIONS':
-        response = jsonify({'status': 'preflight'})
-        response.headers.add('Access-Control-Allow-Origin', os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"))
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')  # Allow credentials
-        response.headers.add('Access-Control-Max-Age', '86400')  # 24 hours
-        return response
-    # Check if user is authenticated
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Authentication required'}), 401
-        
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
-    
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    
+
     try:
-        # Determine file type (video or image)
         file_type = 'image'
         if file.filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')):
             file_type = 'video'
-        
-        # Set appropriate resource type and folder
+
         resource_type = "video" if file_type == 'video' else "auto"
         folder = "120EastState3/videos" if file_type == 'video' else "120EastState3"
-        
-        # Upload to Cloudinary
+
         upload_result = cloudinary.uploader.upload(
             file,
             folder=folder,
             resource_type=resource_type
         )
-        
-        # Return the appropriate URL based on file type
+
         if file_type == 'video':
             return jsonify({
                 'success': True,
@@ -297,7 +280,7 @@ def upload_file():
     except Exception as e:
         print(f"Error uploading to Cloudinary: {e}")
         return jsonify({'error': str(e)}), 500
-
+    
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
