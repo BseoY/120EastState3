@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
@@ -11,15 +11,35 @@ import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 
-function HomePage({ posts, loading, error, user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
+// Define prop types for HomePage
+interface HomePageProps {
+  posts: any[];
+  loading: boolean;
+  error: string | null;
+  user: any;
+  isAuthenticated: boolean;
+  authChecked: boolean;
+  handleNewPost: (newPost: any) => void;
+  handleLoginSuccess: (userData: any) => void;
+  handleLogout: () => void;
+}
+
+// HomePage component
+function HomePage({
+  posts,
+  loading,
+  error,
+  user,
+  isAuthenticated,
+  authChecked,
+  handleNewPost,
+  handleLoginSuccess,
+  handleLogout
+}: HomePageProps) {
   return (
     <div className="app-container">
       <header>
         <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-        {/* UserProfile is now optional since Nav will show login/logout */}
-        {false && isAuthenticated && user && (
-          <UserProfile user={user} onLogout={handleLogout} />
-        )}
       </header>
 
       <section className="content-container">
@@ -28,15 +48,16 @@ function HomePage({ posts, loading, error, user, isAuthenticated, authChecked, h
           <h1>Trenton Archive</h1>
         </div>
         <div className="hero-page">
-        <img src="/headimg.png" alt="Header" className="header-image" />
-        <div className="hero-text">
-          <h2>Our Mission</h2>
-          <p>120 East Group aims to preserve and share the hidden story of a historic church
-            with nearly 300 years of history. A platform for local and global communities to
+          <img src="/headimg.png" alt="Header" className="header-image" />
+          <div className="hero-text">
+            <h2>Our Mission</h2>
+            <p>
+              120 East Group aims to preserve and share the hidden story of a historic church
+              with nearly 300 years of history. A platform for local and global communities to
               connect and rebuild an auditory of life in the old city of Trenton. What was life
               like decades ago?
-          </p>
-        </div>
+            </p>
+          </div>
         </div>
         <p id="explore-text">Explore the archive</p>
         <div className="action-buttons">
@@ -52,22 +73,23 @@ function HomePage({ posts, loading, error, user, isAuthenticated, authChecked, h
   );
 }
 
+// App component
 function App() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authChecked, setAuthChecked] = useState<boolean>(false);
 
-  // Check authentication status when the component mounts
+  // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await axios.get("http://localhost:5001/api/auth/user", {
           withCredentials: true
         });
-        
+
         if (response.data.authenticated) {
           setUser(response.data.user);
           setIsAuthenticated(true);
@@ -75,7 +97,7 @@ function App() {
           setUser(null);
           setIsAuthenticated(false);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error checking authentication:", error);
         setUser(null);
         setIsAuthenticated(false);
@@ -83,11 +105,11 @@ function App() {
         setAuthChecked(true);
       }
     };
-    
+
     checkAuth();
   }, []);
 
-  // Fetch posts when the component mounts
+  // Fetch posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -98,8 +120,8 @@ function App() {
           withCredentials: true
         });
 
-        setPosts(response.data); // Store the posts in state
-      } catch (error) {
+        setPosts(response.data);
+      } catch (error: any) {
         console.error("Error fetching posts:", error);
         setError(error.message);
       } finally {
@@ -110,26 +132,21 @@ function App() {
     fetchPosts();
   }, []);
 
-  // Handle new post submission and add it to the list of posts
-  const handleNewPost = (newPost) => {
-    setPosts((prevPosts) => [...prevPosts, newPost]);
+  const handleNewPost = (newPost: any) => {
+    setPosts((prevPosts: any[]) => [...prevPosts, newPost]);
   };
 
-  // Handle user login
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = (userData: any) => {
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  // Handle user logout
   const handleLogout = async () => {
     try {
-      // Call the logout endpoint with POST method
       await axios.post('http://localhost:5001/api/auth/logout', {}, {
         withCredentials: true
       });
-      
-      // Update local state
+
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
@@ -141,20 +158,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={
-          <HomePage 
-            posts={posts} 
-            loading={loading} 
-            error={error} 
-            user={user} 
-            isAuthenticated={isAuthenticated} 
-            authChecked={authChecked} 
-            handleNewPost={handleNewPost} 
-            handleLoginSuccess={handleLoginSuccess} 
-            handleLogout={handleLogout} 
-          />
-        } />
-        <Route path="/archive" element={
-          <Archive 
+          <HomePage
+            posts={posts}
+            loading={loading}
+            error={error}
             user={user}
             isAuthenticated={isAuthenticated}
             authChecked={authChecked}
@@ -163,160 +170,20 @@ function App() {
             handleLogout={handleLogout}
           />
         } />
-        <Route path="/admin" element={
-          <AdminDashboard />
+        <Route path="/archive" element={
+          <Archive
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleNewPost={handleNewPost}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
         } />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-/*
-function PostForm({ onNewPost }) {
-  // ✅ Fix: Separate state for form inputs
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    tag: "",
-  });
-
-  // ✅ Fix: Separate state for storing fetched posts
-  const [posts, setPosts] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = false;
-
-  // ✅ Fetch posts from the correct API endpoint
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch("http://localhost:5001/api/post");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setPosts(data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError(error.message);
-      }
-    };
-  
-    fetchPosts();
-  }, [success]); 
-
-  // ✅ Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  // ✅ Submit new post to the correct API endpoint
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError("Title and content cannot be empty.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5001/api/post", // ✅ Correct API endpoint
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setSuccess(true);
-      setFormData({ title: "", content: "", tag: "" }); // Clear form
-
-      if (onNewPost) {
-        onNewPost(response.data);
-      }
-
-      // ✅ Update displayed posts
-      setPosts([...posts, response.data]);
-    } catch (error) {
-      setError(
-        error.response?.data?.message || error.message || "Failed to submit post"
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div>
-      <Nav />
-      <h3>120 East State's</h3>
-      <h1>Trenton Archive</h1>
-      <img src="Assets/Image/headimg.png" alt="Header" />
-      <h2>Our Mission</h2>
-      <p>120 East Group aims to preserve and share the hidden story of a historic church with nearly 300 years of history...</p>
-      <p>Items from the backend:</p>
-
-      <ul>
-        {posts.length > 0 ? (
-          posts.map((post) => (
-            <li key={post.id}>
-              <strong>{post.title}</strong>: {post.content} {post.tag && `(${post.tag})`}
-            </li>
-          ))
-        ) : (
-          <li>No posts found.</li>
-        )}
-      </ul>
-
-      <form onSubmit={handleSubmit}>
-        <label>Title</label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          placeholder="Enter post title"
-        />
-
-        <label>Content</label>
-        <textarea
-          name="content"
-          value={formData.content}
-          onChange={handleChange}
-          required
-          placeholder="Write your post content here"
-        />
-
-        <label>Tag (optional)</label>
-        <input
-          type="text"
-          name="tag"
-          value={formData.tag}
-          onChange={handleChange}
-          placeholder="Enter a tag"
-        />
-
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>Post submitted successfully!</p>}
-    </div>
-  );
-}
-
-export default PostForm;
-*/
