@@ -1,7 +1,8 @@
 import os
 import dotenv
 dotenv.load_dotenv()
-from flask import Flask, jsonify, render_template, request, session, redirect, url_for
+
+from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 from Models import db, Post, User
 from datetime import timedelta
@@ -12,49 +13,35 @@ import json
 import requests
 import oauthlib.oauth2
 
-# Load environment variables
-
-# Initialize app
+# ================= パート2：FlaskアプリとCORSの構成 =================
 app = Flask(__name__)
 
-# CORS setup to support both local and deployed frontend
-CORS(app, supports_credentials=True, resources={r"/*": {
-    "origins": [
-        "http://localhost:3000",
-        os.getenv("FRONTEND_ORIGIN", "https://one20eaststate3-frontend.onrender.com")
-    ],
-    "allow_headers": ["Content-Type", "Authorization"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}})
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+CORS(app, origins=[FRONTEND_ORIGIN, "http://localhost:3000"], supports_credentials=True)
+print("✅ CORS enabled for:", FRONTEND_ORIGIN)
 
-print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
-
-
-# Session config
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Cloudinary config
+# ================= パート3：Cloudinary設定 =================
 configure_cloudinary()
 
-# OAuth configuration
+# ================= パート4：OAuth設定 =================
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
 
-# Database config
+# ================= パート5：DB構成 =================
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
-# API Routes
-# Authentication helper function
+# ================= パート6：認証ユーティリティ =================
 def get_current_user():
     if 'user_info' not in session:
         return None
@@ -71,6 +58,7 @@ def get_current_user():
         db.session.commit()
     return user
 
+# ================= パート7：Google OAuthルート =================
 @app.route('/api/auth/login', methods=['GET'])
 def login():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
@@ -134,6 +122,7 @@ def get_user():
     else:
         return jsonify({'authenticated': False})
 
+# ================= パート8：投稿ルート =================
 @app.route('/api/posts', methods=['GET', 'POST'])
 def handle_message():
     if request.method == 'POST':
@@ -146,13 +135,9 @@ def handle_message():
             return jsonify({'error': 'Title and content are required'}), 400
 
         try:
-            image_url = None
-            video_url = None
+            image_url = data.get('image_url')
+            video_url = data.get('video_url')
 
-            if 'image_url' in data and data['image_url']:
-                image_url = data['image_url']
-            if 'video_url' in data and data['video_url']:
-                video_url = data['video_url']
             if 'image' in data and data['image'] and not image_url:
                 try:
                     upload_result = cloudinary.uploader.upload(
@@ -219,27 +204,7 @@ def handle_message():
             print(f"Error occurred while fetching posts: {e}")
             return jsonify({'error': str(e)}), 500
 
-    elif request.method == 'GET':
-        # Retrieve all posts from the database
-        try:
-            posts = Post.query.all()  # Use Post model here
-            return jsonify([{
-                'id': post.id,
-                'title': post.title,  # Include title
-                'content': post.content,  # Include content
-                'tag': post.tag,  # Include tag
-                'image_url': post.image_url,  # Include image URL
-                'video_url': post.video_url,  # Include video URL
-                'date_created': post.date_created,
-                'user_id': post.user_id,
-                'author': post.user.name if post.user else 'Anonymous',
-                'profile_pic': post.user.profile_pic if post.user else None  # Include user profile picture
-            } for post in posts])
-        except Exception as e:
-            print(f"Error occurred while fetching posts: {e}")  # Log the error
-            return jsonify({'error': str(e)}), 500
-        
-
+# ================= パート9：ファイルアップロード =================
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     user = get_current_user()
@@ -254,10 +219,7 @@ def upload_file():
         return jsonify({'error': 'No selected file'}), 400
 
     try:
-        file_type = 'image'
-        if file.filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')):
-            file_type = 'video'
-
+        file_type = 'video' if file.filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')) else 'image'
         resource_type = "video" if file_type == 'video' else "auto"
         folder = "120EastState3/videos" if file_type == 'video' else "120EastState3"
 
@@ -267,20 +229,15 @@ def upload_file():
             resource_type=resource_type
         )
 
-        if file_type == 'video':
-            return jsonify({
-                'success': True,
-                'video_url': upload_result.get('secure_url')
-            })
-        else:
-            return jsonify({
-                'success': True,
-                'image_url': upload_result.get('secure_url')
-            })
+        return jsonify({
+            'success': True,
+            'video_url' if file_type == 'video' else 'image_url': upload_result.get('secure_url')
+        })
     except Exception as e:
         print(f"Error uploading to Cloudinary: {e}")
         return jsonify({'error': str(e)}), 500
-    
+
+# ================= パート10：アプリ起動 =================
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
