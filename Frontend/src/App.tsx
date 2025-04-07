@@ -9,6 +9,7 @@ import Form from "./components/Form";
 import Login from "./components/Login";
 import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
+import AdminDashboard from "./views/Admin/AdminDashboard";
 
 function HomePage({ posts, loading, error, user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   return (
@@ -161,6 +162,9 @@ function App() {
             handleLoginSuccess={handleLoginSuccess}
             handleLogout={handleLogout}
           />
+        } />
+        <Route path="/admin" element={
+          <AdminDashboard />
         } />
       </Routes>
     </Router>

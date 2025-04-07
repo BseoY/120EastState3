@@ -22,6 +22,7 @@ export default function Sidebar() {
         <a href='/about'>About</a>
         <a href='/contact'>Contact Us</a>
         <a href='/archive'>Archive</a>
+        <a href='/admin'>Admin</a>
       </ul>
     </div>
     </>
