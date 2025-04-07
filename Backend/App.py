@@ -16,10 +16,13 @@ import oauthlib.oauth2
 
 # ================= パート2：Flask AppとCORSの初期化 =================
 app = Flask(__name__)
+# Load .env at the very top (which you're already doing)
 FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
-CORS(app, supports_credentials=True, origins=[FRONTEND_ORIGIN, "http://localhost:3000"])
-print("✅ CORS allowed:", FRONTEND_ORIGIN)
 
+# Apply CORS globally using the environment variable
+CORS(app, supports_credentials=True, origins=[FRONTEND_ORIGIN, "http://localhost:3000"])
+
+print("✅ CORS enabled for:", [FRONTEND_ORIGIN, "http://localhost:3000"])
 # ================= パート3：セッション・DB・クラウド設定 =================
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
