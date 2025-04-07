@@ -139,7 +139,7 @@ def handle_message():
     if request.method == 'OPTIONS':
         # Handle preflight request for CORS
         response = jsonify({'status': 'preflight'})
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        response.headers.add('Access-Control-Allow-Origin', os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"))
         response.headers.add('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Allow-Credentials', 'true')  # Allow credentials
@@ -248,7 +248,7 @@ def upload_file():
     # Handle preflight request for CORS
     if request.method == 'OPTIONS':
         response = jsonify({'status': 'preflight'})
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        response.headers.add('Access-Control-Allow-Origin', os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"))
         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Allow-Credentials', 'true')  # Allow credentials
