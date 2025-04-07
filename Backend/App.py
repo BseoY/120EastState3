@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True, resources={r"/*": {
     "origins": [
         "http://localhost:3000",  # for local frontend dev
-        os.getenv("FRONTEND_ORIGIN", "https://your-frontend.onrender.com")  # for deployed frontend
+        os.getenv("FRONTEND_ORIGIN", "https://one20eaststate3-frontend.onrender.com")  # for deployed frontend
     ],
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
@@ -137,7 +137,7 @@ def callback():
         user = get_current_user()
         
         # Redirect to frontend
-        return redirect('http://localhost:3000')
+        return redirect(os.getenv("FRONTEND_REDIRECT_URL", "http://localhost:3000"))
     else:
         return jsonify({'error': 'User email not verified by Google'}), 400
 
