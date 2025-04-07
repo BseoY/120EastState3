@@ -11,6 +11,8 @@ import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
+
 // Define prop types for HomePage
 interface HomePageProps {
   posts: any[];
@@ -86,9 +88,10 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/auth/user", {
+        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
           withCredentials: true
         });
+        
 
         if (response.data.authenticated) {
           setUser(response.data.user);
@@ -113,7 +116,7 @@ function App() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/posts", {
+        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
           headers: {
             "Content-Type": "application/json",
           },
