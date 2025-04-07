@@ -18,9 +18,10 @@ export default function Sidebar() {
       </button>
 
       <ul className='list'>
-        <a>Home</a>
-        <a>About</a>
-        <a>Contact Us</a>
+        <a href='/'>Home</a>
+        <a href='/about'>About</a>
+        <a href='/contact'>Contact Us</a>
+        <a href='/archive'>Archive</a>
       </ul>
     </div>
     </>
