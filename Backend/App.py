@@ -3,7 +3,7 @@ from flask_cors import CORS
 from Models import db, Post, User
 import os
 import dotenv
-from datetime import datetime, timedelta
+from datetime import timedelta
 import cloudinary
 import cloudinary.uploader
 from cloudinary_config import configure_cloudinary
@@ -11,60 +11,53 @@ import json
 import requests
 import oauthlib.oauth2
 
+# Load environment variables
+dotenv.load_dotenv()
+
 # Initialize app
 app = Flask(__name__)
+
+# CORS setup to support both local and deployed frontend
 CORS(app, supports_credentials=True, resources={r"/*": {
     "origins": [
-        "http://localhost:3000",  # for local frontend dev
-        os.getenv("FRONTEND_ORIGIN", "https://one20eaststate3-frontend.onrender.com")  # for deployed frontend
+        "http://localhost:3000",
+        os.getenv("FRONTEND_ORIGIN", "https://one20eaststate3-frontend.onrender.com")
     ],
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }})
-# Configure session
+
+# Session config
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-
-# Configure Cloudinary
+# Cloudinary config
 configure_cloudinary()
 
-# Load environment variables
-dotenv.load_dotenv()
-
-# Allow OAuth over HTTP for development
+# OAuth configuration
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
-# Google OAuth Configuration
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-
-# OAuth client setup
 oauth_client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
 
-# Database configuration
+# Database config
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
-
-# Create tables
 with app.app_context():
     db.create_all()
+
 
 # API Routes
 # Authentication helper function
 def get_current_user():
     if 'user_info' not in session:
         return None
-    
     user_info = session['user_info']
-    # Check if user exists in database
     user = User.query.filter_by(google_id=user_info['sub']).first()
-    
     if not user:
-        # Create new user
         user = User(
             google_id=user_info['sub'],
             email=user_info['email'],
@@ -73,45 +66,31 @@ def get_current_user():
         )
         db.session.add(user)
         db.session.commit()
-    
     return user
 
-# Authentication routes
 @app.route('/api/auth/login', methods=['GET'])
 def login():
-    # Determine the URL for Google login
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
-    
-    # Construct the request URL for Google login
     redirect_uri = url_for('callback', _external=True)
     request_uri = oauth_client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=redirect_uri,
         scope=['openid', 'email', 'profile'],
     )
-    
-    # Redirect to the request URL
     return jsonify({'redirect_url': request_uri})
 
 @app.route('/api/auth/login/callback', methods=['GET'])
 def callback():
-    # Get the authorization code that Google sent
     code = request.args.get('code')
-    
-    # Determine the URL to fetch tokens
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
     token_endpoint = google_provider_cfg['token_endpoint']
-    
-    # Prepare token request
     token_url, headers, body = oauth_client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
         redirect_url=request.base_url,
         code=code
     )
-    
-    # Fetch the tokens
     token_response = requests.post(
         token_url,
         headers=headers,
@@ -119,39 +98,25 @@ def callback():
         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
         timeout=5
     )
-    
-    # Parse the tokens
     oauth_client.parse_request_body_response(json.dumps(token_response.json()))
-    
-    # Fetch user info
     userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
     uri, headers, body = oauth_client.add_token(userinfo_endpoint)
     userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
-    
-    # Verify user info
     if userinfo_response.json().get('email_verified'):
-        # Save user info in session
         session['user_info'] = userinfo_response.json()
-        
-        # Get or create user in database
-        user = get_current_user()
-        
-        # Redirect to frontend
+        get_current_user()
         return redirect(os.getenv("FRONTEND_REDIRECT_URL", "http://localhost:3000"))
     else:
         return jsonify({'error': 'User email not verified by Google'}), 400
 
 @app.route('/api/auth/logout', methods=['GET', 'POST'])
 def logout():
-    # Clear session
     session.clear()
     return jsonify({'message': 'Logged out successfully'})
 
 @app.route('/api/auth/user', methods=['GET'])
 def get_user():
-    # Get current user
     user = get_current_user()
-    
     if user:
         return jsonify({
             'authenticated': True,
