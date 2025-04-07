@@ -13,8 +13,14 @@ import oauthlib.oauth2
 
 # Initialize app
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000", "allow_headers": ["Content-Type", "Authorization"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
-
+CORS(app, supports_credentials=True, resources={r"/*": {
+    "origins": [
+        "http://localhost:3000",  # for local frontend dev
+        os.getenv("FRONTEND_ORIGIN", "https://your-frontend.onrender.com")  # for deployed frontend
+    ],
+    "allow_headers": ["Content-Type", "Authorization"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}})
 # Configure session
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
