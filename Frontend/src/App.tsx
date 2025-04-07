@@ -88,7 +88,7 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get(`${BASE_API_URL}/api/auth/user`, {
+        const response = await axios.get(${BASE_API_URL}/api/posts, {
           withCredentials: true
         });
         
@@ -116,7 +116,7 @@ function App() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
+        const response = await axios.get(${BASE_API_URL}/api/posts, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -146,7 +146,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${BASE_API_URL}/api/auth/logout`, {}, {
+      await axios.post('http://localhost:5001/api/auth/logout', {}, {
         withCredentials: true
       });
 
