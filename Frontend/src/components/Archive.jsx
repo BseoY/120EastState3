@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import BASE_API_URL from './config'; // adjust path as needed
+import BASE_API_URL from '../config';
 import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';

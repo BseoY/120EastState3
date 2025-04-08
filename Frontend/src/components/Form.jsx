@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import axios from 'axios';
-import BASE_API_URL from './config'; // adjust path as needed
+import BASE_API_URL from '../config';
 import "../styles/App.css";
 
 // Predefined tags for dropdown selection

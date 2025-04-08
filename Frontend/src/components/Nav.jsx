@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import "../styles/Nav.css";
-import BASE_API_URL from './config'; // adjust path as needed
+import BASE_API_URL from '../config';
 
 import Sidebar from "./Sidebar"
 
