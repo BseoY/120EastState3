@@ -98,7 +98,7 @@ function Form({ onNewPost, user }) {
         const imageFormData = new FormData();
         imageFormData.append('file', selectedImage);
   
-        const uploadResponse = await axios.post(`${BASE_API_URL}/api/auth/login`,
+        const uploadResponse = await axios.get(`${BASE_API_URL}/api/auth/login`,
           imageFormData,
           {
             headers: {
@@ -118,7 +118,7 @@ function Form({ onNewPost, user }) {
         const videoFormData = new FormData();
         videoFormData.append('file', selectedVideo);
   
-        const uploadResponse = await axios.post(`${BASE_API_URL}/api/auth/login`,
+        const uploadResponse = await axios.get(`${BASE_API_URL}/api/auth/login`,
           videoFormData,
           {
             headers: {
@@ -134,7 +134,7 @@ function Form({ onNewPost, user }) {
       }
   
       // Submit post with image and/or video URL if available
-      const response = await axios.post(`${BASE_API_URL}/api/auth/login`,
+      const response = await axios.get(`${BASE_API_URL}/api/auth/login`,
         {
           title: formData.title,
           content: formData.content,
