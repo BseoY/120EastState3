@@ -1,13 +1,15 @@
 import React from 'react';
 import axios from 'axios';
 import "../styles/Nav.css";
+import BASE_API_URL from './config'; // adjust path as needed
+
 import Sidebar from "./Sidebar"
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const handleGoogleLogin = async () => {
     try {
       // Get the Google login URL from the backend
-      const response = await axios.get('http://localhost:5001/api/auth/login');
+      const response = await axios.get(`${BASE_API_URL}/api/auth/login`);
       
       // Redirect to Google login page
       window.location.href = response.data.redirect_url;

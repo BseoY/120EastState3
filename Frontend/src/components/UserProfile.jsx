@@ -1,11 +1,12 @@
 import React from 'react';
 import axios from 'axios';
+import BASE_API_URL from './config'; // adjust path as needed
 import '../styles/UserProfile.css';
 
 function UserProfile({ user, onLogout }) {
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5001/api/auth/logout', {}, {
+      await axios.post(`${BASE_API_URL}/api/auth/login`, {}, {
         withCredentials: true
       });
       onLogout();

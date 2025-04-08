@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import BASE_API_URL from './config'; // adjust path as needed
 import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
@@ -39,7 +40,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5001/api/posts", {
+        const response = await axios.get(`${BASE_API_URL}/api/auth/login`, {
           headers: {
             "Content-Type": "application/json",
           },
