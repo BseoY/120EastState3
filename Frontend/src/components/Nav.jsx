@@ -2,10 +2,12 @@ import React from 'react';
 import axios from 'axios';
 import "../styles/Nav.css";
 import BASE_API_URL from '../config';
-
-import Sidebar from "./Sidebar"
+import Sidebar from "./Sidebar";
+import useIsMobile from '../hooks/useIsMobile'
 
 function Nav({ user, isAuthenticated, onLogout }) {
+  const isMobile = useIsMobile(); // custom hook detects screen size
+  
   const handleGoogleLogin = async () => {
     try {
       // Get the Google login URL from the backend
@@ -22,6 +24,15 @@ function Nav({ user, isAuthenticated, onLogout }) {
     <nav className='navbar'>
       <div>
         <a href="/" className='nav-logo'><img src="/120logo.png" alt="120 East State Logo"></img></a>
+        
+        {/* Render desktop nav links only when NOT on mobile */}
+        {!isMobile && (
+          <div className='nav-links'>
+            <a href="/archive" className='nav-link'>Archive</a>
+            <a href="/about" className='nav-link'>About</a>
+            <a href="/admin" className='nav-link'>Admin</a>
+          </div>
+        )}
       </div>
       
       <div className='nav-profile'>
@@ -41,9 +52,12 @@ function Nav({ user, isAuthenticated, onLogout }) {
         )}
       </div>
 
-      <div className='dropdown'>
-        <Sidebar />
-      </div>
+      {/* Render the Sidebar only on mobile */}
+      {isMobile && (
+        <div className='dropdown'>
+          <Sidebar />
+        </div>
+      )}
     </nav>
   );
 };

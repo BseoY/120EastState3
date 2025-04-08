@@ -152,7 +152,9 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
 
   return (
     <div className="archive-container">
-      <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      <header>
+        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      </header>
       
       <div className="archive-header">
         <h1>Archive</h1>

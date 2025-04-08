@@ -299,19 +299,10 @@ p {
 
 }
 
-/* You can also adjust other text elements like links, lists, etc. */
-a {
-  font-weight: 400; /* Regular weight */
-  font-size: 16pt;
-  color: #007BFF; /* Set link color */
-}
-
 li {
   font-weight: 400; /* Regular weight */
   font-size: 16pt;
 }
-
-
 
 #title input{
   width: 80%;

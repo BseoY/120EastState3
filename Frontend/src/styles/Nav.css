@@ -1,6 +1,5 @@
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid grey;
@@ -13,23 +12,59 @@
   align-items: center;
 }
 
+/* Create a left section that contains logo and nav links */
+.navbar > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
 .nav-logo img {
   max-width: 50px;
 }
 
+.nav-profile {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-left: auto; /* Push profile section to the right */
+  margin-right: 1rem; /* Add spacing from the right edge */
+}
+
 .nav-profile button {
-  background-color: #4285f4;
-  color: white;
+  background-color: transparent;
+  color: #333;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 0.5rem 0;
+  font-size: 20px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: color 0.3s;
+  text-align: center;
+  height: fit-content;
+  margin: auto 0;
+  position: relative;
+  display: inline-block;
+  width: auto;
 }
 
 .nav-profile button:hover {
-  background-color: #3367d6;
+  color: #1F8CB5;
+}
+
+.nav-profile button::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #176d8c;
+  transition: width 0.3s;
+}
+
+.nav-profile button:hover::after {
+  width: 100%;
 }
 
 .user-nav-info {
@@ -52,19 +87,21 @@
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  margin-left: 1rem;
 }
 
 .nav-link {
   color: #333;
   text-decoration: none;
   font-weight: 500;
+  font-size: 20px;
   padding: 0.5rem 0;
   position: relative;
   transition: color 0.3s;
 }
 
 .nav-link:hover {
-  color: #4285f4;
+  color: #1F8CB5;
 }
 
 .nav-link::after {
@@ -74,7 +111,7 @@
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: #4285f4;
+  background-color: #176d8c;
   transition: width 0.3s;
 }
 
