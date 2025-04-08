@@ -40,7 +40,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${BASE_API_URL}/api/auth/login`, {
+        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -180,7 +180,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
             <h3>Authentication Required</h3>
             <p>You need to be logged in to create archive entries.</p>
             <div className="login-message-actions">
-              <a href="http://localhost:5001/api/auth/login" className="login-btn">Sign in with Google</a>
+            <a href={`${BASE_API_URL}/api/auth/login`} className="login-btn">Sign in with Google</a>
               <button onClick={() => setShowLoginMessage(false)} className="cancel-btn">Cancel</button>
             </div>
           </div>
