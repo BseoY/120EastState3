@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import BASE_API_URL from './config'; // adjust path as needed
+import BASE_API_URL from '../config';
 import '../styles/UserProfile.css';
 
 function UserProfile({ user, onLogout }) {
