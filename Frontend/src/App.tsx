@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
-import Carousel from "./components/Carousel";
 import Nav from "./components/Nav";
 import Form from "./components/Form";
 import Login from "./components/Login";
@@ -68,16 +67,18 @@ function HomePage({
         <p id="caron">&#711;</p>
       </section>
 
-      <section className="carousel-section">
+      {/* <section className="carousel-section">
         <Carousel posts={posts} loading={loading} error={error} />
-      </section>
+      </section> */}
     </div>
   );
 }
 
 // App component
 function App() {
-  const [posts, setPosts] = useState<any[]>([]);
+  // Define a type for posts to fix the TypeScript error
+type PostType = any;
+const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -136,7 +137,7 @@ function App() {
   }, []);
 
   const handleNewPost = (newPost: any) => {
-    setPosts((prevPosts: any[]) => [...prevPosts, newPost]);
+    setPosts((prevPosts) => [...prevPosts, newPost]);
   };
 
   const handleLoginSuccess = (userData: any) => {
