@@ -18,14 +18,10 @@ import oauthlib.oauth2
 app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
-CORS(app, supports_credentials=True, resources={r"/*": {
-    "origins": [
-        "http://localhost:3000",
-        os.getenv("FRONTEND_ORIGIN", "https://one20eaststate3-frontend.onrender.com")
-    ],
-    "allow_headers": ["Content-Type", "Authorization"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}})
+CORS(app, resources={r"/api/*": {"origins": [
+    "http://localhost:3000",
+    "https://one20eaststate3-frontend.onrender.com"
+]}}, supports_credentials=True)
 
 print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
 
@@ -70,6 +66,11 @@ def get_current_user():
         db.session.add(user)
         db.session.commit()
     return user
+
+@app.after_request
+def add_cors_headers(response):
+    print("Response headers:", response.headers)
+    return response
 
 @app.route('/api/auth/login', methods=['GET'])
 def login():
