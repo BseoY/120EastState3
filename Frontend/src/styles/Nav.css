@@ -4,6 +4,19 @@
   padding: 1rem;
   border-bottom: 1px solid grey;
   width: 100%;
+  background-color: white;
+  position: relative;
+  z-index: 10;
+}
+
+/* Transparent navbar for homepage */
+.navbar-transparent {
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  border-bottom: none;
 }
 
 .nav-logo {
@@ -98,6 +111,19 @@
   padding: 0.5rem 0;
   position: relative;
   transition: color 0.3s;
+}
+
+/* White text for transparent navbar */
+.navbar-transparent .nav-link {
+  color: white;
+}
+
+.navbar-transparent .nav-link:hover {
+  color: #1F8CB5;
+}
+
+.navbar-transparent .nav-profile button {
+  color: white;
 }
 
 .nav-link:hover {

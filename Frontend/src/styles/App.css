@@ -171,8 +171,11 @@ h1, h2, h3 {
     width: 100%;
   }
   #explore-text {
-    margin-top: 30px;
-    margin-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 500;
   }
 }
 @media (width >= 1000px) {
@@ -227,9 +230,88 @@ p#caron:hover {
 }
 
 .action-buttons {
+  margin-top: 2rem;
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  margin-bottom: 2rem;
+}
+
+/* Video Hero Section Styles */
+.video-hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  margin-top: -84px; /* Adjust based on your navbar height */
+  min-height: 100vh; /* Ensure it takes up at least the full viewport height */
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 2;
+  padding: 2rem;
+}
+
+.video-overlay h1 {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.video-overlay p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.video-cta {
+  margin-top: 2rem;
+}
+
+.video-btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: #1F8CB5;
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: 2px solid #fff;
+}
+
+.video-btn:hover {
+  background-color: #fff;
+  color: #1F8CB5;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .archive-btn {
@@ -237,18 +319,21 @@ p#caron:hover {
   background-color: #1F8CB5;
   color: white;
   text-decoration: none;
-  padding: 12px 25px;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 1.1rem;
   font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(31, 140, 181, 0.2);
+  border: 2px solid #1F8CB5;
+  letter-spacing: 0.5px;
 }
 
 .archive-btn:hover {
-  background-color: #176d8c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background-color: #fff;
+  color: #1F8CB5;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(31, 140, 181, 0.3);
 }
 
 /* Login Page Styles */
@@ -283,12 +368,15 @@ p#caron:hover {
 } */
 
 body {
-  background-color: #FFF9EB;
+  background-color: #fff;
   text-align: center;
   font-family: 'DM Sans', sans-serif;
   font-weight: 400; /* Regular weight */
   font-size: 16pt; /* Set a default font size in the recommended range */
   line-height: 1.5; /* Ensure good readability */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 /* Optionally, use Light weight for specific text like paragraphs or smaller content */
@@ -346,6 +434,69 @@ form {
   border-radius: 8px;
 }
 
+.content-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  width: 100%;
+  position: relative;
+  background-color: #fff;
+  margin-top: -15px; /* Reduced to match the smaller curve */
+  z-index: 5;
+}
+
+.curve-top {
+  height: 30px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 50% 50% 0 0 / 30px;
+  margin-top: -15px;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.mission-section {
+  padding: 20px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.section-divider {
+  height: 3px;
+  width: 80px;
+  background: linear-gradient(to right, transparent, #1F8CB5, transparent);
+  margin: 0 auto;
+}
+
+.mission-content {
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.8;
+  font-size: 1.2rem;
+}
+
+.mission-content p {
+  text-align: center;
+  color: #555;
+}
+
+.archive-section {
+  background-color: #f8f8f8;
+  padding: 60px 20px;
+  text-align: center;
+  border-top: 1px solid #eaeaea;
+}
 
 button:disabled {
   background-color: #ddd;
@@ -403,11 +554,6 @@ button:disabled {
   color: white;
 }
 
-textarea {
-  font-family: 'DM Sans', sans-serif;  /* Make sure the same font is applied */
-  font-size: 16px;  /* Adjust as needed */
-}
-
 #CreatedStories {
   font-family: 'DM Sans', sans-serif;  /* Apply font */
   font-weight: bold;  /* Make the text bold */
@@ -421,7 +567,6 @@ textarea {
   justify-content: center;   /* Horizontally center the content */
   align-items: center;       /* Vertically center the content */
 }
-
 
 .image-preview-container {
   display: flex;
