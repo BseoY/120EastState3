@@ -26,3 +26,21 @@ ehthumbs.db
 
 __pycache__/
 *.pyc
+
+# Video files
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.avi
+*.AVI
+*.wmv
+*.WMV
+*.mkv
+*.MKV
+*.flv
+*.FLV
+*.webm
+*.WEBM
+*.m4v
+*.M4V
