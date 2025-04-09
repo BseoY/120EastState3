@@ -78,7 +78,8 @@ function Form({ onNewPost, user }) {
       setError("Title and content are required");
       return;
     }
-  
+    
+    // Check if user is authenticated
     if (!user) {
       setError("You must be logged in to submit a post.");
       return;
@@ -89,35 +90,82 @@ function Form({ onNewPost, user }) {
     setSuccess(false);
   
     try {
-      // Create a single FormData object for all data
-      const postFormData = new FormData();
-      postFormData.append('title', formData.title);
-      postFormData.append('content', formData.content);
-      if (formData.tag) postFormData.append('tag', formData.tag);
-      if (selectedImage) postFormData.append('image', selectedImage);
-      if (selectedVideo) postFormData.append('video', selectedVideo);
+      let imageUrl = null;
+      let videoUrl = null;
   
-      // Send everything in one request
-      const response = await axios.post(
-        `${BASE_API_URL}/api/posts`, // Should be your posts endpoint
-        postFormData,
+      // Upload image if selected
+      if (selectedImage) {
+        const imageFormData = new FormData();
+        imageFormData.append('file', selectedImage);
+  
+        const uploadResponse = await axios.get(`${BASE_API_URL}/api/auth/login`,
+          imageFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            withCredentials: true  // Send cookies for authentication
+          }
+        );
+  
+        if (uploadResponse.data.success) {
+          imageUrl = uploadResponse.data.image_url;
+        }
+      }
+
+      // Upload video if selected
+      if (selectedVideo) {
+        const videoFormData = new FormData();
+        videoFormData.append('file', selectedVideo);
+  
+        const uploadResponse = await axios.get(`${BASE_API_URL}/api/auth/login`,
+          videoFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            withCredentials: true  // Send cookies for authentication
+          }
+        );
+  
+        if (uploadResponse.data.success) {
+          videoUrl = uploadResponse.data.video_url;
+        }
+      }
+  
+      // Submit post with image and/or video URL if available
+      const response = await axios.get(`${BASE_API_URL}/api/auth/login`,
+        {
+          title: formData.title,
+          content: formData.content,
+          tag: formData.tag || null,
+          image_url: imageUrl,  // Changed from 'image' to 'image_url' to match backend
+          video_url: videoUrl,  // Changed from 'video' to 'video_url' to match backend
+          date_created: new Date().toISOString(), // Add the current timestamp here
+        },
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
-          withCredentials: true
+          withCredentials: true // Send cookies for authentication
         }
       );
   
       setSuccess(true);
-      setFormData({ title: "", content: "", tag: "" });
+      setFormData({ title: "", content: "", tag: "" }); // Clear form on success
       setSelectedImage(null);
       setImagePreview(null);
       setSelectedVideo(null);
       setVideoPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      if (videoInputRef.current) videoInputRef.current.value = "";
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      if (videoInputRef.current) {
+        videoInputRef.current.value = "";
+      }
+      console.log('Server response:', response.data);
       
+      // Call the onNewPost callback if provided
       if (onNewPost) {
         onNewPost(response.data);
       }
