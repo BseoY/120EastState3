@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
+import About from "./views/Reader/About";
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
@@ -39,19 +40,32 @@ function HomePage({
 }: HomePageProps) {
   return (
     <div className="app-container">
-      <header>
-        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      </header>
+      <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+
+      <section className="video-hero-section">
+        <div className="video-container">
+          <video autoPlay muted loop className="background-video">
+            <source src="/DJI_0699.MP4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="video-overlay">
+            <h1>120 East State</h1>
+            <h4>Preserving Trenton's Rich History</h4>
+            <div className="video-cta">
+              <Link to="/archive" className="video-btn">Explore the Archive</Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="content-container">
-        <div className='title-div'>
-          <p id="ESStart">120 East State's</p>
-          <h1>Trenton Archive</h1>
-        </div>
-        <div className="hero-page">
-          <img src="/headimg.png" alt="Header" className="header-image" />
-          <div className="hero-text">
+        <div className="curve-top"></div>
+        <div className="mission-section">
+          <div className="section-header">
             <h2>Our Mission</h2>
+            <div className="section-divider"></div>
+          </div>
+          <div className="mission-content">
             <p>
               120 East Group aims to preserve and share the hidden story of a historic church
               with nearly 300 years of history. A platform for local and global communities to
@@ -60,11 +74,12 @@ function HomePage({
             </p>
           </div>
         </div>
-        <p id="explore-text">Explore the archive</p>
-        <div className="action-buttons">
-          <Link to="/archive" className="archive-btn">View Archive</Link>
+        <div className="archive-section">
+          <p id="explore-text">Explore our historical collection</p>
+          <div className="action-buttons">
+            <Link to="/archive" className="archive-btn">View Archive</Link>
+          </div>
         </div>
-        <p id="caron">&#711;</p>
       </section>
 
       {/* <section className="carousel-section">
@@ -185,6 +200,15 @@ const [posts, setPosts] = useState<PostType[]>([]);
           />
         } />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/about" element={
+          <About 
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
+        } />
       </Routes>
     </Router>
   );

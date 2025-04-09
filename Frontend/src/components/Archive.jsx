@@ -7,7 +7,24 @@ import Nav from './Nav';
 import Form from './Form';
 
 // Predefined tags for dropdown selection
-const PREDEFINED_TAGS = ['Church', 'Family', 'History', 'Trenton', 'Community'];
+const PREDEFINED_TAGS = [
+  "Trenton Families",
+  "My Neighborhood/Neighborhoods",
+  "Schools & Colleges",
+  "Teams",
+  "Houses of Worship",
+  "Parks",
+  "Childhood Memories",
+  "Food",
+  "Fraternities & Sororities",
+  "Service Associations",
+  "Remarkable People",
+  "Arts & Artists",
+  "Strange Things",
+  "Trenton Pride",
+  "Government/Capital City",
+  "Other/Miscellaneous"
+]
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // Local state
@@ -157,8 +174,9 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       </header>
       
       <div className="archive-header">
-        <h1>Archive</h1>
-        <p>Search and explore historical records</p>
+        <br></br>
+        <h1>Digital Archive</h1>
+        <p>Search and explore historical records, photos, documents, videos, and more. If you would like to use any content, please contact us at 120eaststate@gmail.com</p>
         <div className="archive-actions">
           {isAuthenticated ? (
             <button className="create-archive-btn" onClick={toggleForm}>
@@ -228,9 +246,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
                 placeholder="Search by contributor"
               />
             </div>
-          </div>
-          
-          <div className="filter-row">
+
             <div className="filter-group">
               <label htmlFor="date-filter">Date</label>
               <input 
@@ -261,11 +277,11 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
               Clear Filters
             </button>
           </div>
-        </div>
-      </div>
-      
-      <div className="results-info">
-        <p>Found {filteredPosts.length} {filteredPosts.length === 1 ? 'record' : 'records'}</p>
+
+          <div className="results-info">
+            <p>Found {filteredPosts.length} {filteredPosts.length === 1 ? 'record' : 'records'}</p>
+          </div>
+          </div>
       </div>
       
       <div className="archive-grid">

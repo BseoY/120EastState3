@@ -3,10 +3,13 @@ import axios from 'axios';
 import "../styles/Nav.css";
 import BASE_API_URL from '../config';
 import Sidebar from "./Sidebar";
-import useIsMobile from '../hooks/useIsMobile'
+import useIsMobile from '../hooks/useIsMobile';
+import { useLocation } from 'react-router-dom'
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const isMobile = useIsMobile(); // custom hook detects screen size
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
   
   const handleGoogleLogin = async () => {
     try {
@@ -21,7 +24,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
   };
 
   return (
-    <nav className='navbar'>
+    <nav className={`navbar ${isHomePage ? 'navbar-transparent' : ''}`}>
       <div>
         <a href="/" className='nav-logo'><img src="/120logo.png" alt="120 East State Logo"></img></a>
         

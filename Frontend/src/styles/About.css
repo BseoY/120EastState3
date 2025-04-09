@@ -1,0 +1,41 @@
+.about-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 0 0 2rem 0; /* Removed top padding, kept bottom padding */
+}
+
+.about-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 84px 2rem 0; /* Added top padding to account for navbar height */
+}
+
+.about-section {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.about-section h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.about-section p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.about-section ul {
+  list-style-position: inside;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.about-section li {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
