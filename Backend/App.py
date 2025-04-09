@@ -74,7 +74,12 @@ def get_current_user():
 
 @app.after_request
 def add_cors_headers(response):
-    print("Response headers:", response.headers)
+    origin = request.headers.get('Origin')
+    if origin in ["http://localhost:3000", "https://one20eaststate3-frontend.onrender.com"]:
+        response.headers.add("Access-Control-Allow-Origin", origin)
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
     return response
 
 @app.route('/api/auth/login', methods=['GET'])
