@@ -1,2 +1,2 @@
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "https://one20es-backend-bd090d21d298.herokuapp.com";
 export default BASE_API_URL;
