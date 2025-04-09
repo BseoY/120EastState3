@@ -1,16 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react'; // Make sure to import useState
 import axios from 'axios';
 import "../styles/Nav.css";
 import BASE_API_URL from '../config';
 import Sidebar from "./Sidebar";
 import useIsMobile from '../hooks/useIsMobile';
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';  // Add this import
 
 function Nav({ user, isAuthenticated, onLogout }) {
-  const isMobile = useIsMobile(); // custom hook detects screen size
+  const isMobile = useIsMobile();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   
+  // Add these state declarations at the top of your component
+  const [showUserPosts, setShowUserPosts] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+
+  const fetchUserPosts = async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      setLoadingPosts(true);
+      const response = await axios.get(`${BASE_API_URL}/api/user/posts`, {
+        withCredentials: true
+      });
+      setUserPosts(response.data);
+      setShowUserPosts(true);
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
       // Get the Google login URL from the backend
@@ -48,12 +71,44 @@ function Nav({ user, isAuthenticated, onLogout }) {
                 className="nav-profile-pic"
               />
             )}
+            <Link to="/your-posts" className="nav-link">Your Posts</Link>
             <button onClick={onLogout}>Log out</button>
           </div>
         ) : (
           <button onClick={handleGoogleLogin}>Log in</button>
         )}
       </div>
+
+      {/* User Posts Dropdown */}
+      {showUserPosts && (
+        <div className="user-posts-dropdown">
+          <button 
+            className="close-posts"
+            onClick={() => setShowUserPosts(false)}
+          >
+            ×
+          </button>
+          
+          <h3>Your Posts</h3>
+          
+          {userPosts.length > 0 ? (
+            <ul>
+              {userPosts.map(post => (
+                <li key={post.id}>
+                  <h4>{post.title}</h4>
+                  <p>{post.content.substring(0, 100)}...</p>
+                  <small>
+                    {new Date(post.date_created).toLocaleDateString()} • 
+                    Status: {post.status}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>You haven't created any posts yet.</p>
+          )}
+        </div>
+      )}
 
       {/* Render the Sidebar only on mobile */}
       {isMobile && (

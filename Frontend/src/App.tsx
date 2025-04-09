@@ -4,6 +4,8 @@ import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
 import Nav from "./components/Nav";
+import UserPosts from './components/Userposts';
+
 import Form from "./components/Form";
 import Login from "./components/Login";
 import UserProfile from "./components/UserProfile";
@@ -206,6 +208,13 @@ const [posts, setPosts] = useState<PostType[]>([]);
             authChecked={authChecked}
             handleLoginSuccess={handleLoginSuccess}
             handleLogout={handleLogout}
+          />
+        } />
+        <Route path="/your-posts" element={
+          <UserPosts 
+            user={user}
+            isAuthenticated={isAuthenticated}
+            onLogout={handleLogout}
           />
         } />
         <Route path="/about" element={
