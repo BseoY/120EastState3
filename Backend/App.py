@@ -18,14 +18,14 @@ import oauthlib.oauth2
 app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:3000", "https://one20eaststate3-frontend.onrender.com"],
-        "supports_credentials": True,
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+CORS(app, resources={r"/api/*": {"origins": [
+    "http://localhost:3000",
+    # Comment out Render domain
+    # "https://one20eaststate3-frontend.onrender.com"
+    # Add Heroku domains
+    "https://120eaststate3-frontend.herokuapp.com",
+    "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
+]}}, supports_credentials=True)
 
 print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
 
@@ -49,13 +49,22 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
 
 # Database config
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+# Handle Heroku PostgreSQL URL format
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 print("Using database:", app.config['SQLALCHEMY_DATABASE_URI'])
 
 db.init_app(app)
 with app.app_context():
-    db.create_all()
+    # Create tables if they don't exist
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Error creating tables: {e}")
+        # Continue execution even if table creation fails
 
 
 # API Routes
