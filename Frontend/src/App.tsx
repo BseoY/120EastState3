@@ -199,7 +199,15 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin" element={
+          <AdminDashboard 
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
+        } />
         <Route path="/about" element={
           <About 
             user={user}

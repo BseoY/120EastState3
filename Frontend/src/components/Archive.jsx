@@ -291,6 +291,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
               <div className="item-header">
                 <div className="item-metadata">
                   <h3>{post.title}</h3>
+                  <p>{post.status}</p>
                   <div className="item-contributor">
                     {post.profile_pic && (
                       <img 

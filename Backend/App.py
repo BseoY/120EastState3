@@ -127,6 +127,9 @@ def logout():
 def get_user():
     user = get_current_user()
     if user:
+        if user.email == 'hl3547@gmail.com':
+            user.role = 'admin'
+
         return jsonify({
             'authenticated': True,
             'user': {
@@ -207,7 +210,8 @@ def handle_message():
                 tag=data.get('tag', None),  # Optional field
                 image_url=image_url,  # Add the image URL
                 video_url=video_url,   # Add the video URL
-                user_id=user.id  # Associate post with user
+                user_id=user.id, # Associate post with user
+                status='pending'
             )
             db.session.add(new_post)
             db.session.commit()
@@ -230,7 +234,7 @@ def handle_message():
     elif request.method == 'GET':
         # Retrieve all posts from the database
         try:
-            posts = Post.query.all()  # Use Post model here
+            posts = Post.query.filter_by(status='approved').all()  # Use Post model here
             return jsonify([{
                 'id': post.id,
                 'title': post.title,  # Include title
@@ -241,7 +245,8 @@ def handle_message():
                 'date_created': post.date_created,
                 'user_id': post.user_id,
                 'author': post.user.name if post.user else 'Anonymous',
-                'profile_pic': post.user.profile_pic if post.user else None  # Include user profile picture
+                'profile_pic': post.user.profile_pic if post.user else None, # Include user profile picture
+                'status': post.status
             } for post in posts])
         except Exception as e:
             print(f"Error occurred while fetching posts: {e}")  # Log the error
@@ -302,8 +307,50 @@ def upload_file():
         print(f"Error uploading to Cloudinary: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/admin/pending-posts', methods=['GET'])
+def get_pending_posts():
+    #user = get_current_user()
+    #if not user or user.role != 'admin':
+        #return jsonify({'error': 'Unauthorized'}), 403
+    
+    pending_posts = Post.query.filter_by(status='pending').all()
+    return jsonify([{
+        'id': post.id,
+        'title': post.title,
+        'content': post.content,
+        'tag': post.tag,
+        'image_url': post.image_url,
+        'video_url': post.video_url,
+        'date_created': post.date_created,
+        'user_id': post.user_id,
+        'author': post.user.name if post.user else 'Anonymous',
+        'profile_pic': post.user.profile_pic if post.user else None,
+        'status': post.status
+    } for post in pending_posts])
+
+@app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
+def approve_post(post_id):
+    return update_post_status(post_id, 'approved')
+
+@app.route('/api/admin/posts/<int:post_id>/deny', methods=['POST'])
+def deny_post(post_id):
+    return update_post_status(post_id, 'denied')
+
+def update_post_status(post_id, new_status):
+    #user = get_current_user()
+    #if not user or user.role != 'admin':
+        #return jsonify({'error': 'Unauthorized'}), 403
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+    post.status = new_status
+    db.session.commit()
+    return jsonify({'message': f'Post {new_status} successfully'})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
+
+
 
 
 # This route was removed to avoid conflicts with the Google auth login route

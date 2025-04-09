@@ -21,6 +21,7 @@ class Post(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Allow null for backward compatibility
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
+    status = db.Column(db.String(20), default='pending')
     def __repr__(self):
         return f'<Post {self.title}>'
     

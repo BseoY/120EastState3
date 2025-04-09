@@ -48,6 +48,15 @@ with app.app_context():
     else:
         print("user_id column already exists in Post table.")
     
+    if 'status' not in columns:
+        print("Adding status column to Post table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE post ADD COLUMN status VARCHAR(20) DEFAULT \'pending\''))
+            conn.commit()
+        print("status column added successfully!")
+    else:
+        print("status column already exists in Post table.")
+        
     # Check if User table exists
     tables = inspector.get_table_names()
     if 'user' not in tables:
