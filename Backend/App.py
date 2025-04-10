@@ -3,6 +3,7 @@ import dotenv
 dotenv.load_dotenv()
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 from flask_cors import CORS
+from functools import wraps
 from Models import db, Post, User
 from datetime import timedelta
 import cloudinary
@@ -73,6 +74,8 @@ with app.app_context():
         # Continue execution even if table creation fails
 
 
+
+
 # API Routes
 # Authentication helper function
 def get_current_user():
@@ -81,6 +84,13 @@ def get_current_user():
         return None
     user_info = session['user_info']
     user = User.query.filter_by(google_id=user_info['sub']).first()
+
+    # Check the email domain instead of individual emails
+    admin_domains = ['@princeton.edu', '@120eaststate.org']  # Add more domains as needed
+    
+    if user and any(user.email.endswith(domain) for domain in admin_domains):
+        user.role = 'admin'
+
     if not user:
         user = User(
             google_id=user_info['sub'],
@@ -138,18 +148,26 @@ def logout():
     session.clear()
     return jsonify({'message': 'Logged out successfully'})
 
+# function for role vertification       
+def require_roles(*required_roles):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                user = get_current_user()
+                if not user or user.role not in required_roles:
+                    raise Exception
+                return f(*args, **kwargs)
+            except Exception as e:
+                print(f"You do not have access")
+                return jsonify({'error': str(e)}), 403
+        return wrapper
+    return decorator
+
 @app.route('/api/auth/user', methods=['GET'])
 def get_user():
     user = get_current_user()
     if user:
-        if user.email == 'hl3547@princeton.edu' :
-            user.role = 'admin'
-        if user.email == 'bs1207@princeton.edu' :
-            user.role = 'admin'
-        if user.email == 'cho.andrew@princeton.edu' :
-            user.role = 'admin'
-
-
         return jsonify({
             'authenticated': True,
             'user': {
@@ -171,7 +189,7 @@ def handle_message():
     elif request.method == 'GET':
         # Retrieve all posts from the database
         try:
-            posts = Post.query.filter_by(status='approved').all()
+            posts = Post.query.filter_by(status='approved').order_by(Post.date_created.desc()).all()
             return jsonify([{
                 'id': post.id,
                 'title': post.title,
@@ -343,6 +361,7 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/pending-posts', methods=['GET'])
+@require_roles('admin')
 def get_pending_posts():
     #user = get_current_user()
     #if not user or user.role != 'admin':

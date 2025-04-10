@@ -135,7 +135,7 @@ h1, h2, h3 {
   overflow-x: hidden;
 }
 
-@media (width < 1000px) {
+@media (width < 600px) {
   .content-container {
     max-width: 100%;  /* Changed from 100vw to 100% */
     width: 100%;        /* Allow it to fill the available space, but limited by max-width */
@@ -172,13 +172,13 @@ h1, h2, h3 {
   }
   #explore-text {
     margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 1.5rem;
     color: #333;
     font-weight: 500;
   }
 }
-@media (width >= 1000px) {
+@media (width >= 600px) {
   .content-container {
     max-width: 100%;  /* Changed from 100vw to 100% */
     width: 100%;        /* Allow it to fill the available space, but limited by max-width */
@@ -230,7 +230,7 @@ p#caron:hover {
 }
 
 .action-buttons {
-  margin-top: 2rem;
+  margin-top: 1rem;
   display: flex;
   justify-content: center;
   margin-bottom: 2rem;

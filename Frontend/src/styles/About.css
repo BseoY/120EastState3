@@ -30,9 +30,10 @@
 }
 
 .about-section ul {
+  list-style: none;
   list-style-position: inside;
-  margin-left: 1.5rem;
   margin-bottom: 1rem;
+  padding: 0;
 }
 
 .about-section li {

@@ -6,6 +6,7 @@ import "./styles/App.css";
 import Grid from "./components/Grid";
 import Nav from "./components/Nav";
 import UserPosts from './components/Userposts';
+import Carousel from './components/Carousel';
 import ProtectedRoute from './components/ProtectedRoute';
 import Form from "./components/Form";
 import Login from "./components/Login";
@@ -88,9 +89,11 @@ function HomePage({
           </div>
         </div>
         <div className="archive-section">
+          <strong>Recent Archives</strong>
+          <Carousel posts={posts}></Carousel>
           <p id="explore-text">Explore our historical collection</p>
           <div className="action-buttons">
-            <Link to="/archive" className="archive-btn">View Archive</Link>
+            <Link to="/archive" className="archive-btn">View Full Archive</Link>
           </div>
         </div>
       </section>
@@ -214,10 +217,10 @@ const [posts, setPosts] = useState<PostType[]>([]);
         } />
         <Route path="/admin" element={
           <ProtectedRoute
-            isAuthenticated={isAuthenticated}
-            authChecked={authChecked}
-            allowedRoles={['admin']} // You can allow other roles too if needed
             user={user}
+            authChecked={authChecked}
+            isAuthenticated={isAuthenticated}
+            allowedRoles={['admin']} // You can allow other roles too if needed
           >
           <AdminDashboard 
             user={user}
