@@ -1,0 +1,13 @@
+.post-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.each-post {
+  border: 1px solid black;
+}
+
+.adminbuttons {
+  
+}

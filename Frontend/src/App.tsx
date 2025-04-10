@@ -5,13 +5,14 @@ import "./styles/App.css";
 import Grid from "./components/Grid";
 import Nav from "./components/Nav";
 import UserPosts from './components/Userposts';
-
+import ProtectedRoute from './components/ProtectedRoute';
 import Form from "./components/Form";
 import Login from "./components/Login";
 import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
+import Error from "./views/Error/Error";
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
@@ -202,6 +203,12 @@ const [posts, setPosts] = useState<PostType[]>([]);
           />
         } />
         <Route path="/admin" element={
+          <ProtectedRoute
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            allowedRoles={['admin']} // You can allow other roles too if needed
+            user={user}
+          >
           <AdminDashboard 
             user={user}
             isAuthenticated={isAuthenticated}
@@ -209,6 +216,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLoginSuccess={handleLoginSuccess}
             handleLogout={handleLogout}
           />
+          </ProtectedRoute>
         } />
         <Route path="/your-posts" element={
           <UserPosts 
@@ -226,6 +234,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
+        <Route path="/error" element={<Error />} />
       </Routes>
     </Router>
   );

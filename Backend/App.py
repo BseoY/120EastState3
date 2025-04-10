@@ -72,6 +72,7 @@ with app.app_context():
 # Authentication helper function
 def get_current_user():
     if 'user_info' not in session:
+        print("oops")
         return None
     user_info = session['user_info']
     user = User.query.filter_by(google_id=user_info['sub']).first()
@@ -136,8 +137,13 @@ def logout():
 def get_user():
     user = get_current_user()
     if user:
-        if user.email == 'hl3547@gmail.com':
+        if user.email == 'hl3547@princeton.edu' :
             user.role = 'admin'
+        if user.email == 'brian.seo@@princeton.edu' :
+            user.role = 'admin'
+        if user.email == 'cho.andrew@princeton.edu' :
+            user.role = 'admin'
+
 
         return jsonify({
             'authenticated': True,

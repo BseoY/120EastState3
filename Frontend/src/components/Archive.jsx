@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import BASE_API_URL from '../config';
 import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
+
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 // Predefined tags for dropdown selection
 const PREDEFINED_TAGS = [
