@@ -18,15 +18,20 @@ import oauthlib.oauth2
 app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
-CORS(app, resources={r"/api/*": {"origins": [
-    "*",
-    #"http://localhost:3000",
-    # Comment out Render domain
-    # "https://one20eaststate3-frontend.onrender.com"
-    # Add Heroku domains
-    #"https://120eaststate3-frontend.herokuapp.com",
-    #"https://one20es-frontend-ea37035e8ebf.herokuapp.com"
-]}}, supports_credentials=True)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000", "https://120eaststate3-frontend.herokuapp.com", "https://one20es-frontend-ea37035e8ebf.herokuapp.com"],
+        "supports_credentials": True
+    }
+})
+
+# Add this to ensure no duplicate headers
+@app.after_request
+def after_request(response):
+    # Ensure we don't have duplicate headers
+    if 'Access-Control-Allow-Origin' in response.headers:
+        response.headers['Access-Control-Allow-Origin'] = "http://localhost:3000"  # Or the appropriate origin
+    return response
 
 print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
 
@@ -139,7 +144,7 @@ def get_user():
     if user:
         if user.email == 'hl3547@princeton.edu' :
             user.role = 'admin'
-        if user.email == 'brian.seo@princeton.edu' :
+        if user.email == 'bs1207@princeton.edu' :
             user.role = 'admin'
         if user.email == 'cho.andrew@princeton.edu' :
             user.role = 'admin'
@@ -253,13 +258,26 @@ def handle_message():
             print(f"Error occurred: {e}")
             return jsonify({'error': str(e)}), 500
         
-@app.route('/api/user/posts', methods=['GET'])
+@app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
 def get_user_posts():
+    print("Endpoint /api/user/posts hit")  # Debugging line
+    print("Request headers:", request.headers)  # Debug headers
+    print("Request method:", request.method)  # Debug method
+    
+    if request.method == 'OPTIONS':
+        print("Handling OPTIONS request")
+        response = jsonify({'message': 'Preflight OK'})
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response, 200
+    
     user = get_current_user()
     if not user:
+        print("No user found - unauthorized")
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
+        print(f"Fetching posts for user {user.id}")
         user_posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_created.desc()).all()
         return jsonify([{
             'id': post.id,
@@ -268,10 +286,11 @@ def get_user_posts():
             'tag': post.tag,
             'image_url': post.image_url,
             'video_url': post.video_url,
-            'date_created': post.date_created,
+            'date_created': post.date_created.isoformat() if post.date_created else None,
             'status': post.status
         } for post in user_posts])
     except Exception as e:
+        print(f"Error in get_user_posts: {str(e)}")
         return jsonify({'error': str(e)}), 500
     
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])

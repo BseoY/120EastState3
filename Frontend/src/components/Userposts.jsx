@@ -14,11 +14,22 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
+        console.log("Fetching user posts from:", `${BASE_API_URL}/api/user/posts`);
         const response = await axios.get(`${BASE_API_URL}/api/user/posts`, {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
         });
+        console.log("Response received:", response);
         setPosts(response.data);
       } catch (err) {
+        console.error('Full error:', {
+          message: err.message,
+          response: err.response,
+          stack: err.stack
+        });
         setError(err.response?.data?.error || 'Failed to fetch your posts');
       } finally {
         setLoading(false);
