@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
-import axios from 'axios';
-import BASE_API_URL from '../config';
+import axios from "axios";
 import "../styles/App.css";
+
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 // Predefined tags for dropdown selection
 const PREDEFINED_TAGS = ['Church', 'Family', 'History', 'Trenton', 'Community'];

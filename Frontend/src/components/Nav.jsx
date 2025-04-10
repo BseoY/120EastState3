@@ -1,11 +1,12 @@
 import React, { useState } from 'react'; // Make sure to import useState
 import axios from 'axios';
 import "../styles/Nav.css";
-import BASE_API_URL from '../config';
 import Sidebar from "./Sidebar";
 import useIsMobile from '../hooks/useIsMobile';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';  // Add this import
+
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const isMobile = useIsMobile();
@@ -38,7 +39,8 @@ function Nav({ user, isAuthenticated, onLogout }) {
     try {
       // Get the Google login URL from the backend
       const response = await axios.get(`${BASE_API_URL}/api/auth/login`);
-      
+      console.log(`${BASE_API_URL}/api/auth/login`)
+      console.log(response.data);
       // Redirect to Google login page
       window.location.href = response.data.redirect_url;
     } catch (error) {

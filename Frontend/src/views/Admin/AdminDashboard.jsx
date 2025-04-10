@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import BASE_API_URL from '../../config.js';
+
 import Nav from '../../components/Nav';
+import '../../../src/styles/Admin.css';
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
-  const [posts, setPendingPosts] = useState([]);
+  const [pendingPosts, setPendingPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPendingPosts = async () => {
@@ -37,36 +39,45 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   if (loading) return <div>Loading pending posts...</div>;
 
   return (
+    <>
     <div>
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <h1>Admin Dashboard</h1>
   
-      {posts.length === 0 ? (
+      {pendingPosts.length === 0 ? (
         <p>No pending posts</p> // Show message if no posts are found
       ) : (
-        <div>
-          {posts.map((post) => (
-            <div key={post.id}>
-              <h3>{post.title}</h3>
-              <p>{post.content}</p>
-              <p>{post.status}</p>
-              <button
-                onClick={() => updateStatus(post.id, 'approve')}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition"
-              >
-                Approve
-              </button>
-              <button
-                onClick={() => updateStatus(post.id, 'deny')}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition"
-              >
-                Deny
-              </button>
+        <div className='post-container'>
+          {pendingPosts.map((post) => (
+            <div key={post.id} className='each-post'>
+              <div>
+                <h3>{post.title}</h3>
+                <p>{post.status}</p>
+              <div>
+                <button
+                  onClick={() => updateStatus(post.id, 'approve')}
+                  className="approve-button"
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => updateStatus(post.id, 'deny')}
+                  className="deny-button"
+                >
+                  Deny
+                </button>
+              </div>
+            </div>
             </div>
           ))}
         </div>
       )}
     </div>
+
+    <div>
+
+    </div>
+    </>
   );
 }
 

@@ -19,12 +19,13 @@ app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
 CORS(app, resources={r"/api/*": {"origins": [
-    "http://localhost:3000",
+    "*",
+    #"http://localhost:3000",
     # Comment out Render domain
     # "https://one20eaststate3-frontend.onrender.com"
     # Add Heroku domains
-    "https://120eaststate3-frontend.herokuapp.com",
-    "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
+    #"https://120eaststate3-frontend.herokuapp.com",
+    #"https://one20es-frontend-ea37035e8ebf.herokuapp.com"
 ]}}, supports_credentials=True)
 
 print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
@@ -71,6 +72,7 @@ with app.app_context():
 # Authentication helper function
 def get_current_user():
     if 'user_info' not in session:
+        print("oops")
         return None
     user_info = session['user_info']
     user = User.query.filter_by(google_id=user_info['sub']).first()
@@ -135,7 +137,7 @@ def logout():
 def get_user():
     user = get_current_user()
     if user:
-        if user.email == 'hl3547@gmail.com':
+        if user.email == 'hl3547@princeton.edu':
             user.role = 'admin'
 
         return jsonify({
