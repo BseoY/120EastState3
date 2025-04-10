@@ -1,96 +1,103 @@
+# Standard library imports
 import os
-import dotenv
-dotenv.load_dotenv()
-from flask import Flask, jsonify, render_template, request, session, redirect, url_for
-from flask_cors import CORS
-from functools import wraps
-from Models import db, Post, User
+import json
 from datetime import timedelta
+from functools import wraps
+
+# Third-party imports
+import dotenv
+import requests
 import cloudinary
 import cloudinary.uploader
-from cloudinary_config import configure_cloudinary
-import json
-import requests
 import oauthlib.oauth2
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for
+from flask_cors import CORS
+
+# Local imports
+from Models import db, Post, User
+from cloudinary_config import configure_cloudinary
 
 # Load environment variables
+dotenv.load_dotenv()
 
 # Initialize app
 app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
+allowed_origins = [
+    "http://localhost:3000", 
+    "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
+]
+
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000", "https://120eaststate3-frontend.herokuapp.com", "https://one20es-frontend-ea37035e8ebf.herokuapp.com"],
+        "origins": allowed_origins,
         "supports_credentials": True
     }
 })
 
-# Add this to ensure no duplicate headers
 @app.after_request
 def after_request(response):
-    # Ensure we don't have duplicate headers
+    """Ensure no duplicate CORS headers in responses"""
     if 'Access-Control-Allow-Origin' in response.headers:
-        response.headers['Access-Control-Allow-Origin'] = "http://localhost:3000"  # Or the appropriate origin
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
-print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
-
-
-# Session config
+# Session configuration
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 
-# Cloudinary config
+# Cloudinary configuration
 configure_cloudinary()
 
 # OAuth configuration
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Only for development
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
 
-# Database config
+# Database configuration
 # Handle Heroku PostgreSQL URL format
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-print("Using database:", app.config['SQLALCHEMY_DATABASE_URI'])
 
+# Initialize database
 db.init_app(app)
 with app.app_context():
-    # Create tables if they don't exist
     try:
         db.create_all()
     except Exception as e:
         print(f"Error creating tables: {e}")
         # Continue execution even if table creation fails
 
-
-
-
 # API Routes
-# Authentication helper function
+
+# Authentication Helper Functions
 def get_current_user():
+    """Get the current authenticated user or create a new user if not exists"""
     if 'user_info' not in session:
-        print("oops")
         return None
+        
     user_info = session['user_info']
     user = User.query.filter_by(google_id=user_info['sub']).first()
 
-    # Check the email domain instead of individual emails
-    admin_domains = ['@princeton.edu', '@120eaststate.org']  # Add more domains as needed
+    # Set admin role for users with specific email domains
+    admin_domains = ['@princeton.edu', '@120eaststate.org']
     
     if user and any(user.email.endswith(domain) for domain in admin_domains):
         user.role = 'admin'
 
+    # Create new user if not exists
     if not user:
         user = User(
             google_id=user_info['sub'],
@@ -100,10 +107,12 @@ def get_current_user():
         )
         db.session.add(user)
         db.session.commit()
+        
     return user
 
 @app.route('/api/auth/login', methods=['GET'])
 def login():
+    """Initiate Google OAuth login flow"""
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
     redirect_uri = url_for('callback', _external=True)
@@ -116,56 +125,87 @@ def login():
 
 @app.route('/api/auth/login/callback', methods=['GET'])
 def callback():
-    code = request.args.get('code')
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-    token_endpoint = google_provider_cfg['token_endpoint']
-    token_url, headers, body = oauth_client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-        timeout=5
-    )
-    oauth_client.parse_request_body_response(json.dumps(token_response.json()))
-    userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
-    uri, headers, body = oauth_client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
-    if userinfo_response.json().get('email_verified'):
-        session['user_info'] = userinfo_response.json()
-        get_current_user()
-        return redirect(os.getenv("FRONTEND_REDIRECT_URL", "http://localhost:3000"))
-    else:
-        return jsonify({'error': 'User email not verified by Google'}), 400
+    """Handle Google OAuth callback and authenticate user"""
+    try:
+        # Get authorization code from request
+        code = request.args.get('code')
+        if not code:
+            return jsonify({'error': 'Authorization code not provided'}), 400
+            
+        # Get token endpoint from Google's discovery document
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
+        token_endpoint = google_provider_cfg['token_endpoint']
+        
+        # Prepare token request
+        token_url, headers, body = oauth_client.prepare_token_request(
+            token_endpoint,
+            authorization_response=request.url,
+            redirect_url=request.base_url,
+            code=code
+        )
+        
+        # Exchange code for tokens
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            timeout=5
+        )
+        oauth_client.parse_request_body_response(json.dumps(token_response.json()))
 
-@app.route('/api/auth/logout', methods=['GET', 'POST'])
+        # Get user info from Google
+        userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
+        uri, headers, body = oauth_client.add_token(userinfo_endpoint)
+        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
+
+        # Verify user email and create session
+        if userinfo_response.json().get('email_verified'):
+            session['user_info'] = userinfo_response.json()
+            return redirect(os.getenv('FRONTEND_ORIGIN', 'http://localhost:3000'))
+            
+        return jsonify({'error': 'User email not verified by Google.'}), 400
+        
+    except Exception as e:
+        return jsonify({'error': f'Authentication error: {str(e)}'}), 500
+
+@app.route('/api/auth/logout', methods=['POST'])
 def logout():
-    session.clear()
-    return jsonify({'message': 'Logged out successfully'})
+    """Log out the current user by clearing their session"""
+    session.pop('user_info', None)
+    return jsonify({'success': True, 'message': 'Successfully logged out'})
 
 # function for role vertification       
 def require_roles(*required_roles):
+    """Decorator to restrict route access to users with specific roles
+    
+    Args:
+        *required_roles: A list of role names that are allowed to access the route
+        
+    Returns:
+        Function decorator that checks user roles before allowing access
+    """
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            try:
-                user = get_current_user()
-                if not user or user.role not in required_roles:
-                    raise Exception
-                return f(*args, **kwargs)
-            except Exception as e:
-                print(f"You do not have access")
-                return jsonify({'error': str(e)}), 403
+            user = get_current_user()
+            if not user:
+                return jsonify({'error': 'Authentication required'}), 401
+            
+            if user.role not in required_roles:
+                return jsonify({'error': 'Unauthorized: insufficient privileges'}), 403
+                
+            return f(*args, **kwargs)
         return wrapper
     return decorator
 
 @app.route('/api/auth/user', methods=['GET'])
 def get_user():
+    """Get current authenticated user information
+    
+    Returns:
+        JSON with user details if authenticated, or authentication status if not
+    """
     user = get_current_user()
     if user:
         return jsonify({
@@ -181,13 +221,25 @@ def get_user():
     else:
         return jsonify({'authenticated': False})
 
-@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])  # Add 'GET' here
+@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
 def handle_message():
+    """Handle post operations (create new posts and get all posts)
+    
+    Methods:
+        GET: Retrieve all approved posts
+        POST: Create a new post with optional media attachments
+        OPTIONS: Handle preflight CORS requests
+        
+    Returns:
+        GET: JSON array of all approved posts
+        POST: JSON with new post details and confirmation message
+        OPTIONS: Empty response for CORS preflight
+    """
     if request.method == 'OPTIONS':
         return '', 204  # Preflight response
     
     elif request.method == 'GET':
-        # Retrieve all posts from the database
+        # Retrieve all approved posts from the database
         try:
             posts = Post.query.filter_by(status='approved').order_by(Post.date_created.desc()).all()
             return jsonify([{
@@ -204,16 +256,15 @@ def handle_message():
                 'status': post.status
             } for post in posts])
         except Exception as e:
-            print(f"Error fetching posts: {e}")
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'error': f'Error fetching posts: {str(e)}'}), 500
     
     elif request.method == 'POST':
-        # Your existing POST handling logic
+        # Create a new post
         user = get_current_user()
         if not user:
             return jsonify({'error': 'Authentication required'}), 401
 
-        # Handle form data instead of JSON
+        # Process form data
         try:
             title = request.form.get('title')
             content = request.form.get('content')
@@ -225,7 +276,7 @@ def handle_message():
             image_url = None
             video_url = None
             
-            # Handle file uploads
+            # Handle image upload
             if 'image' in request.files:
                 image_file = request.files['image']
                 if image_file.filename != '':
@@ -236,6 +287,7 @@ def handle_message():
                     )
                     image_url = upload_result.get('secure_url')
 
+            # Handle video upload
             if 'video' in request.files:
                 video_file = request.files['video']
                 if video_file.filename != '':
@@ -246,6 +298,7 @@ def handle_message():
                     )
                     video_url = upload_result.get('secure_url')
 
+            # Create and save the new post
             new_post = Post(
                 title=title,
                 content=content,
@@ -260,7 +313,7 @@ def handle_message():
             db.session.commit()
             
             return jsonify({
-                'message': 'Post added successfully!',
+                'message': 'Post added successfully! It will be visible after approval.',
                 'post': {
                     'id': new_post.id,
                     'title': title,
@@ -273,17 +326,21 @@ def handle_message():
             
         except Exception as e:
             db.session.rollback()
-            print(f"Error occurred: {e}")
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'error': f'Error creating post: {str(e)}'}), 500
         
 @app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
 def get_user_posts():
-    print("Endpoint /api/user/posts hit")  # Debugging line
-    print("Request headers:", request.headers)  # Debug headers
-    print("Request method:", request.method)  # Debug method
+    """Get all posts created by the current authenticated user
     
+    Methods:
+        GET: Retrieve posts for current user
+        OPTIONS: Handle preflight CORS requests
+        
+    Returns:
+        GET: JSON array of all posts created by the user
+        OPTIONS: Response with appropriate CORS headers
+    """
     if request.method == 'OPTIONS':
-        print("Handling OPTIONS request")
         response = jsonify({'message': 'Preflight OK'})
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
@@ -291,11 +348,9 @@ def get_user_posts():
     
     user = get_current_user()
     if not user:
-        print("No user found - unauthorized")
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
-        print(f"Fetching posts for user {user.id}")
         user_posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_created.desc()).all()
         return jsonify([{
             'id': post.id,
@@ -308,19 +363,30 @@ def get_user_posts():
             'status': post.status
         } for post in user_posts])
     except Exception as e:
-        print(f"Error in get_user_posts: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error retrieving user posts: {str(e)}'}), 500
     
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
 def upload_file():
+    """Upload a file (image or video) to Cloudinary
+    
+    Methods:
+        POST: Upload a file and receive a URL
+        OPTIONS: Handle preflight CORS requests
+        
+    Returns:
+        POST: JSON with the URL of the uploaded file
+        OPTIONS: Empty response for CORS preflight
+    """
     # Handle preflight request for CORS
     if request.method == 'OPTIONS':
         return '', 204  # Empty response with 204 (No Content) status
+        
     # Check if user is authenticated
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Authentication required'}), 401
         
+    # Validate file in request
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -357,16 +423,18 @@ def upload_file():
                 'image_url': upload_result.get('secure_url')
             })
     except Exception as e:
-        print(f"Error uploading to Cloudinary: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error uploading to Cloudinary: {str(e)}'}), 500
 
 @app.route('/api/admin/pending-posts', methods=['GET'])
 @require_roles('admin')
 def get_pending_posts():
-    #user = get_current_user()
-    #if not user or user.role != 'admin':
-        #return jsonify({'error': 'Unauthorized'}), 403
+    """Get all pending posts that need admin approval
     
+    This endpoint is restricted to users with 'admin' role
+    
+    Returns:
+        JSON array of all pending posts
+    """
     pending_posts = Post.query.filter_by(status='pending').all()
     return jsonify([{
         'id': post.id,
@@ -383,54 +451,58 @@ def get_pending_posts():
     } for post in pending_posts])
 
 @app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
+@require_roles('admin')
 def approve_post(post_id):
+    """Approve a pending post
+    
+    This endpoint is restricted to users with 'admin' role
+    
+    Args:
+        post_id: The ID of the post to approve
+        
+    Returns:
+        JSON confirmation message
+    """
     return update_post_status(post_id, 'approved')
 
 @app.route('/api/admin/posts/<int:post_id>/deny', methods=['POST'])
+@require_roles('admin')
 def deny_post(post_id):
+    """Deny a pending post
+    
+    This endpoint is restricted to users with 'admin' role
+    
+    Args:
+        post_id: The ID of the post to deny
+        
+    Returns:
+        JSON confirmation message
+    """
     return update_post_status(post_id, 'denied')
 
 def update_post_status(post_id, new_status):
-    #user = get_current_user()
-    #if not user or user.role != 'admin':
-        #return jsonify({'error': 'Unauthorized'}), 403
+    """Update the status of a post
+    
+    This is a helper function for approve_post and deny_post
+    
+    Args:
+        post_id: The ID of the post to update
+        new_status: The new status ('approved' or 'denied')
+        
+    Returns:
+        JSON response with success message or error
+    """
     post = Post.query.get(post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
+        
     post.status = new_status
     db.session.commit()
-    return jsonify({'message': f'Post {new_status} successfully'})
+    return jsonify({
+        'message': f'Post {new_status} successfully',
+        'post_id': post_id,
+        'status': new_status
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
-
-
-
-
-# This route was removed to avoid conflicts with the Google auth login route
-
-
-"""       
-@app.route('/')
-def index():
-    return render_template("index.html")
-
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-@app.route('/ContactUs')
-def contact():
-    return render_template("contact.html")
-"""
-# API endpoint to get all archive items
-"""
-@app.route('/api/items', methods=['GET'])
-def get_items():
-    items = ArchiveItem.query.all()
-    return jsonify([
-        {'id': item.id, 'title': item.title, 'description': item.description}
-        for item in items
-    ])
-"""
-
