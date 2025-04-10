@@ -149,7 +149,9 @@ def callback():
     redirect_path = flask.session.get('redirect_after_login', '/archive')
     
     # Redirect to the frontend with login success parameter
-    return flask.redirect(f'http://localhost:3000{redirect_path}?login_success=true')
+    # Default to localhost:3000 if not set. For Heroku
+    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    return flask.redirect(f'{frontend_url}{redirect_path}?login_success=true')
 
 #-----------------------------------------------------------------------
 
