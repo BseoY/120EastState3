@@ -139,7 +139,7 @@ def get_user():
     if user:
         if user.email == 'hl3547@princeton.edu' :
             user.role = 'admin'
-        if user.email == 'brian.seo@@princeton.edu' :
+        if user.email == 'brian.seo@princeton.edu' :
             user.role = 'admin'
         if user.email == 'cho.andrew@princeton.edu' :
             user.role = 'admin'
