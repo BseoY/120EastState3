@@ -18,14 +18,15 @@ import oauthlib.oauth2
 app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
-CORS(app, resources={r"/api/*": {"origins": [
-    "http://localhost:3000",
-    # Comment out Render domain
-    # "https://one20eaststate3-frontend.onrender.com"
-    # Add Heroku domains
-    "https://120eaststate3-frontend.herokuapp.com",
-    "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
-]}}, supports_credentials=True)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000", "https://120eaststate3-frontend.herokuapp.com", "https://one20es-frontend-ea37035e8ebf.herokuapp.com"],
+        "supports_credentials": True,
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
 
 print("CORS allowed origins:", os.getenv("FRONTEND_ORIGIN"))
 
@@ -246,8 +247,12 @@ def handle_message():
             print(f"Error occurred: {e}")
             return jsonify({'error': str(e)}), 500
         
-@app.route('/api/user/posts', methods=['GET'])
+@app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
 def get_user_posts():
+    if request.method == 'OPTIONS':
+        return '', 204  # Empty response for preflight
+    
+    # Rest of your existing GET logic
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Authentication required'}), 401
