@@ -6,9 +6,12 @@ import '../../../src/styles/Admin.css';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const [pendingPosts, setPendingPosts] = useState([]);
+  const [showPendingPosts, setShowPendingPosts] = useState(false);
   const [existingPosts, setExistingPosts] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [showMessages, setShowMessages] = useState(false);
   const [loading, setLoading] = useState(true);
+
 
   const fetchPendingPosts = async () => {
     try {
@@ -71,59 +74,65 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
   return (
     <>
-    <div>
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <h1>Admin Dashboard</h1>
-  
-      {pendingPosts.length === 0 ? (
-        <p>No pending posts</p> // Show message if no posts are found
-      ) : (
-        <div className='post-container'>
-          {pendingPosts.map((post) => (
-            <div key={post.id} className='each-post'>
-              <div>
-                <h3>{post.title}</h3>
-                <p>{post.status}</p>
-              <div>
-                <button
-                  onClick={() => updateStatus(post.id, 'approve')}
-                  className="approve-button"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => updateStatus(post.id, 'deny')}
-                  className="deny-button"
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
 
-    <div>
-        <h1>Pending Messages</h1>
-        <div className='message-grid'>
-        {messages.length === 0 ? (
-          <p>No pending messages</p> // Show message if no messages are found
-        ) : (
-          messages.map(msg => (
-              <div key={msg.id} className="message-card">
-                <p><strong>Name:</strong> {msg.name}</p>
-                <p><strong>Email:</strong> {msg.email}</p>
-                <p><strong>Message:</strong> {msg.message}</p>
+      <div> 
+        <button onClick={() => setShowPendingPosts(prev => !prev)}> 
+          {showPendingPosts ? 'Hide Pending Posts' : 'Show Pending Posts'}
+        </button>
+
+        {showPendingPosts && (
+          <>
+            <h1>Pending Posts</h1>
+            {pendingPosts.length === 0 ? (
+              <p>No pending posts</p>
+            ) : (
+              <div className='post-container'>
+                {pendingPosts.map((post) => (
+                  <div key={post.id} className='each-post'>
+                    <h3>{post.title}</h3>
+                    <p>{post.status}</p>
+                    <div>
+                      <button onClick={() => updateStatus(post.id, 'approve')} className="approve-button">Approve</button>
+                      <button onClick={() => updateStatus(post.id, 'deny')} className="deny-button">Deny</button>
+                    </div>
+                  </div>
+                ))}
               </div>
-          ))
+            )}
+          </>
         )}
-        </div>
-    </div>
+
+      </div>
+
+      <div>
+        <button onClick={() => setShowMessages(prev => !prev)}>
+          {showMessages ? 'Hide Messages' : 'Show Messages'}
+        </button>
+
+        {showMessages && (
+          <>
+            <h1>Pending Messages</h1>
+            <div className='message-grid'>
+              {messages.length === 0 ? (
+                <p>No pending messages</p>
+              ) : (
+                messages.map(msg => (
+                  <div key={msg.id} className="message-card">
+                    <p><strong>Name:</strong> {msg.name}</p>
+                    <p><strong>Email:</strong> {msg.email}</p>
+                    <p><strong>Message:</strong> {msg.message}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
     <div className='existing-post-container'>
-      <h1>Existing Posts</h1>
+      <h1>Existing Archive</h1>
       {existingPosts.length === 0 ? (
         <p>No existing posts</p> // Show message if no posts are found
       ) : (
