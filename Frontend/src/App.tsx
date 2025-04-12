@@ -15,16 +15,14 @@ import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
 import Error from "./views/Error/Error";
-// import videoSource from './Trimmed2.mp4';
+// Define Cloudinary video URL
+const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
 
 // Change this import (note the exact filename case)
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
-// <video autoPlay muted loop className="background-video">
-//   <source src="/videos/Trimmed2.mp4" type="video/mp4" />
-//   Your browser does not support the video tag.
-// </video>
+// Standalone video element removed - using the one in HomePage component
 
 
 // Define prop types for HomePage
@@ -58,10 +56,10 @@ function HomePage({
 
       <section className="video-hero-section">
         <div className="video-container">
-          {/* <video autoPlay muted loop className="background-video">
-          <source src={videoSource} type="video/mp4" />
+          <video autoPlay muted loop className="background-video">
+            <source src={videoSource} type="video/mp4" />
             Your browser does not support the video tag.
-          </video> */}
+          </video>
           <div className="video-overlay">
             <h1>120 East State</h1>
             <h4>Preserving Trenton's Rich History</h4>
