@@ -40,3 +40,42 @@
   margin-bottom: 0.5rem;
   color: #666;
 }
+
+#contact-form {
+  background-color: transparent;
+  display: flex;
+  flex-direction: column; /* Stack form items vertically */
+  justify-content: center;
+  align-items: center;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 300;
+  gap: 12px; /* Adds spacing between form elements */
+  width: 100%;
+  margin: auto;
+}
+
+#contact-form input,
+#contact-form textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: "DM Sans", sans-serif;
+}
+
+#subject {
+  height: 120px;
+  resize: vertical;
+  font-size: 16px;
+}
+
+#submit {
+  background-color: #1F8CB5;
+  color: white;
+  cursor: pointer;
+  transition: scale 0.3s;
+}
+#submit:hover {
+  scale: 1.03;
+}

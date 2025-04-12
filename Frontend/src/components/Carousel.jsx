@@ -6,7 +6,7 @@ export default function Carousel({ posts = [] }) {
   const [postsPerPage, setPostsPerPage] = useState(getPostsPerPage());
   function getPostsPerPage() {
     if (window.innerWidth > 600) return 3; // Desktop: Show 3 items
-    return 1; // Mobile: Show 1 item
+    return 3; // Mobile: Show 1 item
   }
 
   useEffect(() => {
@@ -18,10 +18,10 @@ export default function Carousel({ posts = [] }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalSlides = Math.ceil(posts.length / postsPerPage);
+  console.log(postsPerPage);
 
   const nextPost = () => {
-    if (currentIndex >= posts.length - 1) 
+    if (currentIndex >= posts.length - 2) 
       setCurrentIndex(-1);
     console.log(currentIndex);
     setCurrentIndex((prevIndex) => (prevIndex + 1));
@@ -29,7 +29,7 @@ export default function Carousel({ posts = [] }) {
 
   const prevPost = () => {
     if (currentIndex <= 0) 
-      setCurrentIndex(posts.length);
+      setCurrentIndex(posts.length - 2);
     console.log(currentIndex);
     setCurrentIndex((prevIndex) => (prevIndex - 1));
   };

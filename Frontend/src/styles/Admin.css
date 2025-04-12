@@ -11,3 +11,16 @@
 .adminbuttons {
   
 }
+
+.message-card {
+  border: 1px solid black;
+}
+
+.message-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
+}
+
+.existing-post-container {
+  
+}

@@ -14,7 +14,7 @@ from flask import Flask, jsonify, render_template, request, session, redirect, u
 from flask_cors import CORS
 
 # Local imports
-from Models import db, Post, User
+from Models import db, Post, User, ContactMessage
 from cloudinary_config import configure_cloudinary
 
 # Load environment variables
@@ -480,6 +480,7 @@ def deny_post(post_id):
     """
     return update_post_status(post_id, 'denied')
 
+@require_roles('admin')
 def update_post_status(post_id, new_status):
     """Update the status of a post
     
@@ -503,6 +504,35 @@ def update_post_status(post_id, new_status):
         'post_id': post_id,
         'status': new_status
     })
+
+@app.route('/api/admin/messages', methods=['GET'])
+def view_message():
+    messages = ContactMessage.query.order_by(ContactMessage.date_created.desc()).all()
+    return jsonify([
+        {
+            'id': m.id,
+            'name': m.name,
+            'email': m.email,
+            'message': m.message,
+            'date_created': m.date_created,
+        } for m in messages
+    ])
+
+@app.route('/api/about/contact', methods=['POST'])
+def send_message():
+    try:
+        data = request.json
+        name = data["name"]
+        sender_email = data["email"]
+        message_content = data["message"]
+
+        new_msg = ContactMessage(name=name, email=sender_email, message=message_content)
+        db.session.add(new_msg)
+        db.session.commit()
+        
+        return jsonify({'message': 'Message submitted successfully'}), 201
+    except Exception as e:
+        return jsonify('Error retrieving message'), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

@@ -20,6 +20,7 @@ with app.app_context():
     # Check if the columns already exist in Post table
     inspector = db.inspect(db.engine)
     columns = [column['name'] for column in inspector.get_columns('post')]
+
     
     if 'image_url' not in columns:
         print("Adding image_url column to Post table...")
@@ -56,6 +57,7 @@ with app.app_context():
         print("status column added successfully!")
     else:
         print("status column already exists in Post table.")
+
         
     # Check if User table exists
     tables = inspector.get_table_names()
@@ -88,5 +90,36 @@ with app.app_context():
             print("profile_pic column added successfully!")
         else:
             print("profile_pic column already exists in User table.")
+
+    if 'contact_message' not in tables:
+        print("Creating ContactMessage table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('''
+                CREATE TABLE contact_message (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(120),
+                    email VARCHAR(120),
+                    message TEXT,
+                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_read BOOLEAN DEFAULT FALSE
+                )
+            '''))
+            conn.commit()
+        print("ContactMessage table created successfully!")
+    else:
+        print("ContactMessage table already exists.")
+
+    contact_columns = [column['name'] for column in inspector.get_columns('contact_message')]
+    # Make sure contact_message has date_created
+    if 'date_created' not in contact_columns:
+        print("Adding date_created column to ContactMessage table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE contact_message ADD COLUMN date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP'))
+            conn.commit()
+        print("date_created column added successfully!")
+    else:
+        print("date_created column already exists in ContactMessage table.")
+
+
 
 print("Schema update complete!")
