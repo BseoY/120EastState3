@@ -20,7 +20,7 @@ const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v17444922
 
 // Change this import (note the exact filename case)
 
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL;
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 // Standalone video element removed - using the one in HomePage component
 
@@ -118,15 +118,18 @@ const [posts, setPosts] = useState<PostType[]>([]);
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication status...');
         const response = await axios.get(`${BASE_API_URL}/api/auth/user`, {
           withCredentials: true
         });
         
-
+        console.log('Auth response:', response.data);
         if (response.data.authenticated) {
+          console.log('User is authenticated:', response.data.user);
           setUser(response.data.user);
           setIsAuthenticated(true);
         } else {
+          console.log('User is not authenticated');
           setUser(null);
           setIsAuthenticated(false);
         }
@@ -140,6 +143,29 @@ const [posts, setPosts] = useState<PostType[]>([]);
     };
 
     checkAuth();
+    
+    // Add event listener for OAuth redirect completion
+    const handleAuthRedirect = () => {
+      // If we detect this might be a redirect from OAuth (URL contains code/token params)
+      if (window.location.search.includes('code=') || 
+          window.location.search.includes('token=') ||
+          window.location.pathname.includes('callback')) {
+        console.log('Detected possible auth redirect, rechecking authentication');
+        checkAuth();
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+    
+    // Check immediately in case we're on a redirect
+    handleAuthRedirect();
+    
+    // Add listener for URL changes (e.g. history navigation)
+    window.addEventListener('popstate', handleAuthRedirect);
+    
+    return () => {
+      window.removeEventListener('popstate', handleAuthRedirect);
+    };
   }, []);
 
   // Fetch posts
