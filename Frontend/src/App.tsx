@@ -20,7 +20,7 @@ const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v17444922
 
 // Change this import (note the exact filename case)
 
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
+const BASE_API_URL = process.env.REACT_APP_BACKEND_URL;
 
 // Standalone video element removed - using the one in HomePage component
 

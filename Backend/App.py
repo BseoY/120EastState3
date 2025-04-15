@@ -36,6 +36,14 @@ CORS(app, resources={
     }
 })
 
+# Determine what frontend origin to use
+def get_frontend_origin():
+    env = os.getenv("ENV")
+    if env == "production":
+        return "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
+    else:
+        return "http://localhost:3000"
+
 @app.after_request
 def after_request(response):
     """Ensure no duplicate CORS headers in responses"""
@@ -162,7 +170,7 @@ def callback():
         # Verify user email and create session
         if userinfo_response.json().get('email_verified'):
             session['user_info'] = userinfo_response.json()
-            return redirect(os.getenv('FRONTEND_ORIGIN', 'http://localhost:3000'))
+            return redirect(get_frontend_origin())
             
         return jsonify({'error': 'User email not verified by Google.'}), 400
         
