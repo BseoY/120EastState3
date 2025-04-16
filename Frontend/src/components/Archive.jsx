@@ -1,32 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
-import TagCloud from './TagCloud';
-
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
-
-// Predefined tags for dropdown selection
-const PREDEFINED_TAGS = [
-  "Trenton Families",
-  "My Neighborhood/Neighborhoods",
-  "Schools & Colleges",
-  "Teams",
-  "Houses of Worship",
-  "Parks",
-  "Childhood Memories",
-  "Food",
-  "Fraternities & Sororities",
-  "Service Associations",
-  "Remarkable People",
-  "Arts & Artists",
-  "Strange Things",
-  "Trenton Pride",
-  "Government/Capital City",
-  "Other/Miscellaneous"
-]
+import { PREDEFINED_TAGS, BASE_API_URL } from '../utils/constants';
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // Local state
@@ -37,22 +15,33 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  // For handling URL parameters
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   // Search filters
   const [titleFilter, setTitleFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
   
-  // Check URL for login_success parameter to show form
+  // Check URL for parameters
   useEffect(() => {
-    // If authenticated and URL has login_success parameter, show the form
+    // Check for login_success parameter
     if (isAuthenticated) {
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(location.search);
       if (urlParams.has('login_success')) {
         setShowForm(true);
       }
     }
-  }, [isAuthenticated]);
+    
+    // Check for tag parameter
+    const params = new URLSearchParams(location.search);
+    const tagParam = params.get('tag');
+    if (tagParam) {
+      setTagFilter(decodeURIComponent(tagParam));
+    }
+  }, [isAuthenticated, location.search]);
 
   // Fetch all posts
   useEffect(() => {
@@ -135,7 +124,17 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
   };
   
   const handleTagFilterChange = (e) => {
-    setTagFilter(e.target.value);
+    const newTagFilter = e.target.value;
+    setTagFilter(newTagFilter);
+    
+    // Update URL with tag filter without reloading the page
+    const params = new URLSearchParams(location.search);
+    if (newTagFilter) {
+      params.set('tag', newTagFilter);
+    } else {
+      params.delete('tag');
+    }
+    navigate({ search: params.toString() }, { replace: true });
   };
   
   // Clear all filters
@@ -145,6 +144,9 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
     setDateFilter('');
     setTagFilter('');
     setFilteredPosts(posts);
+    
+    // Clear URL params
+    navigate({ search: '' }, { replace: true });
   };
   
   // Handle login success
@@ -171,7 +173,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
 
   return (
     <div className="archive-container">
-      <TagCloud />
+      {/*<TagCloud />*/}
       <header>
         <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       </header>
@@ -290,47 +292,49 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       <div className="archive-grid">
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post, index) => (
-            <div className="archive-item" key={post.id || index}>
-              <div className="item-header">
-                <div className="item-metadata">
-                  <h3>{post.title}</h3>
-                  <p>{post.status}</p>
-                  <div className="item-contributor">
-                    {post.profile_pic && (
-                      <img 
-                        src={post.profile_pic} 
-                        alt={post.author} 
-                        className="contributor-avatar"
-                      />
-                    )}
-                    <span className="contributor-name">{post.author || 'Unknown contributor'}</span>
+            <Link to={`/post/${post.id}`} className="post-link" key={post.id || index}>
+              <div className="archive-item">
+                <div className="item-header">
+                  <div className="item-metadata">
+                    <h3>{post.title}</h3>
+                    <div className="item-contributor">
+                      {post.profile_pic && (
+                        <img 
+                          src={post.profile_pic} 
+                          alt={post.author} 
+                          className="contributor-avatar"
+                        />
+                      )}
+                      <span className="contributor-name">{post.author || 'Unknown contributor'}</span>
+                    </div>
+                    <div className="item-date">
+                      {post.date_created ? new Date(post.date_created).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : 'Unknown date'}
+                    </div>
                   </div>
-                  <div className="item-date">
-                    {post.date_created ? new Date(post.date_created).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : 'Unknown date'}
+                </div>
+                
+                {post.image_url && (
+                  <div className="item-image">
+                    <img src={post.image_url} alt={post.title} />
                   </div>
+                )}
+                
+                <div className="item-content">
+                  <p>{post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content}</p>
                 </div>
+                
+                {post.tag && (
+                  <div className="item-tags">
+                    <span className="tag">{post.tag}</span>
+                  </div>
+                )}
+                <div className="read-more">Read full post</div>
               </div>
-              
-              {post.image_url && (
-                <div className="item-image">
-                  <img src={post.image_url} alt={post.title} />
-                </div>
-              )}
-              
-              <div className="item-content">
-                <p>{post.content}</p>
-              </div>
-              
-              {post.tag && (
-                <div className="item-tags">
-                  <span className="tag">{post.tag}</span>
-                </div>
-              )}
-            </div>
+            </Link>
           ))
         ) : (
           <div className="no-results">

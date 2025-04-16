@@ -534,6 +534,37 @@ def deny_post(post_id):
     """
     return update_post_status(post_id, 'denied')
 
+@app.route('/api/posts/<int:post_id>', methods=['GET'])
+def get_post_by_id(post_id):
+    """Get a specific post by its ID
+    
+    Args:
+        post_id: The ID of the post to retrieve
+        
+    Returns:
+        JSON with post details or 404 if not found
+    """
+    try:
+        post = Post.query.filter_by(id=post_id, status='approved').first()
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+            
+        return jsonify({
+            'id': post.id,
+            'title': post.title,
+            'content': post.content,
+            'tag': post.tag,
+            'image_url': post.image_url,
+            'video_url': post.video_url,
+            'date_created': post.date_created,
+            'user_id': post.user_id,
+            'author': post.user.name if post.user else 'Anonymous',
+            'profile_pic': post.user.profile_pic if post.user else None,
+            'status': post.status
+        })
+    except Exception as e:
+        return jsonify({'error': f'Error fetching post: {str(e)}'}), 500
+
 @require_roles('admin')
 def update_post_status(post_id, new_status):
     """Update the status of a post

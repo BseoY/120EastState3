@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import axios from "axios";
 import "./styles/App.css";
 import Grid from "./components/Grid";
@@ -15,7 +15,7 @@ import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
-import TagPosts from './views/Reader/TagPosts';
+import PostDetail from './views/Reader/PostDetail';
 import Error from "./views/Error/Error";
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
@@ -269,8 +269,12 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
+        {/* Redirect tag routes to archive with filter */}
         <Route path="/tag/:tag" element={
-        <TagPosts 
+          <Navigate to="/archive" replace />
+        } />
+        <Route path="/post/:postId" element={
+        <PostDetail 
           user={user}
           isAuthenticated={isAuthenticated}
           authChecked={authChecked}

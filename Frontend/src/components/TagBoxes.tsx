@@ -1,38 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import '../styles/TagBoxes.css';
-
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
+import { PREDEFINED_TAGS } from '../utils/constants';
 
 const TagBoxes = () => {
-  const [tags, setTags] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const response = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(response.data);
-      } catch (error) {
-        console.error("Error fetching tags:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTags();
-  }, []);
-
-  if (loading) return <div>Loading tags...</div>;
 
   return (
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
       <div className="tag-boxes-grid">
-        {tags.map((tag) => (
+        {PREDEFINED_TAGS.map((tag) => (
           <Link 
             key={tag} 
-            to={`/tag/${tag}`} 
+            to={`/archive?tag=${encodeURIComponent(tag)}`} 
             className="tag-box"
           >
             <div className="tag-content">
