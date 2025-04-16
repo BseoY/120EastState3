@@ -6,6 +6,7 @@ import "./styles/App.css";
 import Grid from "./components/Grid";
 import Nav from "./components/Nav";
 import UserPosts from './components/Userposts';
+import TagBoxes from './components/TagBoxes';
 import Carousel from './components/Carousel';
 import ProtectedRoute from './components/ProtectedRoute';
 import Form from "./components/Form";
@@ -14,6 +15,7 @@ import UserProfile from "./components/UserProfile";
 import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
+import TagPosts from './views/Reader/TagPosts';
 import Error from "./views/Error/Error";
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
@@ -86,15 +88,11 @@ function HomePage({
             </p>
           </div>
         </div>
-        <div className="archive-section">
-          <strong>Recent Archives</strong>
-          <Carousel posts={posts}></Carousel>
-          <p id="explore-text">Explore our historical collection</p>
-          <div className="action-buttons">
-            <Link to="/archive" className="archive-btn">View Full Archive</Link>
-          </div>
-        </div>
-      </section>
+        </section>
+
+        <section className="archive-section">
+          <TagBoxes />
+        </section>
 
       {/* <section className="carousel-section">
         <Carousel posts={posts} loading={loading} error={error} />
@@ -271,6 +269,15 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
+        <Route path="/tag/:tag" element={
+        <TagPosts 
+          user={user}
+          isAuthenticated={isAuthenticated}
+          authChecked={authChecked}
+          handleLoginSuccess={handleLoginSuccess}
+          handleLogout={handleLogout}
+        />
+      } />
         <Route path="/error" element={<Error />} />
       </Routes>
     </Router>

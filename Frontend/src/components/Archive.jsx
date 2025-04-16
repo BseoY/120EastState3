@@ -4,6 +4,7 @@ import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
+import TagCloud from './TagCloud';
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
@@ -170,6 +171,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
 
   return (
     <div className="archive-container">
+      <TagCloud />
       <header>
         <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       </header>

@@ -53,6 +53,8 @@ def after_request(response):
             response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
+
+    
 # Session configuration
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -90,6 +92,34 @@ with app.app_context():
 
 # API Routes
 
+@app.route('/api/posts/tag/<string:tag>', methods=['GET'])
+def get_posts_by_tag(tag):
+    """Get all approved posts with a specific tag
+    
+    Args:
+        tag: The tag to filter posts by
+        
+    Returns:
+        JSON array of posts with the specified tag
+    """
+    try:
+        posts = Post.query.filter_by(status='approved', tag=tag).order_by(Post.date_created.desc()).all()
+        return jsonify([{
+            'id': post.id,
+            'title': post.title,
+            'content': post.content,
+            'tag': post.tag,
+            'image_url': post.image_url,
+            'video_url': post.video_url,
+            'date_created': post.date_created,
+            'user_id': post.user_id,
+            'author': post.user.name if post.user else 'Anonymous',
+            'profile_pic': post.user.profile_pic if post.user else None,
+            'status': post.status
+        } for post in posts])
+    except Exception as e:
+        return jsonify({'error': f'Error fetching posts by tag: {str(e)}'}), 500
+    
 # Authentication Helper Functions
 def get_current_user():
     """Get the current authenticated user or create a new user if not exists"""
@@ -131,6 +161,22 @@ def login():
     )
     return jsonify({'redirect_url': request_uri})
 
+@app.route('/api/tags', methods=['GET'])
+def get_all_tags():
+    """Get all unique tags from approved posts
+    
+    Returns:
+        JSON array of unique tags
+    """
+    try:
+        tags = db.session.query(Post.tag).filter(
+            Post.status == 'approved',
+            Post.tag.isnot(None)
+        ).distinct().all()
+        return jsonify([tag[0] for tag in tags])
+    except Exception as e:
+        return jsonify({'error': f'Error fetching tags: {str(e)}'}), 500
+    
 @app.route('/api/auth/login/callback', methods=['GET'])
 def callback():
     """Handle Google OAuth callback and authenticate user"""

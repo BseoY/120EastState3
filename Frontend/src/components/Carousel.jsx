@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "../styles/carousel.css";
 
 export default function Carousel({ posts = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [postsPerPage, setPostsPerPage] = useState(getPostsPerPage());
+
   function getPostsPerPage() {
     if (window.innerWidth > 600) return 3; // Desktop: Show 3 items
     return 3; // Mobile: Show 1 item
@@ -18,19 +20,15 @@ export default function Carousel({ posts = [] }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  console.log(postsPerPage);
-
   const nextPost = () => {
     if (currentIndex >= posts.length - 2) 
       setCurrentIndex(-1);
-    console.log(currentIndex);
     setCurrentIndex((prevIndex) => (prevIndex + 1));
   };
 
   const prevPost = () => {
     if (currentIndex <= 0) 
       setCurrentIndex(posts.length - 2);
-    console.log(currentIndex);
     setCurrentIndex((prevIndex) => (prevIndex - 1));
   };
 
@@ -38,16 +36,16 @@ export default function Carousel({ posts = [] }) {
     <>
       <div className="carousel">
         <div className="carousel-wrapper">
-            <div
-              className="carousel-track"
-              style={{
-                transform: `translateX(-${currentIndex * (100 / postsPerPage)}%)`,
-              }}
-            >
+          <div
+            className="carousel-track"
+            style={{
+              transform: `translateX(-${currentIndex * (100 / postsPerPage)}%)`,
+            }}
+          >
             {posts.slice(0, 6).map((post, index) => (
               <div className="carousel-slide" key={index}>
-                <div>
-                  <div>
+                <div className="slide-content">
+                  <div className="post-header">
                     <p id="post-title">{post.title}</p>
                     <p id="post-author">Created by: {post.author}</p>
                     <p id="post-date">
@@ -58,10 +56,24 @@ export default function Carousel({ posts = [] }) {
                       }) : 'Unknown date'}
                     </p>
                   </div>
-                  <hr></hr>
-                  <div>
-                  <img src={post.image_url} className="fit_image" alt={post.image_url} />
-                  <p>{post.content}</p>
+                  <hr />
+                  <div className="post-body">
+                    {post.image_url && (
+                      <img 
+                        src={post.image_url} 
+                        className="fit_image" 
+                        alt={post.title} 
+                      />
+                    )}
+                    <p className="post-content">{post.content}</p>
+                    {post.tag && (
+                      <Link 
+                        to={`/tag/${post.tag}`} 
+                        className="post-tag"
+                      >
+                        #{post.tag}
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

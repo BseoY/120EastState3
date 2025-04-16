@@ -577,3 +577,95 @@ button:disabled {
   margin-left: auto;          /* Center horizontally within parent */
   margin-right: auto;         /* Center horizontally within parent */
 }
+.archive-section {
+  padding: 3rem 2rem;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-header h2 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.section-divider {
+  width: 100px;
+  height: 3px;
+  background: #007bff;
+  margin: 0.5rem auto;
+}
+
+.recent-archives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.archive-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.archive-card:hover {
+  transform: translateY(-5px);
+}
+
+.archive-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.archive-meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.archive-content {
+  color: #333;
+  line-height: 1.6;
+}
+
+#explore-text {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 1rem 0;
+}
+
+.archive-btn {
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.archive-btn:hover {
+  background: #0056b3;
+}
+
+.tag-boxes-section {
+  padding: 3rem 0;
+  background: #f8f9fa;
+}
+
+.tag-boxes-section h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
