@@ -289,50 +289,43 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
           </div>
       </div>
       
+      <br></br>
       <div className="archive-grid">
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post, index) => (
             <Link to={`/post/${post.id}`} className="post-link" key={post.id || index}>
               <div className="archive-item">
-                <div className="item-header">
-                  <div className="item-metadata">
-                    <h3>{post.title}</h3>
-                    <div className="item-contributor">
-                      {post.profile_pic && (
-                        <img 
-                          src={post.profile_pic} 
-                          alt={post.author} 
-                          className="contributor-avatar"
-                        />
-                      )}
-                      <span className="contributor-name">{post.author || 'Unknown contributor'}</span>
-                    </div>
-                    <div className="item-date">
-                      {post.date_created ? new Date(post.date_created).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      }) : 'Unknown date'}
-                    </div>
-                  </div>
+                {/* Image/Video at the top with fallback to filler image */}
+                <div className="item-image">
+                  <img 
+                    src={post.image_url || require('../assets/Image/120_ES.png')} 
+                    alt={post.title} 
+                  />
                 </div>
                 
-                {post.image_url && (
-                  <div className="item-image">
-                    <img src={post.image_url} alt={post.title} />
-                  </div>
-                )}
-                
-                <div className="item-content">
-                  <p>{post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content}</p>
-                </div>
-                
+                {/* Tag below the image */}
                 {post.tag && (
                   <div className="item-tags">
                     <span className="tag">{post.tag}</span>
                   </div>
                 )}
-                <div className="read-more">Read full post</div>
+                
+                {/* Title below the tag */}
+                <div className="item-header">
+                  <div className="item-metadata">
+                    <h3>{post.title}</h3>
+                    <div className="item-byline">
+                      <span className="contributor-name-subtle">{post.author || 'Unknown contributor'}</span>
+                      <span className="item-date-subtle">
+                        {post.date_created ? new Date(post.date_created).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        }) : 'Unknown date'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Link>
           ))
@@ -343,6 +336,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
           </div>
         )}
       </div>
+      <br></br>
     </div>
   );
 }

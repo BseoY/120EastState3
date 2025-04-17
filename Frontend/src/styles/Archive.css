@@ -268,7 +268,7 @@
 
 .archive-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 30px;
   margin-top: 20px;
   padding: 0 20px;
@@ -296,13 +296,14 @@
 
 .item-header {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  text-align: left;
 }
 
 .item-header h3 {
-  margin: 0 0 10px 0;
+  margin: 0 0 5px 0;
   font-size: 18pt;
   color: #11161A;
+  text-align: left;
 }
 
 .item-contributor {
@@ -324,6 +325,25 @@
   color: #11161A;
 }
 
+.item-byline {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #9e9e9e;
+  opacity: 0.7;
+}
+
+.contributor-name-subtle {
+  font-size: 12px;
+  color: #9e9e9e;
+}
+
+.item-date-subtle {
+  font-size: 12px;
+  color: #9e9e9e;
+  font-style: italic;
+}
+
 .item-date {
   font-size: 12pt;
   color: #666;
@@ -340,21 +360,23 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s, filter 0.5s ease;
+  filter: grayscale(100%);
 }
 
 .item-image img:hover {
   transform: scale(1.05);
+  filter: grayscale(0%);
 }
 
 .item-content {
-  padding: 15px;
+  padding: 0 15px 15px;
   font-size: 14pt;
   line-height: 1.5;
 }
 
 .item-tags {
-  padding: 0 15px 15px;
+  padding: 10px 15px;
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
@@ -379,7 +401,8 @@
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 12pt;
-  color: #11161A;
+  color: #1F8CB5;
+  font-weight: 500;
 }
 
 .no-results {
