@@ -56,6 +56,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
         {/* Render desktop nav links only when NOT on mobile */}
         {!isMobile && (
           <div className='nav-links'>
+            <a href="/share" className='nav-link'>Share Your Story</a>
             <a href="/archive" className='nav-link'>Archive</a>
             <a href="/about" className='nav-link'>About</a>
             <a href="/admin" className='nav-link'>Admin</a>

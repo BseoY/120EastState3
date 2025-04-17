@@ -34,6 +34,7 @@ button.next {
 button.prev {
   left: 0;
 }
+
 button.prev:hover {
   cursor: pointer;
   scale: 1.2;

@@ -149,13 +149,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
     navigate({ search: '' }, { replace: true });
   };
   
-  // Handle login success
-  // Toggle form visibility
-  const toggleForm = () => {
-    if (isAuthenticated) {
-      setShowForm(!showForm);
-    }
-  };
+  // Form functionality moved to dedicated Share Your Story page
   
   // Handle logout is passed through props
   
@@ -183,48 +177,13 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
         <h1>Digital Archive</h1>
         <p>Search and explore historical records, photos, documents, videos, and more. If you would like to use any content, please contact us at 120eaststate@gmail.com</p>
         <div className="archive-actions">
-          {isAuthenticated ? (
-            <button className="create-archive-btn" onClick={toggleForm}>
-              {showForm ? 'Hide Form' : 'Create Archive'}
-            </button>
-          ) : authChecked && (
-            <button 
-              className="create-archive-btn" 
-              onClick={() => setShowLoginMessage(!showLoginMessage)}
-            >
-              Create Archive
-            </button>
-          )}
+          <a href="/share" className="create-archive-btn">
+            Share Your Story
+          </a>
         </div>
       </div>
       
-      {/* Show login message if not authenticated */}
-      {showLoginMessage && !isAuthenticated && (
-        <div className="login-message">
-          <div className="login-message-content">
-            <h3>Authentication Required</h3>
-            <p>You need to be logged in to create archive entries.</p>
-            <div className="login-message-actions">
-            <a href={`${BASE_API_URL}/api/auth/login`} className="login-btn">Sign in with Google</a>
-              <button onClick={() => setShowLoginMessage(false)} className="cancel-btn">Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Show form if authenticated and showForm is true */}
-      {showForm && isAuthenticated && (
-        <div className="archive-form-container">
-          <Form onNewPost={onNewPost} user={user} />
-        </div>
-      )}
-      
-      {/* Show login if not authenticated and trying to access form */}
-      {!isAuthenticated && showForm && authChecked && (
-        <div className="archive-login-container">
-          <Login onLoginSuccess={handleLoginSuccess} />
-        </div>
-      )}
+      {/* Form functionality moved to dedicated Share Your Story page */}
       
       <div className="search-container">
         <h2>Search Archives</h2>
@@ -298,7 +257,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
                 {/* Image/Video at the top with fallback to filler image */}
                 <div className="item-image">
                   <img 
-                    src={post.image_url || require('../assets/Image/120_ES.png')} 
+                    src={post.image_url || require('../assets/Image/120es_blue.jpg')} 
                     alt={post.title} 
                   />
                 </div>

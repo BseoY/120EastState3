@@ -1,0 +1,94 @@
+.share-story-container {
+  color: #11161A;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.share-story-container > *:not(header) {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.share-story-container header {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.share-story-header {
+  text-align: center;
+  margin: 50px 0 30px;
+  padding: 20px 0;
+}
+
+.share-story-header h1 {
+  font-size: 2.8rem;
+  color: #1F8CB5;
+  margin-bottom: 20px;
+}
+
+.share-story-header p {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.share-story-form-container {
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  padding: 0; /* Form current fills this entire container. change this padding to change. */
+  margin-bottom: 50px;
+  border: 1px solid #e5e5e5;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden; /* Ensures content doesn't break the rounded corners */
+}
+
+.login-required-message {
+  text-align: center;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 600px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.login-required-message h2 {
+  color: #1F8CB5;
+  margin-bottom: 20px;
+}
+
+.login-required-message p {
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.login-btn {
+  padding: 12px 24px;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.login-btn:hover {
+  background-color: #3367D6;
+}

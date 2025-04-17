@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import "../styles/App.css";
+import "../styles/Form.css";
 import { BASE_API_URL } from '../utils/constants';
 import { PREDEFINED_TAGS } from '../utils/constants';
 
@@ -129,42 +129,42 @@ function Form({ onNewPost, user }) {
     }
   };
   return (
-    <div>
+    <div className="form-container">
       <form onSubmit={handleSubmit}>
-        {/* Title and Tag Side by Side */}
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="title-input">Title</label>
-            <input
-              type="text"
-              id="title-input"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              placeholder="Enter post title"
-            />
-          </div>
-  
-          <div className="form-group">
-            <label htmlFor="tag-input">Tag (optional)</label>
-            <select
-              id="tag-input"
-              name="tag"
-              value={formData.tag}
-              onChange={handleChange}
-              className="tag-dropdown"
-            >
-              <option value="">Select a tag</option>
-              {PREDEFINED_TAGS.map(tag => (
-                <option key={tag} value={tag}>{tag}</option>
-              ))}
-            </select>
-          </div>
+        {/* Title Input */}
+        <div className="form-group">
+          <br></br>
+          <label htmlFor="title-input">Title</label>
+          <input
+            type="text"
+            id="title-input"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            placeholder="Enter post title"
+          />
+        </div>
+
+        {/* Tag Input */}
+        <div className="form-group">
+          <label htmlFor="tag-input">Tag</label>
+          <select
+            id="tag-input"
+            name="tag"
+            value={formData.tag}
+            onChange={handleChange}
+            className="tag-dropdown"
+          >
+            <option value="">Select a tag</option>
+            {PREDEFINED_TAGS.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
         </div>
   
-        {/* Content below Title and Tag */}
-        <div>
+        {/* Content */}
+        <div className="form-group">
           <label htmlFor="content-input">Content</label>
           <textarea
             id="content-input"
@@ -172,13 +172,13 @@ function Form({ onNewPost, user }) {
             value={formData.content}
             onChange={handleChange}
             required
-            placeholder="Write your post content here"
+            placeholder="Enter content"
           />
         </div>
 
         {/* Image Upload */}
         <div className="form-group">
-          <label htmlFor="image-input">Image (optional)</label>
+          <label htmlFor="image-input">Images</label>
           <div className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
             <input
               type="file"
@@ -209,7 +209,7 @@ function Form({ onNewPost, user }) {
 
         {/* Video Upload */}
         <div className="form-group">
-          <label htmlFor="video-input">Video (optional)</label>
+          <label htmlFor="video-input">Videos</label>
           <div className="custom-file-upload" onClick={() => videoInputRef.current.click()}>
             <input
               type="file"
@@ -242,17 +242,18 @@ function Form({ onNewPost, user }) {
             </div>
           )}
         </div>
-  
+        
         {/* Submit Button */}
         <div>
-          <button type="submit" disabled={isSubmitting}>
+          <button type="submit" disabled={isSubmitting} className="submit-button">
             {isSubmitting ? "Submitting..." : "Share Your Story"}
           </button>
         </div>
+        <br></br>
       </form>
   
-      {error && <div className="error" style={{ color: 'red' }}>{error}</div>}
-      {success && <div className="success" style={{ color: 'green' }}>Message sent successfully!</div>}
+      {error && <div className="form-status error">{error}</div>}
+      {success && <div className="form-status success">Your story has been shared successfully!</div>}
     </div>
   );
   

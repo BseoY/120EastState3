@@ -11,81 +11,16 @@ html, body, #root {
   width: 500px;
   background-color: red;
 }
-.form-group {
-  margin-bottom: 15px; /* Space between form elements */
-  text-align:center;
-  flex-direction: column;
-  display: flex;
-}
+/* Form styling removed - now managed by Form.css */
 
-label {
-  display: block; /* Ensure the label takes up full width */
-  margin-bottom: 5px;
-}
-
-input, textarea {
-  width: 30%; /* Make the inputs and textarea fill the width */
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Hide the default file input */
-input[type="file"] {
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  z-index: -1;
-}
-
-/* Custom file upload styling */
-.custom-file-upload {
-  width: 90%;
-  padding: 10px;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  display: block;
-  margin: 0 auto;
-  text-align: center;
-  cursor: pointer;
-  position: relative;
-}
-
-.file-upload-label {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  cursor: pointer;
-  margin: 5px auto;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.file-upload-label:hover {
-  background-color: #d0d0d0;
-}
-
-/* This helps center the text inside the file input */
-.form-group {
-  text-align: center;
-}
-
+/* General button styling */
 button {
-  padding: 10px 15px;
   border: none;
-  margin-top: 10px;
-  width: 200px;
-  height: 50px;
   background-color: #1F8CB5;
   color: white;
   font-size: 16px;
   border-radius: 10px;
   cursor: pointer;
-  
 }
 
 
@@ -498,61 +433,15 @@ form {
   border-top: 1px solid #eaeaea;
 }
 
+/* General disabled button styling */
 button:disabled {
   background-color: #ddd;
   cursor: not-allowed;
 }
 
-/* Optional: Styling for error and success messages */
-.error {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-}
+/* Status message styling removed - now in Form.css */
 
-.success {
-  color: green;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-/* Image upload and preview styles */
-.image-preview-container {
-  margin: 15px auto;
-  max-width: 300px;
-  position: relative;
-  text-align: center;
-}
-
-.image-preview {
-  width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.remove-image-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #fff;
-  color: #333;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.remove-image-btn:hover {
-  background-color: #f44336;
-  color: white;
-}
+/* Image button styling removed - now in Form.css */
 
 #CreatedStories {
   font-family: 'DM Sans', sans-serif;  /* Apply font */

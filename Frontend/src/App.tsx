@@ -16,6 +16,7 @@ import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
 import PostDetail from './views/Reader/PostDetail';
+import ShareYourStory from './views/Reader/ShareYourStory';
 import Error from "./views/Error/Error";
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
@@ -274,14 +275,24 @@ const [posts, setPosts] = useState<PostType[]>([]);
           <Navigate to="/archive" replace />
         } />
         <Route path="/post/:postId" element={
-        <PostDetail 
-          user={user}
-          isAuthenticated={isAuthenticated}
-          authChecked={authChecked}
-          handleLoginSuccess={handleLoginSuccess}
-          handleLogout={handleLogout}
-        />
-      } />
+          <PostDetail 
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
+        } />
+        <Route path="/share" element={
+          <ShareYourStory
+            user={user}
+            isAuthenticated={isAuthenticated}
+            authChecked={authChecked}
+            handleNewPost={handleNewPost}
+            handleLoginSuccess={handleLoginSuccess}
+            handleLogout={handleLogout}
+          />
+        } />
         <Route path="/error" element={<Error />} />
       </Routes>
     </Router>

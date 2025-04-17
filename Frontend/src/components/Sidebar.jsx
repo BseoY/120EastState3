@@ -19,6 +19,7 @@ export default function Sidebar() {
 
       <ul className='list'>
         <a href='/archive'>Archive</a>
+        <a href='/share'>Share Your Story</a>
         <a href='/about'>About</a>
         <a href='/admin'>Admin</a>
       </ul>
