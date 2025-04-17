@@ -125,7 +125,7 @@ def get_current_user():
     """Get the current authenticated user or create a new user if not exists"""
     if 'user_info' not in session:
         return None
-        
+
     user_info = session['user_info']
     user = User.query.filter_by(google_id=user_info['sub']).first()
 

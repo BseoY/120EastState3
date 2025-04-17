@@ -7,7 +7,7 @@
 .about-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 84px 2rem 0; /* Added top padding to account for navbar height */
+  padding: 35px 2rem 0; /* Added top padding to account for navbar height */
 }
 
 .about-section {
@@ -20,7 +20,6 @@
 
 .about-section h2 {
   color: #333;
-  margin-bottom: 1.5rem;
 }
 
 .about-section p {
@@ -78,4 +77,11 @@
 }
 #submit:hover {
   scale: 1.03;
+}
+
+#status-message {
+  color: #1F8CB5;
+  font-size: 1rem;
+  margin-top: 10px;
+  margin-bottom: none;
 }

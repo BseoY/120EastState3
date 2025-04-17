@@ -23,6 +23,8 @@ export default function Sidebar() {
         <a href='/about'>About</a>
         <a href='/admin'>Admin</a>
       </ul>
+      
+      <p id="signature">120EastState</p>
     </div>
     </>
   );

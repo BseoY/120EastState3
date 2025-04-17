@@ -1,7 +1,25 @@
 a {
   font-family: 'DM Sans', sans-serif;
-  color: black;
+  color: #333;
   cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+a:hover {
+  transform: translate(0, -2px);
+}
+a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0; 
+  background-color: #176d8c;;
+  transition: width 0.3s;
+}
+a:hover::after {
+  width: 100%;
 }
 
 .menu-btn {
@@ -20,24 +38,25 @@ a {
 }
 @media (width < 1000px) {
   .sidebar {
-    width: 40%;
+    width: 50%;
     height: 100%;
     position: fixed;
     left: 100%;
     top: 0;
     transition: left 0.5s;
-    background-color: #e8d8b2;
+    background-color: #f1f1f1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 15px;
     z-index: 3;
   }
   
   .sidebar.open {
-    left: 60%;
+    left: 50%;
     height: 100%;
     top: 0;
-    background-color: #e8d8b2;
+    background-color: #ededed;
   }
 }
 @media (width >= 1000px) {
@@ -48,7 +67,7 @@ a {
     left: 100%;
     top: 0;
     transition: left 0.5s;
-    background-color: #e8d8b2;
+    background-color: #eaeaea;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,7 +78,7 @@ a {
     left: 80%;
     height: 100%;
     top: 0;
-    background-color: #e8d8b2;
+    background-color: #eaeaea;
   }
 }
 
@@ -70,4 +89,11 @@ a {
   align-items: center;
   padding: 0;
   gap: 10px;
+}
+
+#signature {
+  position: absolute;
+  bottom: 10px;
+  font-weight: 400;
+  color: #333;
 }

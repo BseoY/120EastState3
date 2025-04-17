@@ -52,7 +52,6 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         
         <div className="about-section">
           <h2>Our Mission</h2>
-          <p>Our mission is to:</p>
           <ul>
             <li>Preserve historical documents and artifacts</li>
             <li>Make historical information accessible to everyone</li>
@@ -95,6 +94,11 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               id="submit"
              ></input>
           </form>
+          {statusMessage && (
+            <p id="status-message">
+              {statusMessage}
+            </p>
+          )}
         </div>
       </div>
     </div>

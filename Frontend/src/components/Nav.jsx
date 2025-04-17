@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import useIsMobile from '../hooks/useIsMobile';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';  // Add this import
+import defaultProfile from '../assets/Image/defaultprofile.png';
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
@@ -17,6 +18,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
   const [showUserPosts, setShowUserPosts] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [dropVis, setDropVis] = useState(false);
 
   const fetchUserPosts = async () => {
     if (!isAuthenticated) return;
@@ -39,13 +41,15 @@ function Nav({ user, isAuthenticated, onLogout }) {
     try {
       // Get the Google login URL from the backend
       const response = await axios.get(`${BASE_API_URL}/api/auth/login`);
-      console.log(`${BASE_API_URL}/api/auth/login`)
-      console.log(response.data);
       // Redirect to Google login page
       window.location.href = response.data.redirect_url;
     } catch (error) {
       console.error('Error initiating Google login:', error);
     }
+  };
+
+  const handleProfileClick = () => {
+    setDropVis(prev => !prev);
   };
 
   return (
@@ -67,18 +71,47 @@ function Nav({ user, isAuthenticated, onLogout }) {
       <div className='nav-profile'>
         {isAuthenticated ? (
           <div className="user-nav-info">
-            {user?.profile_pic && (
-              <img 
-                src={user.profile_pic} 
-                alt={user.name} 
-                className="nav-profile-pic"
-              />
+            <button onClick={handleProfileClick}>
+              {user?.profile_pic ? (
+                <img
+                  src={user.profile_pic}
+                  alt="User profile"
+                  className="nav-profile-pic"
+                />
+              ) : (
+                <img
+                  src={defaultProfile} // Use the imported image
+                  alt="Default profile"
+                  className="nav-profile-pic"
+                />
+              )}
+            </button>
+
+            {dropVis && (
+              <div className='dropdown-menu'>
+                <ul className='dropdown-rows'>
+                  <li id="user-info">
+                    <img src={user.profile_pic} id="picture"></img>
+                    <div>
+                      <p id="name">{user.name}</p>
+                      <p>{user.role}</p>
+                    </div>
+                  </li>
+                  <hr id="divider"></hr>
+                  <li>
+                    <button className='nav-button'>
+                      <Link to="/your-posts" className="nav-link">Your Posts</Link>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={onLogout} className='nav-button'>Log out</button>
+                  </li>
+                </ul>
+              </div>
             )}
-            <Link to="/your-posts" className="nav-link">Your Posts</Link>
-            <button onClick={onLogout}>Log out</button>
           </div>
         ) : (
-          <button onClick={handleGoogleLogin}>Log in</button>
+          <button onClick={handleGoogleLogin} className='nav-button'>Log in</button>
         )}
       </div>
 
