@@ -151,6 +151,12 @@ def get_current_user():
 @app.route('/api/auth/login', methods=['GET'])
 def login():
     """Initiate Google OAuth login flow"""
+    # 1) Read where the front-end wants to go back to
+    return_to = request.args.get('returnTo')
+    if return_to:
+        session['return_to'] = return_to
+    
+    # 2) Build the Google OAuth URL, embedding state
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
     redirect_uri = url_for('callback', _external=True)
@@ -158,6 +164,7 @@ def login():
         authorization_endpoint,
         redirect_uri=redirect_uri,
         scope=['openid', 'email', 'profile'],
+        state=return_to  # Mirror the return_to in OAuth state parameter
     )
     return jsonify({'redirect_url': request_uri})
 
@@ -216,7 +223,25 @@ def callback():
         # Verify user email and create session
         if userinfo_response.json().get('email_verified'):
             session['user_info'] = userinfo_response.json()
-            return redirect(get_frontend_origin())
+            
+            # 1) Determine where to send them - first check state, then session
+            return_to = (
+                request.args.get('state')
+                or session.pop('return_to', None)
+            )
+            
+            # 2) Construct the full redirect URL
+            frontend_origin = get_frontend_origin()
+            target = frontend_origin
+            
+            if return_to:
+                # Make sure return_to starts with a slash if it's a relative path
+                if not return_to.startswith('/'):
+                    return_to = '/' + return_to
+                target = f"{frontend_origin}{return_to}"
+            
+            # 3) Redirect to the target URL
+            return redirect(target)
             
         return jsonify({'error': 'User email not verified by Google.'}), 400
         
