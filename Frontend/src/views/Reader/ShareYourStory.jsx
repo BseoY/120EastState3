@@ -1,6 +1,8 @@
 import React from "react";
+import axios from 'axios';
 import Nav from "../../components/Nav";
 import Form from "../../components/Form";
+import BASE_API_URL from "../../config";
 import "../../styles/ShareYourStory.css";
 
 function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
@@ -13,11 +15,13 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
         <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       </header>
       <div className="share-story-header">
+        <br></br>
         <h1>Share Your Story</h1>
         <p>
           Contribute to our archive by sharing your memories, photos, and stories about Trenton
           and its rich history. Your experiences help preserve the past for future generations.
         </p>
+        <br></br>
       </div>
       {isAuthenticated ? (
         <div className="share-story-form-container">
@@ -28,10 +32,22 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
           <h2>Authentication Required</h2>
           <p>You need to be logged in to share your story.</p>
           <div className="login-actions">
-            <a href={`${process.env.REACT_APP_BACKEND_URL || "http://localhost:5001"}/api/auth/login`} 
-               className="login-btn">
+            <button
+              onClick={async () => {
+                try {
+                  // Get the Google login URL from the backend
+                  const response = await axios.get(`${BASE_API_URL}/api/auth/login`);
+                  
+                  // Redirect to Google login page
+                  window.location.href = response.data.redirect_url;
+                } catch (error) {
+                  console.error('Error initiating Google login:', error);
+                }
+              }}
+              className="login-btn"
+            >
               Sign in with Google
-            </a>
+            </button>
           </div>
         </div>
       )}
