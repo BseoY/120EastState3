@@ -14,7 +14,7 @@ from flask import Flask, jsonify, render_template, request, session, redirect, u
 from flask_cors import CORS
 
 # Local imports
-from Models import db, Post, User, ContactMessage
+from database import db, Post, User, ContactMessage
 from cloudinary_config import configure_cloudinary
 
 # Load environment variables
