@@ -1,14 +1,14 @@
-a {
+.menu-option {
   font-family: 'DM Sans', sans-serif;
   color: #333;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
 }
-a:hover {
+.menu-option:hover {
   transform: translate(0, -2px);
 }
-a::after {
+.menu-option::after {
   content: '';
   position: absolute;
   left: 0;

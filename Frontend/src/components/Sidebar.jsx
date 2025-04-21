@@ -18,10 +18,10 @@ export default function Sidebar() {
       </button>
 
       <ul className='list'>
-        <a href='/archive'>Archive</a>
-        <a href='/share'>Share Your Story</a>
-        <a href='/about'>About</a>
-        <a href='/admin'>Admin</a>
+        <a className='menu-option' href='/archive'>Archive</a>
+        <a className='menu-option' href='/share'>Share Your Story</a>
+        <a className='menu-option' href='/about'>About</a>
+        <a className='menu-option' href='/admin'>Admin</a>
       </ul>
       
       <p id="signature">120EastState</p>

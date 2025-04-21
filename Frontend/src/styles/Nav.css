@@ -48,7 +48,7 @@
 
 .nav-profile button {
   background-color: transparent;
-  color: #333 !important;
+  color: #333;
   border: none;
   padding: 0.5rem 0;
   font-size: 20px;
@@ -105,7 +105,7 @@
 }
 
 .nav-link {
-  color: #333 !important;
+  color: #333;
   text-decoration: none;
   font-weight: 500;
   font-size: 20px;
@@ -124,7 +124,14 @@
 }
 
 .navbar-transparent .nav-profile button {
-  color: white;
+  color: #333;
+}
+.navbar-transparent .menu-links {
+  color: #333;
+}
+.menu-links {
+  text-decoration: none;
+  color: #333;
 }
 
 .nav-link:hover {
@@ -146,6 +153,9 @@
   width: 100%;
 }
 
+.navbar-transparent li {
+  color: #333;
+}
 .admin-link {
   background-color: #f8f9fa;
   border-radius: 4px;
@@ -246,6 +256,6 @@
   font-weight: 300;
 }
 #picture {
-  border-radius: 2px;
+  border: none;
   max-width: 50px;
 }

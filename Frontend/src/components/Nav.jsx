@@ -72,26 +72,31 @@ function Nav({ user, isAuthenticated, onLogout }) {
         {isAuthenticated ? (
           <div className="user-nav-info">
             <button onClick={handleProfileClick}>
-              {user?.profile_pic ? (
-                <img
-                  src={user.profile_pic}
-                  alt="User profile"
-                  className="nav-profile-pic"
-                />
-              ) : (
-                <img
-                  src={defaultProfile} // Use the imported image
-                  alt="Default profile"
-                  className="nav-profile-pic"
-                />
-              )}
+              <img
+                src={user?.profile_pic || defaultProfile}
+                onError={(e) => {
+                  e.target.onerror = null; // Prevents infinite loop if defaultProfile also fails
+                  e.target.src = defaultProfile;
+                }}
+                alt="Profile"
+                className="nav-profile-pic"
+              />
             </button>
 
             {dropVis && (
               <div className='dropdown-menu'>
                 <ul className='dropdown-rows'>
                   <li id="user-info">
-                    <img src={user.profile_pic} id="picture"></img>
+                  <img
+                    id="picture"
+                    src={user?.profile_pic || defaultProfile}
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevents infinite loop if defaultProfile also fails
+                      e.target.src = defaultProfile;
+                    }}
+                    alt="Profile"
+                    className="nav-profile-pic"
+                  />
                     <div>
                       <p id="name">{user.name}</p>
                       <p>{user.role}</p>
@@ -99,12 +104,12 @@ function Nav({ user, isAuthenticated, onLogout }) {
                   </li>
                   <hr id="divider"></hr>
                   <li>
-                    <button className='nav-button'>
-                      <Link to="/your-posts" className="nav-link">Your Posts</Link>
+                    <button>
+                      <Link to="/your-posts" className='menu-links'>Your Posts</Link>
                     </button>
                   </li>
                   <li>
-                    <button onClick={onLogout} className='nav-button'>Log out</button>
+                    <button onClick={onLogout}>Log out</button>
                   </li>
                 </ul>
               </div>
