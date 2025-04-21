@@ -558,7 +558,9 @@ def deny_post(post_id):
     Returns:
         JSON confirmation message
     """
-    return update_post_status(post_id, 'denied')
+    # Get the feedback from the request body if available
+    feedback = request.json.get('feedback', None) if request.json else None
+    return update_post_status(post_id, 'denied', feedback)
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
 def get_post_by_id(post_id):
@@ -592,7 +594,7 @@ def get_post_by_id(post_id):
         return jsonify({'error': f'Error fetching post: {str(e)}'}), 500
 
 @require_roles('admin')
-def update_post_status(post_id, new_status):
+def update_post_status(post_id, new_status, feedback=None):
     """Update the status of a post
     
     This is a helper function for approve_post and deny_post
@@ -600,6 +602,7 @@ def update_post_status(post_id, new_status):
     Args:
         post_id: The ID of the post to update
         new_status: The new status ('approved' or 'denied')
+        feedback: Optional feedback text for denied posts
         
     Returns:
         JSON response with success message or error
@@ -618,7 +621,8 @@ def update_post_status(post_id, new_status):
     # Send an email notification if we have a user email
     if user and user.email:
         try:
-            email_sent = send_decision_email(user.email, new_status, post.title)
+            # Include feedback in denial emails
+            email_sent = send_decision_email(user.email, new_status, post.title, feedback)
             email_status = "sent" if email_sent else "failed to send"
         except Exception as e:
             # Don't fail the whole request if email fails

@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
+  const navigate = useNavigate();
   const [pendingPosts, setPendingPosts] = useState([]);
   const [deniedPosts, setDeniedPosts] = useState([]);
   const [existingPosts, setExistingPosts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("pending");
+  const [showDenyModal, setShowDenyModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
 
 
@@ -35,15 +40,42 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
 
-  const updateStatus = async (postId, action) => {
+  const updateStatus = async (postId, action, feedback = '') => {
     try {
       const endpoint = `${BASE_API_URL}/api/admin/posts/${postId}/${action}`;
-      await axios.post(endpoint, {}, { withCredentials: true });
+      await axios.post(
+        endpoint, 
+        { feedback }, 
+        { withCredentials: true }
+      );
 
       setPendingPosts((prev) => prev.filter((post) => post.id !== postId));
+      
+      // Reset feedback state if provided
+      if (feedback) {
+        setFeedbackText('');
+        setShowDenyModal(false);
+      }
     } catch (err) {
       console.error(`Error ${action}ing post:`, err);
     }
+  };
+  
+  const handleDenyClick = (postId) => {
+    setSelectedPostId(postId);
+    setShowDenyModal(true);
+  };
+  
+  const handleSubmitFeedback = () => {
+    if (selectedPostId) {
+      updateStatus(selectedPostId, 'deny', feedbackText);
+    }
+  };
+  
+  const handleCancelFeedback = () => {
+    setShowDenyModal(false);
+    setFeedbackText('');
+    setSelectedPostId(null);
   };
 
   const fetchPosts = async () => {
@@ -89,7 +121,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
       <div className='admin-container'>
         <div className='admin-sidebar'>
-          <h1 id="admin-header">Admin Dashboard</h1>
+          <h1 id="admin-header">Dashboard</h1>
           <button
             className={`sidebar-button ${activeSection === 'pending' ? 'active' : ''}`}
             onClick={() => setActiveSection("pending")}
@@ -109,10 +141,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             Messages
           </button>
           <button 
-            className={`sidebar-button ${activeSection === 'existing' ? 'active' : ''}`}
-            onClick={() => setActiveSection("existing")}
+            className={`sidebar-button`}
+            onClick={() => navigate("/archive")}
           >
-            Existing Archive
+            Public Archive
           </button>
         </div>
 
@@ -130,7 +162,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       <p>{post.status}</p>
                       <div>
                         <button onClick={() => updateStatus(post.id, 'approve')} className="approve-button">Approve</button>
-                        <button onClick={() => updateStatus(post.id, 'deny')} className="deny-button">Deny</button>
+                        <button onClick={() => handleDenyClick(post.id)} className="deny-button">Deny</button>
                       </div>
                     </div>
                   ))}
@@ -179,26 +211,28 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 </div>
             </div>
           )}
-
-          {activeSection === "existing" && (
-            <div>
-              <h1>Existing Archive</h1>
-              <div className='post-container'>
-                {existingPosts.length === 0 ? (
-                  <p>No posts available</p>
-                ) : (
-                  existingPosts.map(post => (
-                    <div key={post.id} className='each-post'>
-                      <h3>{post.title}</h3>
-                      <p>{post.content?.slice(0, 100)}...</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+      {/* Deny Post Modal */}
+      {showDenyModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Provide Feedback for Denial</h2>
+            <p>This feedback will be sent to the user in the automatic email notification.</p>
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder="Please provide specific feedback about why this post was denied..."
+              rows={5}
+              className="feedback-textarea"
+            />
+            <div className="modal-buttons">
+              <button onClick={handleCancelFeedback} className="cancel-button">Cancel</button>
+              <button onClick={handleSubmitFeedback} className="submit-button">Submit & Deny</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

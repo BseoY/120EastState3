@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { QRCodeSVG } from 'qrcode.react';
 import Nav from '../../components/Nav';
 import './PostDetail.css';
 
@@ -37,6 +38,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showQRCode, setShowQRCode] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -131,10 +133,41 @@ const PostDetail: React.FC<PostDetailProps> = ({
             )}
             
             <div className="post-footer">
-              <Link to="/archive" className="back-button">
-                ← Back to Archive
-              </Link>
+              <div className="post-actions">
+                <button 
+                  className="share-qr-button" 
+                  onClick={() => setShowQRCode(true)}
+                >
+                  Share with QR Code
+                </button>
+                <Link to="/archive" className="back-button">
+                  ← Back to Archive
+                </Link>
+              </div>
             </div>
+
+            {/* QR Code Modal */}
+            {showQRCode && (
+              <div className="qr-modal-overlay" onClick={() => setShowQRCode(false)}>
+                <div className="qr-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <h3>Scan this QR Code to share</h3>
+                  <div className="qr-code-container">
+                    <QRCodeSVG 
+                      value={window.location.href}
+                      size={250}
+                      includeMargin={true}
+                    />
+                  </div>
+                  <p className="qr-code-url">{window.location.href}</p>
+                  <button 
+                    className="close-qr-button" 
+                    onClick={() => setShowQRCode(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
           </article>
         ) : (
           <div className="not-found">Post not found</div>

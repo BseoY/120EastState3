@@ -3,7 +3,7 @@ import smtplib
 from email.message import EmailMessage
 import dotenv
 
-def send_decision_email(to_email, decision, post_title=None, *args, **kwargs):
+def send_decision_email(to_email, decision, post_title=None, feedback=None, *args, **kwargs):
     """Send an email notification about a post approval or denial decision
     
     Args:
@@ -38,12 +38,23 @@ def send_decision_email(to_email, decision, post_title=None, *args, **kwargs):
         </body>
         </html>"""
     else:
+        # Add admin feedback if provided
+        feedback_html = ""
+        if feedback:
+            feedback_html = f"""
+            <div style="margin: 20px 0; padding: 15px; border-left: 4px solid #d9534f; background-color: #f9f9f9;">
+                <h3 style="margin-top: 0;">Feedback from our team:</h3>
+                <p style="white-space: pre-line;">{feedback}</p>
+            </div>
+            """
+            
         content = f"""<html>
         <body>
             <h2>Notice Regarding Your Submission</h2>
             <p>We've reviewed your submission to 120 East State.</p>
             {f'<p>Unfortunately, your post titled "<strong>{post_title}</strong>" has not been approved at this time.</p>' if post_title else ''}
-            <p>This may be due to one of the following reasons:</p>
+            {feedback_html}
+            <p>Common reasons for declined submissions include:</p>
             <ul>
                 <li>Content not aligned with our community guidelines</li>
                 <li>Insufficient information or details</li>
