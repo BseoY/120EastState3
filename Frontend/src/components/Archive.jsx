@@ -181,6 +181,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
             Share Your Story
           </a>
         </div>
+        <br></br>
       </div>
       
       {/* Form functionality moved to dedicated Share Your Story page */}

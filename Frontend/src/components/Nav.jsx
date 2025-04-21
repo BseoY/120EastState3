@@ -1,13 +1,11 @@
 import React, { useState } from 'react'; // Make sure to import useState
-import axios from 'axios';
 import "../styles/Nav.css";
 import Sidebar from "./Sidebar";
 import useIsMobile from '../hooks/useIsMobile';
+import useAuth from '../hooks/useAuth';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';  // Add this import
 import defaultProfile from '../assets/Image/defaultprofile.png';
-
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const isMobile = useIsMobile();
@@ -37,16 +35,8 @@ function Nav({ user, isAuthenticated, onLogout }) {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      // Get the Google login URL from the backend
-      const response = await axios.get(`${BASE_API_URL}/api/auth/login`);
-      // Redirect to Google login page
-      window.location.href = response.data.redirect_url;
-    } catch (error) {
-      console.error('Error initiating Google login:', error);
-    }
-  };
+  // Use the shared authentication hook
+  const { handleLogin } = useAuth();
 
   const handleProfileClick = () => {
     setDropVis(prev => !prev);
@@ -116,7 +106,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
             )}
           </div>
         ) : (
-          <button onClick={handleGoogleLogin} className='nav-button'>Log in</button>
+          <button onClick={handleLogin} className='nav-button'>Log in</button>
         )}
       </div>
 

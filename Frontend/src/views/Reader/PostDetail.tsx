@@ -102,7 +102,12 @@ const PostDetail: React.FC<PostDetailProps> = ({
             
             {post.image_url && (
               <div className="post-image-container">
-                <img src={post.image_url} alt={post.title} className="post-image" />
+                <img 
+                  src={post.image_url} 
+                  alt={post.title} 
+                  className="post-image" 
+                  style={{ maxWidth: "100%", width: "auto", height: "auto" }} 
+                />
               </div>
             )}
             

@@ -4,7 +4,7 @@
 }
 
 .post-detail-container {
-  max-width: 900px;
+  max-width: 1200px; /* Increased max-width to accommodate larger images */
   margin: 0 auto;
   padding: 2rem;
   background-color: #fff;
@@ -73,14 +73,16 @@
 .post-image-container {
   margin: 1rem 0;
   width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
+  text-align: center; /* Center the image */
 }
 
 .post-image {
-  width: 100%;
-  height: auto;
-  display: block;
+  max-width: 100%;
+  max-height: none; /* Remove any height limitations */
+  width: auto; /* Allow natural width */
+  height: auto; /* Allow natural height */
+  display: inline-block; /* Changed from block to inline-block */
+  margin: 0 auto;
 }
 
 .post-body {
