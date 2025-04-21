@@ -106,7 +106,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
             )}
           </div>
         ) : (
-          <button onClick={handleLogin} className='nav-button'>Log in</button>
+          <button onClick={handleLogin} className='nav-link'>Log in</button>
         )}
       </div>
 
