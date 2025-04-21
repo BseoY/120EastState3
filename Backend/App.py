@@ -615,27 +615,6 @@ def update_post_status(post_id, new_status):
         'status': new_status
     })
 
-@app.route('/api/admin/denied-posts', methods=['GET'])
-@require_roles('admin')
-def get_denied_posts():
-    try:     
-        denied_posts = Post.query.filter_by(status='denied').all()
-        return jsonify([{
-            'id': post.id,
-            'title': post.title,
-            'content': post.content,
-            'tag': post.tag,
-            'image_url': post.image_url,
-            'video_url': post.video_url,
-            'date_created': post.date_created,
-            'user_id': post.user_id,
-            'author': post.user.name if post.user else 'Anonymous',
-            'profile_pic': post.user.profile_pic if post.user else None,
-            'status': post.status
-        } for post in denied_posts])
-    except Exception as e:
-        return jsonify({'error': f'Error fetching post: {str(e)}'}), 500
-
 @app.route('/api/admin/messages', methods=['GET'])
 def view_message():
     messages = ContactMessage.query.order_by(ContactMessage.date_created.desc()).all()
