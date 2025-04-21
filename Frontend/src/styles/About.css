@@ -99,3 +99,53 @@
   margin-top: 10px;
   margin-bottom: none;
 }
+
+.team-photo {
+  transition: opacity 0.3s ease;
+}
+
+.team-photo-container {
+  position: relative;
+  width: fit-content;
+}
+
+.team-photo-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.team-photo-container:hover .team-photo {
+  opacity: 0;
+}
+
+.team-photo-container:hover .team-photo-hover {
+  opacity: 1;
+}
+
+
+/* Replace existing .team-photo and hover related styles with these: */
+.team-photo-container {
+  position: relative;
+  display: inline-block; /* makes container fit image size */
+  width: 40%; /* matches your original image width */
+}
+
+.team-photo, 
+.team-photo-hover {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease;
+}
+
+.team-photo-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Nav from '../../components/Nav';
 import teamPhoto from '../../assets/Image/120ES3_team_photo.png';
+import teamPhotoHover from '../../assets/Image/TeamPhotoReal.png'; // Add your hover image
 import '../../../src/styles/About.css';
 import BASE_API_URL from '../../config';
 
@@ -12,6 +13,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   });
   
   const [statusMessage, setStatusMessage] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,26 +22,8 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch(`${BASE_API_URL}/api/about/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-      setStatusMessage(data.message);
-
-      if (response.ok) {
-        setFormData({ name: '', email: '', message: '' });
-      }
-    } catch(err) {
-      console.error(err);
-      setStatusMessage('Something went wrong. Please try again later.');
-    }
+    // ... (keep your existing submit logic)
   }
-
 
   return (
     <div className="about-container">
@@ -50,10 +34,13 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
           <h2>The Digital Archive</h2>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
             Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
-          <figure>
-            <img src={teamPhoto} alt="120 East State" className="team-photo" />
-            <figcaption>Brian Seo (COS '27), Andrew Cho (COS '27), and Henry Li (COS '27)</figcaption>
-          </figure>
+            <figure>
+              <div className="team-photo-container">
+                <img src={teamPhoto} alt="120 East State Team" className="team-photo" />
+                <img src={teamPhotoHover} alt="120 East State Team Alternate View" className="team-photo-hover" />
+              </div>
+              <figcaption>Brian Seo (COS '27), Andrew Cho (COS '27), and Henry Li (COS '27)</figcaption>
+            </figure>
         </div>
         
         <div className="about-section">
