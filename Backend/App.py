@@ -16,6 +16,7 @@ from flask_cors import CORS
 # Local imports
 from database import db, Post, User, ContactMessage
 from cloudinary_config import configure_cloudinary
+from email_decision import send_decision_email
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -603,16 +604,33 @@ def update_post_status(post_id, new_status):
     Returns:
         JSON response with success message or error
     """
-    post = Post.query.get(post_id)
+    post = db.session.get(Post, post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
-        
+    
+    # Get the user who created the post
+    user = db.session.get(User, post.user_id)
+    
+    # Update the post status
     post.status = new_status
     db.session.commit()
+    
+    # Send an email notification if we have a user email
+    if user and user.email:
+        try:
+            email_sent = send_decision_email(user.email, new_status, post.title)
+            email_status = "sent" if email_sent else "failed to send"
+        except Exception as e:
+            # Don't fail the whole request if email fails
+            email_status = f"failed with error: {str(e)}"
+    else:
+        email_status = "skipped (no user email)"
+    
     return jsonify({
         'message': f'Post {new_status} successfully',
         'post_id': post_id,
-        'status': new_status
+        'status': new_status,
+        'email_notification': email_status
     })
 
 @app.route('/api/admin/messages', methods=['GET'])

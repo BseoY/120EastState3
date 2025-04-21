@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import Nav from '../../components/Nav';
+import teamPhoto from '../../assets/Image/120ES3_team_photo.png';
 import '../../../src/styles/About.css';
 import BASE_API_URL from '../../config';
 
@@ -44,14 +45,19 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     <div className="about-container">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <div className="about-content">
-        <h1>About 120 East State</h1>
+        <h1>About</h1>
         <div className="about-section">
-          <h2>Welcome to 120 East State</h2>
-          <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
+          <h2>The Digital Archive</h2>
+          <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
+            Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
+          <figure>
+            <img src={teamPhoto} alt="120 East State" className="team-photo" />
+            <figcaption>Brian Seo (COS '27), Andrew Cho (COS '27), and Henry Li (COS '27)</figcaption>
+          </figure>
         </div>
         
         <div className="about-section">
-          <h2>Our Mission</h2>
+          <h2>120 East State</h2>
           <ul>
             <li>Preserve historical documents and artifacts</li>
             <li>Make historical information accessible to everyone</li>
@@ -62,7 +68,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
 
         <div className="about-section">
           <h2>Contact Us</h2>
-          <p>If you have any questions or would like to contribute to our archive, please contact us at:</p>
+          <p>If you have any questions or inquiries, please contact us at:</p>
           <form id="contact-form" onSubmit={handleSubmit}>
             <input
               type="text"
