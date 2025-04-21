@@ -5,7 +5,7 @@ from datetime import timedelta
 from functools import wraps
 
 # Third-party imports
-import dotenv
+from dotenv import load_dotenv
 import requests
 import cloudinary
 import cloudinary.uploader
@@ -19,7 +19,7 @@ from cloudinary_config import configure_cloudinary
 from email_decision import send_decision_email
 
 # Load environment variables
-dotenv.load_dotenv()
+load_dotenv()
 
 # Initialize app
 app = Flask(__name__)
@@ -33,7 +33,10 @@ allowed_origins = [
 CORS(app, resources={
     r"/api/*": {
         "origins": allowed_origins,
-        "supports_credentials": True
+        "supports_credentials": True,
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Type", "Authorization"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     }
 })
 
@@ -47,11 +50,22 @@ def get_frontend_origin():
 
 @app.after_request
 def after_request(response):
-    """Ensure no duplicate CORS headers in responses"""
+    """Ensure no duplicate CORS headers in responses and properly set cookie headers"""
+    # Handle CORS origin
     if 'Access-Control-Allow-Origin' in response.headers:
         origin = request.headers.get('Origin')
         if origin and origin in allowed_origins:
             response.headers['Access-Control-Allow-Origin'] = origin
+            # Ensure credentials are allowed when origin is set
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+    
+    # Ensure proper cookie settings for cross-domain requests
+    if 'Set-Cookie' in response.headers:
+        # Enhance cookie security but allow cross-domain usage
+        if 'SameSite=None' not in response.headers['Set-Cookie']:
+            response.headers['Set-Cookie'] = response.headers['Set-Cookie'].replace('HttpOnly;', 'HttpOnly; SameSite=None; Secure;')
+        elif 'Secure' not in response.headers['Set-Cookie']:
+            response.headers['Set-Cookie'] = response.headers['Set-Cookie'].replace('SameSite=None', 'SameSite=None; Secure')
     return response
 
 
@@ -62,6 +76,13 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+# Explicitly set session cookie domain for cross-domain authentication
+if os.getenv("ENV") == "production":
+    # In production, allows cookies to be shared across Heroku domains
+    app.config['SESSION_COOKIE_DOMAIN'] = None  # Let the browser set the domain naturally
+    app.config['SESSION_COOKIE_PATH'] = '/'  # Make cookie available across all paths
 
 # Cloudinary configuration
 configure_cloudinary()
