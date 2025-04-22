@@ -150,6 +150,15 @@
   width: 100%;
 }
 
+.login-link {
+  text-decoration: none;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  display: inline-block;
+  padding: 0.5rem 0;
+}
+
 .navbar-transparent li {
   color: #333;
 }
@@ -238,6 +247,10 @@
   padding: 0;
 }
 
+.dropdown-rows li {
+  text-align: left;
+}
+
 #user-info {
   width: 100%;
   min-height: 50px;
@@ -247,6 +260,7 @@
   margin-bottom: 10px;
   gap: 5px;
 }
+
 #name {
   width: 100%;
   font-size: 1.5rem;

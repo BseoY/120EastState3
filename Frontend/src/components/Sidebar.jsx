@@ -3,7 +3,7 @@ import { useState } from "react";
 import "../styles/sidebar.css"
 
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +21,7 @@ export default function Sidebar() {
         <a className='menu-option' href='/archive'>Archive</a>
         <a className='menu-option' href='/share'>Share Your Story</a>
         <a className='menu-option' href='/about'>About</a>
-        <a className='menu-option' href='/admin'>Admin</a>
+        {isAdmin && <a className='menu-option' href='/admin'>Admin</a>}
       </ul>
       
       <p id="signature">120EastState</p>

@@ -1,22 +1,37 @@
-import React, { useState } from 'react'; // Make sure to import useState
+import React, { useState, useEffect } from 'react'; 
 import "../styles/Nav.css";
 import Sidebar from "./Sidebar";
 import useIsMobile from '../hooks/useIsMobile';
 import useAuth from '../hooks/useAuth';
 import { useLocation } from 'react-router-dom';
-import { Link } from 'react-router-dom';  // Add this import
+import { Link } from 'react-router-dom';  
 import defaultProfile from '../assets/Image/defaultprofile.png';
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const isMobile = useIsMobile();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isAdmin = user?.role === 'admin';
   
   // Add these state declarations at the top of your component
   const [showUserPosts, setShowUserPosts] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [dropVis, setDropVis] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropVis && !event.target.closest('.user-nav-info')) {
+        setDropVis(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropVis]);
 
   const fetchUserPosts = async () => {
     if (!isAuthenticated) return;
@@ -53,7 +68,7 @@ function Nav({ user, isAuthenticated, onLogout }) {
             <a href="/share" className='nav-link'>Share Your Story</a>
             <a href="/archive" className='nav-link'>Archive</a>
             <a href="/about" className='nav-link'>About</a>
-            <a href="/admin" className='nav-link'>Admin</a>
+            {isAdmin && <a href="/admin" className='nav-link'>Admin</a>}
           </div>
         )}
       </div>
@@ -61,11 +76,11 @@ function Nav({ user, isAuthenticated, onLogout }) {
       <div className='nav-profile'>
         {isAuthenticated ? (
           <div className="user-nav-info">
-            <button onClick={handleProfileClick}>
+            <button className="profile-button" onClick={handleProfileClick}>
               <img
                 src={user?.profile_pic || defaultProfile}
                 onError={(e) => {
-                  e.target.onerror = null; // Prevents infinite loop if defaultProfile also fails
+                  e.target.onerror = null; 
                   e.target.src = defaultProfile;
                 }}
                 alt="Profile"
@@ -77,19 +92,19 @@ function Nav({ user, isAuthenticated, onLogout }) {
               <div className='dropdown-menu'>
                 <ul className='dropdown-rows'>
                   <li id="user-info">
-                  <img
-                    id="picture"
-                    src={user?.profile_pic || defaultProfile}
-                    onError={(e) => {
-                      e.target.onerror = null; // Prevents infinite loop if defaultProfile also fails
-                      e.target.src = defaultProfile;
-                    }}
-                    alt="Profile"
-                    className="nav-profile-pic"
-                  />
+                    <img
+                      id="picture"
+                      src={user?.profile_pic || defaultProfile}
+                      onError={(e) => {
+                        e.target.onerror = null; 
+                        e.target.src = defaultProfile;
+                      }}
+                      alt="Profile"
+                      className="nav-profile-pic"
+                    />
                     <div>
-                      <p id="name">{user.name}</p>
-                      <p>{user.role}</p>
+                      <p id="name">{user?.name?.split(" ")[0] || "User"}</p>
+                      <p>{user?.role || "user"}</p>
                     </div>
                   </li>
                   <hr id="divider"></hr>
@@ -98,6 +113,13 @@ function Nav({ user, isAuthenticated, onLogout }) {
                       <Link to="/your-posts" className='menu-links'>Your Posts</Link>
                     </button>
                   </li>
+                  {isAdmin && (
+                    <li>
+                      <button>
+                        <Link to="/admin" className='menu-links'>Admin Dashboard</Link>
+                      </button>
+                    </li>
+                  )}
                   <li>
                     <button onClick={onLogout}>Log out</button>
                   </li>
@@ -106,45 +128,14 @@ function Nav({ user, isAuthenticated, onLogout }) {
             )}
           </div>
         ) : (
-          <button onClick={handleLogin} className='nav-link'>Log in</button>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }} className="nav-link login-link">Log in</a>
         )}
       </div>
-
-      {/* User Posts Dropdown */}
-      {showUserPosts && (
-        <div className="user-posts-dropdown">
-          <button 
-            className="close-posts"
-            onClick={() => setShowUserPosts(false)}
-          >
-            ×
-          </button>
-          
-          <h3>Your Posts</h3>
-          
-          {userPosts.length > 0 ? (
-            <ul>
-              {userPosts.map(post => (
-                <li key={post.id}>
-                  <h4>{post.title}</h4>
-                  <p>{post.content.substring(0, 100)}...</p>
-                  <small>
-                    {new Date(post.date_created).toLocaleDateString()} • 
-                    Status: {post.status}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>You haven't created any posts yet.</p>
-          )}
-        </div>
-      )}
 
       {/* Render the Sidebar only on mobile */}
       {isMobile && (
         <div className='dropdown'>
-          <Sidebar />
+          <Sidebar isAdmin={isAdmin} />
         </div>
       )}
     </nav>
