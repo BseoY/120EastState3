@@ -87,7 +87,14 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
         ) : (
           <div className="posts-grid">
             {posts.map(post => (
-              <div key={post.id} className="post-card">
+              <div
+              key={post.id}
+              className={`post-card ${post.status}`}
+              style={{ cursor: post.status === 'approved' ? 'pointer' : 'default' }}
+              onClick={() => {
+                if (post.status === 'approved') navigate(`/post/${post.id}`);
+              }}
+            >
                 <h2>{post.title}</h2>
                 <p className="post-content">{post.content.substring(0, 150)}...</p>
                 

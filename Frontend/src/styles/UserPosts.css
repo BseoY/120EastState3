@@ -149,3 +149,15 @@
     background-color: #ffebee;
     color: #c62828;
   }
+
+  .post-card.pending {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .post-card.denied {
+    border: 2px solid red;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
