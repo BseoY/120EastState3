@@ -16,8 +16,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [showDenyModal, setShowDenyModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [selectedPostId, setSelectedPostId] = useState(null);
-
-
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
   const fetchPendingPosts = async () => {
     try {
@@ -95,7 +95,17 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       setLoading(false);
     }
   };
-
+  
+  const handleOpenMessageModal = (message) => {
+    setSelectedMessage(message);
+    setShowMessageModal(true);
+  };
+  
+  const handleCloseMessageModal = () => {
+    setSelectedMessage(null);
+    setShowMessageModal(false);
+  };
+  
   const fetchMessages = async () => {
     try {
       const res = await fetch(`${BASE_API_URL}/api/admin/messages`);
@@ -105,6 +115,24 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       console.error('Error fetching messages:', err);
     }
   };
+
+  const handleMarkAsResolved = async (messageId) => {
+    try {
+      await axios.post(
+        `${BASE_API_URL}/api/admin/messages/${messageId}/resolve`,
+        {},
+        { withCredentials: true }
+      );
+  
+      // Remove the resolved message from UI or update its status
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg.id !== messageId)
+      );
+    } catch (error) {
+      console.error("Error marking message as resolved:", error);
+    }
+  };
+  
 
   useEffect(() => {
     fetchPendingPosts();
@@ -202,9 +230,15 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                   ) : (
                     messages.map(msg => (
                       <div key={msg.id} className="message-card">
-                        <p><strong>Name:</strong> {msg.name}</p>
-                        <p><strong>Email:</strong> {msg.email}</p>
-                        <p><strong>Message:</strong> {msg.message}</p>
+                        <h1 id='message-header'>Message {msg.id}</h1>
+                        <div id="message-preview-container">
+                        <p className='message-preview'><strong>{msg.name}</strong></p>
+                        <p className='message-preview'>{msg.message}</p>
+                        </div>
+                        <div id='message-button-container'>
+                        <button className='message-buttons' onClick={() => handleOpenMessageModal(msg)}>Respond</button>
+                        <button className='message-buttons' onClick={() => handleMarkAsResolved(msg.id)}>Mark as Resolved</button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -227,12 +261,27 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               className="feedback-textarea"
             />
             <div className="modal-buttons">
-              <button onClick={handleCancelFeedback} className="cancel-button">Cancel</button>
-              <button onClick={handleSubmitFeedback} className="submit-button">Submit & Deny</button>
+              <button onClick={handleCancelFeedback} className="modal-cancel-button">Cancel</button>
+              <button onClick={handleSubmitFeedback} className="modal-submit-button">Submit & Deny</button>
             </div>
           </div>
         </div>
       )}
+
+      {showMessageModal && selectedMessage && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h1>Message from <strong>{selectedMessage.name}</strong></h1>
+            <p><strong>Email:</strong> {selectedMessage.email}</p>
+            <p id='modal-message' style={{ marginTop: '1rem' }}>{selectedMessage.message}</p>
+            <div className="modal-buttons">
+              <button onClick={handleCloseMessageModal} className="modal-cancel-button">Close</button>
+              <button className="modal-respond-button">Respond</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

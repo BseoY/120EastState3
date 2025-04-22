@@ -660,7 +660,9 @@ def update_post_status(post_id, new_status, feedback=None):
 
 @app.route('/api/admin/messages', methods=['GET'])
 def view_message():
-    messages = ContactMessage.query.order_by(ContactMessage.date_created.desc()).all()
+    messages = ContactMessage.query.order_by(
+            ContactMessage.date_created.desc()).filter_by(
+                is_read='false').all()
     return jsonify([
         {
             'id': m.id,
@@ -670,6 +672,14 @@ def view_message():
             'date_created': m.date_created,
         } for m in messages
     ])
+
+@app.route('/api/admin/messages/<int:message_id>/resolve', methods=['POST'])
+def resolve_message(message_id):
+    message = ContactMessage.query.get_or_404(message_id)
+    message.is_read = True
+    db.session.delete(message)
+    db.session.commit()
+    return jsonify({'message': 'Message marked as resolved'}), 200
 
 @app.route('/api/about/contact', methods=['POST'])
 def send_message():

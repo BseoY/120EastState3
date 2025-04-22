@@ -6,17 +6,61 @@
 
 .each-post {
   border: 1px solid black;
+  padding: 20px;
+}
+.message-grid {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: 10px;
 }
 
 .message-card {
-  border: 1px solid black;
+  border: 1px solid #ccc;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  transition: transform 0.3s;
 }
 
-.message-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(250px, 1fr));
+#message-header {
+  font-size: 1rem;
+  color: #333;
+  background-color: rgb(217, 217, 217);
+  height: 100%;
+  width: 130px;
+  padding: 0 10px 0px 10px;
+  display: flex;
+  align-items: center;
 }
-
+#message-preview-container {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  width: 100%;
+  gap: 50px;
+  margin-left: 10px;
+}
+.message-preview {
+  font-size: 1rem;
+  font-weight: 350;
+}
+#message-button-container {
+  display: flex;
+  gap: 10px;
+}
+.message-buttons {
+  height: 50px;
+  width: 75px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.message-buttons:hover {
+  background-color: #62b1ce;
+  transform: translate(0, -3px);
+}
 
 .admin-container {
   display: flex;
@@ -79,12 +123,17 @@
 }
 
 .modal-content {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
   max-width: 600px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+#modal-message {
+  border: 1px solid black;
+  padding: 10px;
+  min-height: 200px;
 }
 
 .feedback-textarea {
@@ -105,7 +154,7 @@
   margin-top: 1rem;
 }
 
-.cancel-button {
+.modal-cancel-button {
   background-color: #e0e0e0;
   color: #333;
   border: none;
@@ -114,7 +163,7 @@
   cursor: pointer;
 }
 
-.submit-button {
+.modal-submit-button {
   background-color: #d9534f; /* Same as deny button */
   color: white;
   border: none;
@@ -123,6 +172,14 @@
   cursor: pointer;
 }
 
+.modal-respond-button {
+  background-color: #1F8CB5; /* Same as deny button */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
 .approve-button {
   background-color: #5cb85c;
   color: white;

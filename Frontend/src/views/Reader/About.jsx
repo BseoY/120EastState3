@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
+import axios from 'axios';
+import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import teamPhoto from '../../assets/Image/120ES3_team_photo.png';
 import teamPhotoHover from '../../assets/Image/TeamPhotoReal.png'; // Add your hover image
 import '../../../src/styles/About.css';
-import BASE_API_URL from '../../config';
 
 function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const [formData, setFormData] = useState({
@@ -22,8 +23,15 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // ... (keep your existing submit logic)
-  }
+    try {
+      const res = await axios.post(`${BASE_API_URL}/api/about/contact`, formData);
+      setStatusMessage('Thanks for reaching out!');
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error(error);
+      setStatusMessage('Something went wrong. Please try again.');
+    }
+  };
 
   return (
     <div className="about-container">
