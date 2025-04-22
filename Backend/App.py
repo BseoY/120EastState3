@@ -1,16 +1,12 @@
 # Standard library imports
 import os
-import json
 from datetime import timedelta
-from functools import wraps
 
 # Third-party imports
 from dotenv import load_dotenv
-import requests
 import cloudinary
 import cloudinary.uploader
-import oauthlib.oauth2
-from flask import Flask, jsonify, render_template, request, session, redirect, url_for
+from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 
 # Local imports
