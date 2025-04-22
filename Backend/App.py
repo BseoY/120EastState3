@@ -17,6 +17,7 @@ from flask_cors import CORS
 from database import db, Post, User, ContactMessage
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
+from auth import auth_bp, get_current_user, require_roles
 
 # Load environment variables
 load_dotenv()
@@ -26,8 +27,10 @@ app = Flask(__name__)
 
 # CORS setup to support both local and deployed frontend
 allowed_origins = [
-    "http://localhost:3000", 
-    "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
+    "http://localhost:3000",
+    "http://localhost:5001", 
+    "https://one20es-frontend-ea37035e8ebf.herokuapp.com",
+    "https://one20es-backend-bd090d21d298.herokuapp.com"
 ]
 
 CORS(app, resources={
@@ -40,32 +43,17 @@ CORS(app, resources={
     }
 })
 
-# Determine what frontend origin to use
-def get_frontend_origin():
-    env = os.getenv("ENV")
-    if env == "production":
-        return "https://one20es-frontend-ea37035e8ebf.herokuapp.com"
-    else:
-        return "http://localhost:3000"
+# Using frontend origin function from auth.py
 
 @app.after_request
 def after_request(response):
-    """Ensure no duplicate CORS headers in responses and properly set cookie headers"""
-    # Handle CORS origin
-    if 'Access-Control-Allow-Origin' in response.headers:
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers['Access-Control-Allow-Origin'] = origin
-            # Ensure credentials are allowed when origin is set
-            response.headers['Access-Control-Allow-Credentials'] = 'true'
-    
-    # Ensure proper cookie settings for cross-domain requests
-    if 'Set-Cookie' in response.headers:
-        # Enhance cookie security but allow cross-domain usage
-        if 'SameSite=None' not in response.headers['Set-Cookie']:
-            response.headers['Set-Cookie'] = response.headers['Set-Cookie'].replace('HttpOnly;', 'HttpOnly; SameSite=None; Secure;')
-        elif 'Secure' not in response.headers['Set-Cookie']:
-            response.headers['Set-Cookie'] = response.headers['Set-Cookie'].replace('SameSite=None', 'SameSite=None; Secure')
+    """Add CORS headers to every /api/* response."""
+    origin = request.headers.get('Origin')
+    if origin and origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
     return response
 
 
@@ -74,25 +62,24 @@ def after_request(response):
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-site cookies
+app.config['SESSION_COOKIE_SECURE'] = True      # Require HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True    # Not accessible via JavaScript
 
-# Explicitly set session cookie domain for cross-domain authentication
-if os.getenv("ENV") == "production":
+# For local development, ensure cookies work cross-domain
+if os.getenv("ENV") != "production":
+    # Allow cookies to be set on localhost regardless of port
+    app.config['SESSION_COOKIE_DOMAIN'] = "localhost"
+    app.config['SESSION_COOKIE_PATH'] = '/'      # Available on all paths
+else:
     # In production, allows cookies to be shared across Heroku domains
-    app.config['SESSION_COOKIE_DOMAIN'] = None  # Let the browser set the domain naturally
-    app.config['SESSION_COOKIE_PATH'] = '/'  # Make cookie available across all paths
+    app.config['SESSION_COOKIE_DOMAIN'] = None   # Let the browser set the domain
+    app.config['SESSION_COOKIE_PATH'] = '/'      # Available on all paths
 
 # Cloudinary configuration
 configure_cloudinary()
 
-# OAuth configuration
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Only for development
-GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-oauth_client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
+# OAuth configuration is now handled by auth.py
 
 # Database configuration
 # Handle Heroku PostgreSQL URL format
@@ -105,6 +92,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
 db.init_app(app)
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+
 with app.app_context():
     try:
         db.create_all()
@@ -142,53 +133,9 @@ def get_posts_by_tag(tag):
     except Exception as e:
         return jsonify({'error': f'Error fetching posts by tag: {str(e)}'}), 500
     
-# Authentication Helper Functions
-def get_current_user():
-    """Get the current authenticated user or create a new user if not exists"""
-    if 'user_info' not in session:
-        return None
+# Authentication Helper Functions are now imported from auth.py
 
-    user_info = session['user_info']
-    user = User.query.filter_by(google_id=user_info['sub']).first()
-
-    # Set admin role for users with specific email domains
-    admin_domains = ['@princeton.edu', '@120eaststate.org']
-    
-    if user and any(user.email.endswith(domain) for domain in admin_domains):
-        user.role = 'admin'
-
-    # Create new user if not exists
-    if not user:
-        user = User(
-            google_id=user_info['sub'],
-            email=user_info['email'],
-            name=user_info['name'],
-            profile_pic=user_info.get('picture')
-        )
-        db.session.add(user)
-        db.session.commit()
-        
-    return user
-
-@app.route('/api/auth/login', methods=['GET'])
-def login():
-    """Initiate Google OAuth login flow"""
-    # 1) Read where the front-end wants to go back to
-    return_to = request.args.get('returnTo')
-    if return_to:
-        session['return_to'] = return_to
-    
-    # 2) Build the Google OAuth URL, embedding state
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-    authorization_endpoint = google_provider_cfg['authorization_endpoint']
-    redirect_uri = url_for('callback', _external=True)
-    request_uri = oauth_client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=redirect_uri,
-        scope=['openid', 'email', 'profile'],
-        state=return_to  # Mirror the return_to in OAuth state parameter
-    )
-    return jsonify({'redirect_url': request_uri})
+# Auth routes are now handled by the auth blueprint
 
 @app.route('/api/tags', methods=['GET'])
 def get_all_tags():
@@ -206,121 +153,13 @@ def get_all_tags():
     except Exception as e:
         return jsonify({'error': f'Error fetching tags: {str(e)}'}), 500
     
-@app.route('/api/auth/login/callback', methods=['GET'])
-def callback():
-    """Handle Google OAuth callback and authenticate user"""
-    try:
-        # Get authorization code from request
-        code = request.args.get('code')
-        if not code:
-            return jsonify({'error': 'Authorization code not provided'}), 400
-            
-        # Get token endpoint from Google's discovery document
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-        token_endpoint = google_provider_cfg['token_endpoint']
-        
-        # Prepare token request
-        token_url, headers, body = oauth_client.prepare_token_request(
-            token_endpoint,
-            authorization_response=request.url,
-            redirect_url=request.base_url,
-            code=code
-        )
-        
-        # Exchange code for tokens
-        token_response = requests.post(
-            token_url,
-            headers=headers,
-            data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-            timeout=5
-        )
-        oauth_client.parse_request_body_response(json.dumps(token_response.json()))
+# Auth callback is now handled by the auth blueprint
 
-        # Get user info from Google
-        userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
-        uri, headers, body = oauth_client.add_token(userinfo_endpoint)
-        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
+# Auth logout is now handled by the auth blueprint
 
-        # Verify user email and create session
-        if userinfo_response.json().get('email_verified'):
-            session['user_info'] = userinfo_response.json()
-            
-            # 1) Determine where to send them - first check state, then session
-            return_to = (
-                request.args.get('state')
-                or session.pop('return_to', None)
-            )
-            
-            # 2) Construct the full redirect URL
-            frontend_origin = get_frontend_origin()
-            target = frontend_origin
-            
-            if return_to:
-                # Make sure return_to starts with a slash if it's a relative path
-                if not return_to.startswith('/'):
-                    return_to = '/' + return_to
-                target = f"{frontend_origin}{return_to}"
-            
-            # 3) Redirect to the target URL
-            return redirect(target)
-            
-        return jsonify({'error': 'User email not verified by Google.'}), 400
-        
-    except Exception as e:
-        return jsonify({'error': f'Authentication error: {str(e)}'}), 500
+# Role verification is now handled by auth.py
 
-@app.route('/api/auth/logout', methods=['POST'])
-def logout():
-    """Log out the current user by clearing their session"""
-    session.pop('user_info', None)
-    return jsonify({'success': True, 'message': 'Successfully logged out'})
-
-# function for role vertification       
-def require_roles(*required_roles):
-    """Decorator to restrict route access to users with specific roles
-    
-    Args:
-        *required_roles: A list of role names that are allowed to access the route
-        
-    Returns:
-        Function decorator that checks user roles before allowing access
-    """
-    def decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            user = get_current_user()
-            if not user:
-                return jsonify({'error': 'Authentication required'}), 401
-            
-            if user.role not in required_roles:
-                return jsonify({'error': 'Unauthorized: insufficient privileges'}), 403
-                
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator
-
-@app.route('/api/auth/user', methods=['GET'])
-def get_user():
-    """Get current authenticated user information
-    
-    Returns:
-        JSON with user details if authenticated, or authentication status if not
-    """
-    user = get_current_user()
-    if user:
-        return jsonify({
-            'authenticated': True,
-            'user': {
-                'id': user.id,
-                'name': user.name,
-                'email': user.email,
-                'profile_pic': user.profile_pic,
-                'role': user.role
-            }
-        })
-    else:
-        return jsonify({'authenticated': False})
+# User info route is now handled by the auth blueprint
 
 @app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
 def handle_message():
