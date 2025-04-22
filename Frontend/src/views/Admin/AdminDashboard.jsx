@@ -287,4 +287,3 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 }
 
 export default AdminDashboard;
-
