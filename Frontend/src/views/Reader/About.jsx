@@ -37,18 +37,11 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     <div className="about-container">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <div className="about-content">
-        <h1>About</h1>
+        <h1>About 120EastState</h1>
         <div className="about-section">
           <h2>The Digital Archive</h2>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
             Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
-            <figure>
-              <div className="team-photo-container">
-                <img src={teamPhoto} alt="120 East State Team" className="team-photo" />
-                <img src={teamPhotoHover} alt="120 East State Team Alternate View" className="team-photo-hover" />
-              </div>
-              <figcaption>Brian Seo (COS '27), Andrew Cho (COS '27), and Henry Li (COS '27)</figcaption>
-            </figure>
         </div>
         
         <div className="about-section">
@@ -101,7 +94,19 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             </p>
           )}
         </div>
+
+        <div className='about-section'>
+          <h2>Developers</h2>
+          <figure>
+            <div className="team-photo-container">
+              <img src={teamPhoto} alt="120 East State Team" className="team-photo" />
+              <img src={teamPhotoHover} alt="120 East State Team Alternate View" className="team-photo-hover" />
+            </div>
+            <figcaption>Henry Li (COS '27), Andrew Cho (COS '27), Brian Seo (COS '27)</figcaption>
+          </figure>
+        </div>
       </div>
+
     </div>
   );
 }

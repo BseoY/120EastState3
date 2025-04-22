@@ -386,9 +386,35 @@ def get_pending_posts():
         'status': post.status
     } for post in pending_posts])
 
+@app.route('/api/admin/denied-posts', methods=['GET'])
+@require_roles('admin')
+def get_denied_posts():
+    """Get all pending posts that need admin approval
+    
+    This endpoint is restricted to users with 'admin' role
+    
+    Returns:
+        JSON array of all pending posts
+    """
+    pending_posts = Post.query.filter_by(status='denied').all()
+    return jsonify([{
+        'id': post.id,
+        'title': post.title,
+        'content': post.content,
+        'tag': post.tag,
+        'image_url': post.image_url,
+        'video_url': post.video_url,
+        'date_created': post.date_created,
+        'user_id': post.user_id,
+        'author': post.user.name if post.user else 'Anonymous',
+        'profile_pic': post.user.profile_pic if post.user else None,
+        'status': post.status
+    } for post in pending_posts])
+
 @app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
 @require_roles('admin')
 def approve_post(post_id):
+    print("hi")
     """Approve a pending post
     
     This endpoint is restricted to users with 'admin' role
