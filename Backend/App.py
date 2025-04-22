@@ -16,7 +16,7 @@ from flask_cors import CORS
 # Local imports
 from database import db, Post, User, ContactMessage
 from cloudinary_config import configure_cloudinary
-from email_decision import send_decision_email
+from email_functions import send_decision_email, send_contact_form_email
 
 # Load environment variables
 load_dotenv()
@@ -428,7 +428,7 @@ def handle_message():
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': f'Error creating post: {str(e)}'}), 500
-        
+
 @app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
 def get_user_posts():
     """Get all posts created by the current authenticated user
@@ -689,13 +689,41 @@ def send_message():
         sender_email = data["email"]
         message_content = data["message"]
 
+        # Store message in database
         new_msg = ContactMessage(name=name, email=sender_email, message=message_content)
         db.session.add(new_msg)
         db.session.commit()
         
+        # Send email to organization email
+        try:
+            # Use cho.s.andy03@gmail.com directly for testing
+            org_email = "cho.s.andy03@gmail.com"  # Hardcoded for testing
+            print(f"Attempting to send email to: {org_email}")
+            
+            # Debug environment variables
+            print(f"EMAIL_USER: {os.getenv('EMAIL_USER')}")
+            print(f"APP_PASS exists: {bool(os.getenv('APP_PASS'))}")
+            
+            # Use the contact form email function
+            email_sent = send_contact_form_email(
+                to_email=org_email,
+                name=name,
+                email=sender_email,
+                message=message_content
+            )
+            
+            if email_sent:
+                print(f"✅ Contact form email sent to {org_email}")
+            else:
+                print(f"❌ Failed to send contact form email to {org_email}, but message was saved to database")
+        except Exception as email_error:
+            print(f"Failed to send email: {str(email_error)}")
+            # We still return success even if email fails since the message was saved to database
+        
         return jsonify({'message': 'Message submitted successfully'}), 201
     except Exception as e:
-        return jsonify('Error retrieving message'), 500
+        print(f"Error in contact form: {str(e)}")
+        return jsonify({'error': 'Error processing message'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
