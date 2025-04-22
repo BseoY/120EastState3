@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
+import defaultPic from '../../assets/Image/120es_blue.jpg';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
@@ -36,9 +37,23 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       const res = await axios.get(`${BASE_API_URL}/api/admin/denied-posts`, { withCredentials: true });
       setDeniedPosts(res.data);
     } catch (err) {
-      console.error('Error fetching denied posts:', err);
+      console.error('Error reapproving posts:', err);
     }
   };
+  
+  const reApprovePost = async (postId) => {
+    try {
+      await axios.post(
+        `${BASE_API_URL}/api/admin/posts/${postId}/approve`,
+        {},
+        { withCredentials: true }
+      );
+
+      setDeniedPosts((prev) => prev.filter((post) => post.id !== postId));
+    } catch (err) {
+      console.error('Error reapproving post:', err);
+    };
+  }
 
   const updateStatus = async (postId, action, feedback = '') => {
     try {
@@ -162,12 +177,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           >
             Denied Posts
           </button>
-          <button
-            className={`sidebar-button ${activeSection === 'messages' ? 'active' : ''}`}
-            onClick={() => setActiveSection("messages")}
-          >
-            Messages
-          </button>
           <button 
             className={`sidebar-button`}
             onClick={() => navigate("/archive")}
@@ -208,41 +217,29 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                   <div className='post-container'>
                     {deniedPosts.map((post) => (
                       <div key={post.id} className='each-post'>
-                        <h3>{post.title}</h3>
-                        <p>Status: {post.status}</p>
-                        <p>{post.content?.slice(0, 100)}...</p> {/* optional preview */}
-                        {/* Optional: allow re-approval */}
-                        <button onClick={() => updateStatus(post.id, 'approve')} className='approve-button'>
-                          Re-Approve
-                        </button>
+                        <img
+                          className="post-image"
+                          src={post.image_url || defaultPic}
+                          alt="post"
+                        />
+                        {post.video_url && (
+                          <video className="post-video" controls>
+                            <source src={post.video_url} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                        )}
+                        <h1 id="post-title">{post.title}</h1>
+                        <div>
+                          <p>Status: {post.status}</p>
+                          <p>{post.content?.slice(0, 100)}...</p> {/* optional preview */}
+                          <button onClick={() => reApprovePost(post.id)} className='approve-button'>
+                            Re-Approve
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
               )}
-            </div>
-          )}
-          {activeSection === "messages" && (
-            <div>
-              <h1>Messages</h1>
-                <div className='message-grid'>
-                  {messages.length === 0 ? (
-                    <p>No pending messages</p>
-                  ) : (
-                    messages.map(msg => (
-                      <div key={msg.id} className="message-card">
-                        <h1 id='message-header'>Message {msg.id}</h1>
-                        <div id="message-preview-container">
-                        <p className='message-preview'><strong>{msg.name}</strong></p>
-                        <p className='message-preview'>{msg.message}</p>
-                        </div>
-                        <div id='message-button-container'>
-                        <button className='message-buttons' onClick={() => handleOpenMessageModal(msg)}>Respond</button>
-                        <button className='message-buttons' onClick={() => handleMarkAsResolved(msg.id)}>Mark as Resolved</button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
             </div>
           )}
         </div>
