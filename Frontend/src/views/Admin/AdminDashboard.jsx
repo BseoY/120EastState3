@@ -162,12 +162,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           >
             Denied Posts
           </button>
-          <button
-            className={`sidebar-button ${activeSection === 'messages' ? 'active' : ''}`}
-            onClick={() => setActiveSection("messages")}
-          >
-            Messages
-          </button>
           <button 
             className={`sidebar-button`}
             onClick={() => navigate("/archive")}
@@ -219,30 +213,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                     ))}
                   </div>
               )}
-            </div>
-          )}
-          {activeSection === "messages" && (
-            <div>
-              <h1>Messages</h1>
-                <div className='message-grid'>
-                  {messages.length === 0 ? (
-                    <p>No pending messages</p>
-                  ) : (
-                    messages.map(msg => (
-                      <div key={msg.id} className="message-card">
-                        <h1 id='message-header'>Message {msg.id}</h1>
-                        <div id="message-preview-container">
-                        <p className='message-preview'><strong>{msg.name}</strong></p>
-                        <p className='message-preview'>{msg.message}</p>
-                        </div>
-                        <div id='message-button-container'>
-                        <button className='message-buttons' onClick={() => handleOpenMessageModal(msg)}>Respond</button>
-                        <button className='message-buttons' onClick={() => handleMarkAsResolved(msg.id)}>Mark as Resolved</button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
             </div>
           )}
         </div>
