@@ -20,6 +20,7 @@ function Form({ onNewPost, user }) {
   const [success, setSuccess] = useState(false);
   const [tags, setTags] = useState([]);
   const [tagsLoading, setTagsLoading] = useState(true);
+  const [mediaType, setMediaType] = useState("image"); // or "video"
   
   // Fetch tags when component mounts
   useEffect(() => {
@@ -147,133 +148,160 @@ function Form({ onNewPost, user }) {
     }
   };
   return (
-    <div className="form-container">
-      <form onSubmit={handleSubmit}>
-        {/* Title Input */}
-        <div className="form-group">
-          <br></br>
-          <label htmlFor="title-input">Title</label>
-          <input
-            type="text"
-            id="title-input"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            placeholder="Enter post title"
-          />
-        </div>
-
-        {/* Tag Input */}
-        <div className="form-group">
-          <label htmlFor="tag-input">Tag</label>
-          <select
-            id="tag-input"
-            name="tag"
-            value={formData.tag}
-            onChange={handleChange}
-            className="tag-dropdown"
-            disabled={tagsLoading}
-          >
-            <option value="">{tagsLoading ? "Loading tags..." : "Select a tag"}</option>
-            {!tagsLoading && tags.map(tag => (
-              <option key={tag.id} value={tag.name}>{tag.name}</option>
-            ))}
-          </select>
-        </div>
-  
-        {/* Content */}
-        <div className="form-group">
-          <label htmlFor="content-input">Content</label>
-          <textarea
-            id="content-input"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            placeholder="Enter content"
-          />
-        </div>
-
-        {/* Image Upload */}
-        <div className="form-group">
-          <label htmlFor="image-input">Images</label>
-          <div className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
-            <input
-              type="file"
-              id="image-input"
-              name="image"
-              onChange={handleImageChange}
-              accept="image/*"
-              ref={fileInputRef}
-              className="image-input"
-            />
-            <div className="file-upload-label">Choose an image</div>
-          </div>
-          
-          {/* Image Preview */}
-          {imagePreview && (
-            <div className="image-preview-container">
-              <img src={imagePreview} alt="Preview" className="image-preview" />
-              <button 
-                type="button" 
-                onClick={handleImageRemove} 
-                className="remove-image-btn"
+    <>
+      <div>
+        <form onSubmit={handleSubmit} className="form-container">
+          <div className="media-container">
+            <div className="media-toggle">
+              <button
+                type="button"
+                className={mediaType === "image" ? "active" : ""}
+                onClick={() => setMediaType("image")}
               >
-                ✕
+                Upload Image
+              </button>
+              <button
+                type="button"
+                className={mediaType === "video" ? "active" : ""}
+                onClick={() => setMediaType("video")}
+              >
+                Upload Video
               </button>
             </div>
-          )}
-        </div>
 
-        {/* Video Upload */}
-        <div className="form-group">
-          <label htmlFor="video-input">Videos</label>
-          <div className="custom-file-upload" onClick={() => videoInputRef.current.click()}>
-            <input
-              type="file"
-              id="video-input"
-              name="video"
-              onChange={handleVideoChange}
-              accept="video/*"
-              ref={videoInputRef}
-              className="video-input"
-            />
-            <div className="file-upload-label">Choose a video</div>
+            {/* Image Upload */}
+            {mediaType === "image" && (
+            <div className="form-group" id="image">
+              <label htmlFor="image-input"></label>
+              <div className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
+                <input
+                  type="file"
+                  id="image-input"
+                  name="image"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  ref={fileInputRef}
+                  className="image-input"
+                />
+                <div className="file-upload-label">Choose an image</div>
+              </div>
+              
+              
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="image-preview-container">
+                  <img src={imagePreview} alt="Preview" className="image-preview" />
+                  <button 
+                    type="button" 
+                    onClick={handleImageRemove} 
+                    className="remove-image-btn"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+            )}
+
+            {/* Video Upload */}
+            {mediaType === "video" && (
+            <div className="form-group" id="video">
+              <label htmlFor="video-input"></label>
+              <div className="custom-file-upload" onClick={() => videoInputRef.current.click()}>
+                <input
+                  type="file"
+                  id="video-input"
+                  name="video"
+                  onChange={handleVideoChange}
+                  accept="video/*"
+                  ref={videoInputRef}
+                  className="video-input"
+                />
+                <div className="file-upload-label">Choose a video</div>
+              </div>
+              
+              {/* Video Preview */}
+              {videoPreview && (
+                <div className="video-preview-container">
+                  <video 
+                    src={videoPreview} 
+                    controls 
+                    className="video-preview" 
+                    style={{ maxWidth: '100%', maxHeight: '300px' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={handleVideoRemove} 
+                    className="remove-video-btn"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+            )}
           </div>
-          
-          {/* Video Preview */}
-          {videoPreview && (
-            <div className="video-preview-container">
-              <video 
-                src={videoPreview} 
-                controls 
-                className="video-preview" 
-                style={{ maxWidth: '100%', maxHeight: '300px' }}
+
+          <div className="text-input-container">
+            {/* Title Input */}
+            <div className="form-group" id='title'>
+              <label htmlFor="title-input" id='title-label'>Title</label>
+              <input
+                type="text"
+                id="title-input"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="Enter post title"
               />
-              <button 
-                type="button" 
-                onClick={handleVideoRemove} 
-                className="remove-video-btn"
-              >
-                ✕
-              </button>
             </div>
-          )}
-        </div>
+
+            {/* Content */}
+            <div className="form-group" id='content'>
+              <label htmlFor="content-input">Content</label>
+              <textarea
+                id="content-input"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                required
+                placeholder="Enter content"
+              />
+            </div>
+
+
+            <div className="other-input-container">
+              {/* Tag Input */}
+              <div className="form-group" id='tag'>
+                <label htmlFor="tag-input">Tag</label>
+                <select
+                  id="tag-input"
+                  name="tag"
+                  value={formData.tag}
+                  onChange={handleChange}
+                  className="tag-dropdown"
+                  disabled={tagsLoading}
+                >
+                  <option value="">{tagsLoading ? "Loading tags..." : "Select a tag"}</option>
+                  {!tagsLoading && tags.map(tag => (
+                    <option key={tag.id} value={tag.name}>{tag.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div> 
+            {/* Submit Button */}
+            <button type="submit" disabled={isSubmitting} className="submit-button">
+              {isSubmitting ? "Submitting..." : "Share Your Story"}
+            </button>
+        </form>
         
-        {/* Submit Button */}
-        <div>
-          <button type="submit" disabled={isSubmitting} className="submit-button">
-            {isSubmitting ? "Submitting..." : "Share Your Story"}
-          </button>
-        </div>
-        <br></br>
-      </form>
-  
-      {error && <div className="form-status error">{error}</div>}
-      {success && <div className="form-status success">Your story has been shared successfully!</div>}
-    </div>
+        {error && <div className="form-status error">{error}</div>}
+        {success && <div className="form-status success">Your story has been sent for review!</div>}
+      </div>
+    </>
+    
   );
   
 }

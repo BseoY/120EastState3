@@ -327,10 +327,6 @@ li {
   font-size: 16pt;
 }
 
-#title input{
-  width: 80%;
-}
-
 #tag input{
   width: 80%;
 }
@@ -338,35 +334,6 @@ li {
 .form-row {
   border: #000000;
   display: flex; /* Space out the Title and Tag */ /* Add some space between Title and Tag */
-}
-
-/* Style for individual form groups */
-.form-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 100%;  /* Ensure full width */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-textarea {
-  width: 90%;
-  height: 200px;  /* Make the content textarea bigger */
-  padding: 10px;
-}
-
-/* Optional: Styling for the form */
-form {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 850px;  /* Limit form width */
-  margin: 0 auto;  /* Center the form */
-  padding: 0px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
 }
 
 .content-container {

@@ -6,9 +6,7 @@
 }
 
 .share-story-container > *:not(header) {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
   box-sizing: border-box;
 }
 
@@ -22,18 +20,17 @@
 /* Color override for this page */
 .share-story-header h1 {
   color: #1F8CB5;
-  text-align: left;
+  text-align: center;
 }
 
 .share-story-header {
-  margin-top: 80px;
-  text-align: center;
-  padding: 0 15px;
+  margin-top: 50px;
 }
 
 .share-story-header p {
-  max-width: 800px;
-  text-align: left;
+  text-align: center;
+  width: 80%;
+  margin: 0 auto;
 }
 
 .share-story-form-container {
@@ -42,10 +39,7 @@
   border-radius: 8px;
   padding: 0; /* Form current fills this entire container. change this padding to change. */
   border: 1px solid #e5e5e5;
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 80vw;
   overflow: hidden; /* Ensures content doesn't break the rounded corners */
 }
 
@@ -136,4 +130,22 @@
     width: 90%;
     min-width: 280px;
   }
+}
+
+.sharestory-footer {
+  min-height: 20vh;
+  margin-top: 5rem;
+  background-color: #2e7895;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.sharestory-footer p{
+  color: rgb(218, 218, 218);
+}
+
+#about-link {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-weight: 400;
 }

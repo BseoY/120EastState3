@@ -85,7 +85,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             <input
               type="submit"
               name="submit"
-              id="submit"
+              id="contact-submit"
              ></input>
           </form>
           {statusMessage && (

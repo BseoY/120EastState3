@@ -82,13 +82,13 @@
   font-size: 16px;
 }
 
-#submit {
+#contact-submit {
   background-color: #1F8CB5;
   color: white;
   cursor: pointer;
   transition: scale 0.3s;
 }
-#submit:hover {
+#contact-submit:hover {
   scale: 1.03;
 }
 
