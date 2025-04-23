@@ -1,0 +1,35 @@
+.post-detail-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .post-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    margin-top: 1rem;
+    border-radius: 12px;
+  }
+  
+  .post-detail-video {
+    width: 100%;
+    max-height: 400px;
+    margin-top: 1rem;
+    border-radius: 12px;
+  }
+  
+  .delete-post-btn {
+    display: block !important;
+    background-color: red;
+    color: white;
+    font-size: 18px;
+    padding: 12px 18px;
+    margin-top: 20px;
+    z-index: 9999;
+  }
+  
+  .delete-post-btn:hover {
+    background-color: #b52a3c;
+  }
+  
