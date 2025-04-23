@@ -5,6 +5,7 @@
 
 .post-detail-container {
   max-width: 1200px; /* Increased max-width to accommodate larger images */
+  width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   background-color: #fff;
@@ -92,6 +93,8 @@
 }
 
 .post-body p {
+  white-space: normal;
+  overflow-wrap: break-word;
   margin-bottom: 1.5rem;
 }
 
