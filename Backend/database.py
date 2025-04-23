@@ -15,6 +15,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    # Tag field (string) for posts
     tag = db.Column(db.String(100), nullable=True)
     image_url = db.Column(db.String(500), nullable=True)
     video_url = db.Column(db.String(500), nullable=True)
@@ -71,6 +72,18 @@ class ContactMessage(db.Model):
     message = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
+
+# Tag Table
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    display_order = db.Column(db.Integer, default=0)
+    image_url = db.Column(db.String(500), nullable=True)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Tag {self.name}>'
 
 # Administration Actions Table
 class AdminAction(db.Model):

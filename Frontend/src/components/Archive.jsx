@@ -4,7 +4,7 @@ import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
-import { PREDEFINED_TAGS, BASE_API_URL } from '../utils/constants';
+import { BASE_API_URL } from '../utils/constants';
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // Local state
@@ -14,6 +14,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tags, setTags] = useState([]);
   
   // For handling URL parameters
   const location = useLocation();
@@ -43,28 +44,35 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
     }
   }, [isAuthenticated, location.search]);
 
-  // Fetch all posts
+  // Fetch all posts and tags
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
+        
+        // Fetch posts
+        const postsResponse = await axios.get(`${BASE_API_URL}/api/posts`, {
           headers: {
             "Content-Type": "application/json",
           },
           withCredentials: true
         });
-        setPosts(response.data);
-        setFilteredPosts(response.data);
+        setPosts(postsResponse.data);
+        setFilteredPosts(postsResponse.data);
+        
+        // Fetch tags
+        const tagsResponse = await axios.get(`${BASE_API_URL}/api/tags`);
+        setTags(tagsResponse.data);
+        console.log('Fetched tags:', tagsResponse.data);
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Error fetching data:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchPosts();
+    fetchData();
   }, []);
   
   // Apply filters whenever filter values change
@@ -230,9 +238,13 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
                 onChange={handleTagFilterChange}
               >
                 <option value="">All Tags</option>
-                {PREDEFINED_TAGS.map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
+                {tags.length > 0 ? (
+                  tags.map(tag => (
+                    <option key={tag.id} value={tag.name}>{tag.name}</option>
+                  ))
+                ) : (
+                  <option disabled>Loading tags...</option>
+                )}
               </select>
             </div>
           </div>

@@ -1,8 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "../styles/Form.css";
 import { BASE_API_URL } from '../utils/constants';
-import { PREDEFINED_TAGS } from '../utils/constants';
 
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({
@@ -19,6 +18,25 @@ function Form({ onNewPost, user }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [tagsLoading, setTagsLoading] = useState(true);
+  
+  // Fetch tags when component mounts
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        setTagsLoading(true);
+        const response = await axios.get(`${BASE_API_URL}/api/tags`);
+        setTags(response.data);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      } finally {
+        setTagsLoading(false);
+      }
+    };
+    
+    fetchTags();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -155,10 +173,11 @@ function Form({ onNewPost, user }) {
             value={formData.tag}
             onChange={handleChange}
             className="tag-dropdown"
+            disabled={tagsLoading}
           >
-            <option value="">Select a tag</option>
-            {PREDEFINED_TAGS.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
+            <option value="">{tagsLoading ? "Loading tags..." : "Select a tag"}</option>
+            {!tagsLoading && tags.map(tag => (
+              <option key={tag.id} value={tag.name}>{tag.name}</option>
             ))}
           </select>
         </div>

@@ -10,7 +10,7 @@ from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 
 # Local imports
-from database import db, Post, User, ContactMessage
+from database import db, Post, User, ContactMessage, Tag
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, get_current_user, require_roles
@@ -94,6 +94,9 @@ app.register_blueprint(auth_bp)
 
 with app.app_context():
     try:
+        # In development, drop and recreate tables to pick up schema changes
+        if os.getenv("ENV") != "production":
+            db.drop_all()
         db.create_all()
     except Exception as e:
         print(f"Error creating tables: {e}")
@@ -134,28 +137,41 @@ def get_posts_by_tag(tag):
 # Auth routes are now handled by the auth blueprint
 
 @app.route('/api/tags', methods=['GET'])
-def get_all_tags():
-    """Get all unique tags from approved posts
-    
-    Returns:
-        JSON array of unique tags
-    """
-    try:
-        tags = db.session.query(Post.tag).filter(
-            Post.status == 'approved',
-            Post.tag.isnot(None)
-        ).distinct().all()
-        return jsonify([tag[0] for tag in tags])
-    except Exception as e:
-        return jsonify({'error': f'Error fetching tags: {str(e)}'}), 500
-    
-# Auth callback is now handled by the auth blueprint
+def get_tags():
+    tags = Tag.query.order_by(Tag.display_order).all()
+    return jsonify([{'id': t.id, 'name': t.name, 'display_order': t.display_order, 'image_url': t.image_url} for t in tags])
 
-# Auth logout is now handled by the auth blueprint
+@app.route('/api/admin/tags', methods=['POST'])
+@require_roles('admin')
+def create_tag():
+    data = request.json
+    new_tag = Tag(
+        name=data.get('name'),
+        display_order=data.get('display_order', 0),
+        image_url=data.get('image_url')
+    )
+    db.session.add(new_tag)
+    db.session.commit()
+    return jsonify({'id': new_tag.id, 'name': new_tag.name, 'display_order': new_tag.display_order, 'image_url': new_tag.image_url}), 201
 
-# Role verification is now handled by auth.py
+@app.route('/api/admin/tags/<int:tag_id>', methods=['PUT'])
+@require_roles('admin')
+def update_tag(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    data = request.json
+    tag.name = data.get('name', tag.name)
+    tag.display_order = data.get('display_order', tag.display_order)
+    tag.image_url = data.get('image_url', tag.image_url)
+    db.session.commit()
+    return jsonify({'id': tag.id, 'name': tag.name, 'display_order': tag.display_order, 'image_url': tag.image_url})
 
-# User info route is now handled by the auth blueprint
+@app.route('/api/admin/tags/<int:tag_id>', methods=['DELETE'])
+@require_roles('admin')
+def delete_tag(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    return jsonify({'message': f'Tag {tag_id} deleted'})
 
 @app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
 def handle_message():
@@ -518,6 +534,7 @@ def update_post_status(post_id, new_status, feedback=None):
         'status': new_status,
         'email_notification': email_status
     })
+
 
 @app.route('/api/about/contact', methods=['POST'])
 def send_message():
