@@ -444,6 +444,51 @@ def deny_post(post_id):
     feedback = request.json.get('feedback', None) if request.json else None
     return update_post_status(post_id, 'denied', feedback)
 
+@app.route('/api/admin/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
+@require_roles('admin')
+def delete_post_admin(post_id):
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
+        return response, 200
+
+    post = db.session.get(Post, post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({'message': 'Post deleted successfully by admin'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
+        
+@app.route('/api/user/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
+def delete_user_post(post_id):
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
+        return response, 200
+
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    post = Post.query.filter_by(id=post_id, user_id=user.id).first()
+    if not post:
+        return jsonify({'error': 'Post not found or not authorized'}), 404
+
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({'message': 'Post deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
+
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
 def get_post_by_id(post_id):
     """Get a specific post by its ID
