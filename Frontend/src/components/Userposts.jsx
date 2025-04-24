@@ -4,6 +4,7 @@ import BASE_API_URL from '../config';
 import { useNavigate } from 'react-router-dom';
 import '../styles/UserPosts.css';
 import Nav from './Nav';
+import ArchiveCard from './ArchiveCard';
 
 function UserPosts({ user, isAuthenticated, onLogout }) {
   const [posts, setPosts] = useState([]);
@@ -86,15 +87,13 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
   return (
     <div className="user-posts-page">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={onLogout} />
-      
-      <div className="user-posts-container">
-        <h1>Your Posts</h1>
-        <button onClick={() => navigate(-1)} className="back-button">
-          ← Back
-        </button>
 
-        {/* Tabs */}
-        <div className="post-tabs">
+      <div className="user-posts-container" style={{ padding: '2rem' }}>
+        <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#003366' }}>
+          Your Posts
+        </h1>
+
+        <div className="post-tabs" style={{ marginBottom: '1rem' }}>
           <button 
             className={`tab ${selectedTab === 'approved' ? 'active' : ''}`}
             onClick={() => setSelectedTab('approved')}
@@ -109,46 +108,20 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
           </button>
         </div>
 
-        {/* Posts */}
         {filteredPosts.length === 0 ? (
           <div className="no-posts">
             <p>No {selectedTab} posts found.</p>
           </div>
         ) : (
-          <div className="posts-grid">
+          <div className="archive-grid">
             {filteredPosts.map(post => (
-              <div 
-                key={post.id} 
-                className={`post-card ${post.status}`}
-                style={{ cursor: post.status === 'approved' ? 'pointer' : 'default' }}
-              >
-                <div onClick={() => {
-                  if (post.status === 'approved') navigate(`/post/${post.id}`);
-                }}>
-                  <h2>{post.title}</h2>
-                  <p className="post-content">{post.content.substring(0, 150)}...</p>
-
-                  {post.image_url && (
-                    <img src={post.image_url} alt={post.title} className="post-image" />
-                  )}
-
-                  <div className="post-meta">
-                    <span className="post-tag">{post.tag}</span>
-                    <span className="post-date">
-                      {new Date(post.date_created).toLocaleDateString()}
-                    </span>
-                    <span className={`post-status ${post.status}`}>
-                      {post.status}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Delete button only for approved posts */}
+              <div key={post.id} style={{ position: 'relative' }}>
+                <ArchiveCard post={post} />
                 {post.status === 'approved' && (
-                  <div className="post-actions">
+                  <div className="admin-actions-overlay">
                     <button 
-                      className="delete-btn"
-                      onClick={() => handleDelete(post.id)}
+                      onClick={() => handleDelete(post.id)} 
+                      className="deny-button"
                     >
                       Delete
                     </button>

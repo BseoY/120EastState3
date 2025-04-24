@@ -135,6 +135,13 @@ def get_posts_by_tag(tag):
 # Authentication Helper Functions are now imported from auth.py
 
 # Auth routes are now handled by the auth blueprint
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "This page doesn't exist"}), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/tags', methods=['GET'])
 def get_tags():

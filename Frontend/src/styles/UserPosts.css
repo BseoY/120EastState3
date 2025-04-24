@@ -188,15 +188,20 @@
   }
   
   .delete-btn {
-    padding: 6px 12px;
-    background-color: #dc3545;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: #d9534f;
     color: white;
     border: none;
-    border-radius: 6px;
-    font-weight: bold;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
+    transition: background-color 0.2s ease;
   }
   
   .delete-btn:hover {
-    background-color: #b52a3c;
+    background-color: #c9302c;
   }
