@@ -4,6 +4,7 @@ import axios from 'axios';
 import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
+import ArchiveCard from '../components/ArchiveCard';
 import { BASE_API_URL } from '../utils/constants';
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {

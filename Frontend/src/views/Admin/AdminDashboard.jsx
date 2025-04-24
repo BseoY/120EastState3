@@ -5,6 +5,7 @@ import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
 import defaultPic from '../../assets/Image/120es_blue.jpg';
+import ArchiveCard from '../../components/ArchiveCard';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
@@ -350,7 +351,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             onClick={() => setActiveSection('denied')}
           >
             Denied Posts
-          </button>
+          </button> 
           <button
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
             onClick={() => {
@@ -492,12 +493,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               {pendingPosts.length === 0 ? (
                 <p>No pending posts</p>
               ) : (
-                <div className='post-container'>
+                <div className="archive-grid">
                   {pendingPosts.map((post) => (
-                    <div key={post.id} className='each-post'>
-                      <h3>{post.title}</h3>
-                      <p>{post.status}</p>
-                      <div>
+                    <div key={post.id} style={{ position: 'relative' }}>
+                      <ArchiveCard post={post} />
+                      <div className="admin-actions-overlay">
                         <button onClick={() => updateStatus(post.id, 'approve')} className="approve-button">Approve</button>
                         <button onClick={() => handleDenyClick(post.id)} className="deny-button">Deny</button>
                       </div>
@@ -508,40 +508,26 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             </div>
           )}
 
-          {activeSection === "denied" && (
-            <div>
-              <h1>Denied Posts</h1>
+            {activeSection === "denied" && (
+              <div>
+                <h1>Denied Posts</h1>
                 {deniedPosts.length === 0 ? (
                   <p>No denied posts</p>
                 ) : (
-                  <div className='post-container'>
+                  <div className="archive-grid">
                     {deniedPosts.map((post) => (
-                      <div key={post.id} className='each-post'>
-                        <img
-                          className="post-image"
-                          src={post.image_url || defaultPic}
-                          alt="post"
-                        />
-                        {post.video_url && (
-                          <video className="post-video" controls>
-                            <source src={post.video_url} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        )}
-                        <h1 id="post-title">{post.title}</h1>
-                        <div>
-                          <p>Status: {post.status}</p>
-                          <p>{post.content?.slice(0, 100)}...</p> {/* optional preview */}
-                          <button onClick={() => reApprovePost(post.id)} className='approve-button'>
-                            Re-Approve
-                          </button>
+                      <div key={post.id} style={{ position: 'relative' }}>
+                        <ArchiveCard post={post} />
+                        <div className="admin-actions-overlay">
+                          <button onClick={() => reApprovePost(post.id)} className="approve-button">Re-Approve</button>
                         </div>
                       </div>
                     ))}
                   </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+
         </div>
       </div>
       {/* Deny Post Modal */}

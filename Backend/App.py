@@ -507,19 +507,17 @@ def delete_user_post(post_id):
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
 def get_post_by_id(post_id):
-    """Get a specific post by its ID
-    
-    Args:
-        post_id: The ID of the post to retrieve
-        
-    Returns:
-        JSON with post details or 404 if not found
-    """
     try:
-        post = Post.query.filter_by(id=post_id, status='approved').first()
+        # If admin, allow access to all statuses
+        user = get_current_user()
+        if user and user.role == 'admin':
+            post = Post.query.filter_by(id=post_id).first()
+        else:
+            post = Post.query.filter_by(id=post_id, status='approved').first()
+
         if not post:
             return jsonify({'error': 'Post not found'}), 404
-            
+
         return jsonify({
             'id': post.id,
             'title': post.title,
@@ -533,6 +531,7 @@ def get_post_by_id(post_id):
             'profile_pic': post.user.profile_pic if post.user else None,
             'status': post.status
         })
+
     except Exception as e:
         return jsonify({'error': f'Error fetching post: {str(e)}'}), 500
 

@@ -12,6 +12,7 @@ import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
 import PostDetail from './views/Reader/PostDetail';
 import ShareYourStory from './views/Reader/ShareYourStory';
+import PendingPosts from './views/Admin/PendingPosts';
 import Error from "./views/Error/Error";
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
@@ -287,6 +288,11 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLoginSuccess={handleLoginSuccess}
             handleLogout={handleLogout}
           />
+        } />
+        <Route path="/admin/pending" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated} authChecked={authChecked} allowedRoles={['admin']} user={user}>
+            <PendingPosts user={user} isAuthenticated={isAuthenticated} handleLogout={handleLogout} />
+          </ProtectedRoute>
         } />
         <Route path="/error" element={<Error />} />
       </Routes>
