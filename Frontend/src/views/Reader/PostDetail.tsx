@@ -71,6 +71,20 @@ const PostDetail: React.FC<PostDetailProps> = ({
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const denyPost = async (postId: number) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      try {
+        await axios.post(`${BASE_API_URL}/api/admin/posts/${postId}/deny`, {}, {
+          withCredentials: true
+        });
+        window.location.href = '/archive'; // Redirect after delete
+      } catch (err) {
+        console.error("Failed to delete post:", err);
+        alert("Failed to delete post. Please try again.");
+      }
+    }
+  };
+
   return (
     <div className="post-detail-page">
       <Nav 
@@ -140,6 +154,9 @@ const PostDetail: React.FC<PostDetailProps> = ({
                 >
                   Share with QR Code
                 </button>
+                {isAuthenticated && user?.role === 'admin' && (
+                  <button onClick={() => denyPost(post.id)} className='deny-button'>Deny Post</button>
+                )}
                 <Link to="/archive" className="back-button">
                   ← Back to Archive
                 </Link>

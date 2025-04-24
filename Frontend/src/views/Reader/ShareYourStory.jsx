@@ -1,9 +1,10 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Nav from "../../components/Nav";
 import Form from "../../components/Form";
 import useAuth from "../../hooks/useAuth";
 import "../../styles/ShareYourStory.css";
 import { Link } from 'react-router-dom';
+import InfoModal from "./InfoModal";
 
 function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // If the user isn't authenticated, display a message
@@ -11,9 +12,19 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
   
   // Use the shared authentication hook
   const { handleLogin } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const modalSeen = localStorage.getItem("seenStoryIntroModal");
+    if (!modalSeen) {
+      setShowModal(true);
+      localStorage.setItem("seenStoryIntroModal", "true");
+    }
+  }, []);
 
   return (
     <div>
+      {showModal && <InfoModal onClose={() => setShowModal(false)} />}
       <div className="share-story-container">
         <header>
           <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
