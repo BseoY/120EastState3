@@ -107,11 +107,12 @@
 .nav-link {
   color: #333;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 20px;
+  font-weight: 600;
+  font-size: 15px;
   padding: 0.5rem 0;
   position: relative;
   transition: color 0.3s;
+  font-family: "DM Sans", Sans-serif;
 }
 
 /* White text for transparent navbar */
