@@ -182,15 +182,15 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       </header>
       
       <div className="archive-header">
-        <br></br>
-        <h1>Digital Archive</h1>
-        <p>Search and explore historical records, photos, documents, videos, and more. If you would like to use any content, please contact us at 120eaststate@gmail.com</p>
+        <div>
+          <h1>Digital Archive</h1>
+        </div>
+
         <div className="archive-actions">
           <a href="/share" className="create-archive-btn">
             Share Your Story
           </a>
         </div>
-        <br></br>
       </div>
       
       {/* Form functionality moved to dedicated Share Your Story page */}

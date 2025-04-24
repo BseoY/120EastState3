@@ -4,8 +4,6 @@
 
 .archive-container > *:not(header) {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
 }
 
 .archive-container header {
@@ -16,10 +14,10 @@
 }
 
 .archive-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 20px 0;
-  background-color: #f5f5f5;
+  margin: 0 auto;
+  padding: 20px 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .archive-header h1 {

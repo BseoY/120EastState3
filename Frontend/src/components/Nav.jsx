@@ -50,6 +50,8 @@ function Nav({ user, isAuthenticated, onLogout }) {
     }
   };
 
+  const isActive = (path) => location.pathname === path;
+  
   // Use the shared authentication hook
   const { handleLogin } = useAuth();
 
