@@ -631,5 +631,28 @@ def send_message():
         print(f"Error in contact form: {str(e)}")
         return jsonify({'error': 'Error processing message'}), 500
 
+@app.route('/api/admin/users', methods=['GET'])
+@require_roles('admin')
+def get_all_users():
+    """Get all users for admin dashboard
+    
+    This endpoint is restricted to users with 'admin' role
+    
+    Returns:
+        JSON array of all users with their role information
+    """
+    try:
+        users = User.query.all()
+        return jsonify([{
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'profile_pic': user.profile_pic,
+            'role': user.role,  # Will be 'admin' or None/default
+            'date_joined': user.date_created
+        } for user in users])
+    except Exception as e:
+        return jsonify({'error': f'Error fetching users: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

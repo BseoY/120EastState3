@@ -4,27 +4,24 @@ import { useNavigate } from 'react-router-dom';
 import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
-import defaultPic from '../../assets/Image/120es_blue.jpg';
 import ArchiveCard from '../../components/ArchiveCard';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
   const [pendingPosts, setPendingPosts] = useState([]);
   const [deniedPosts, setDeniedPosts] = useState([]);
-  const [existingPosts, setExistingPosts] = useState([]);
-  const [messages, setMessages] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("pending");
   const [showDenyModal, setShowDenyModal] = useState(false);
+  const [approvedPosts, setApprovedPosts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [administrators, setAdministrators] = useState([]);
   
-  // Log active section changes
-  useEffect(() => {
-    console.log('Active section changed to:', activeSection);
-  }, [activeSection]);
+
   const [feedbackText, setFeedbackText] = useState('');
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [showMessageModal, setShowMessageModal] = useState(false);
+
   
   // Tag management states
   const [tags, setTags] = useState([]);
@@ -39,7 +36,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     try {
       const res = await axios.get(`${BASE_API_URL}/api/admin/pending-posts`, { withCredentials: true });
       setPendingPosts(res.data);
-      console.log("success");
+
     } catch (err) {
       console.error('Error fetching pending posts:', err);
     } finally {
@@ -108,67 +105,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     setSelectedPostId(null);
   };
 
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${BASE_API_URL}/api/posts`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true
-      });
-      setExistingPosts(response.data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleOpenMessageModal = (message) => {
-    setSelectedMessage(message);
-    setShowMessageModal(true);
-  };
-  
-  const handleCloseMessageModal = () => {
-    setSelectedMessage(null);
-    setShowMessageModal(false);
-  };
-  
-  const fetchMessages = async () => {
-    try {
-      const res = await axios.get(`${BASE_API_URL}/api/admin/messages`, { withCredentials: true });
-      setMessages(res.data);
-    } catch (err) {
-      console.error('Error fetching messages:', err);
-    }
-  };
-
-  const handleMarkAsResolved = async (messageId) => {
-    try {
-      await axios.post(
-        `${BASE_API_URL}/api/admin/messages/${messageId}/resolve`,
-        {},
-        { withCredentials: true }
-      );
-  
-      // Remove the resolved message from UI or update its status
-      setMessages((prevMessages) =>
-        prevMessages.filter((msg) => msg.id !== messageId)
-      );
-    } catch (error) {
-      console.error("Error marking message as resolved:", error);
-    }
-  };
-  
-
   // Fetch all tags
   const fetchTags = async () => {
     try {
-      console.log('Fetching tags from:', `${BASE_API_URL}/api/tags`);
       const res = await axios.get(`${BASE_API_URL}/api/tags`, { withCredentials: true });
-      console.log('Tags received:', res.data);
       setTags(res.data);
     } catch (err) {
       console.error('Error fetching tags:', err);
@@ -324,11 +264,38 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
 
+  // Fetch approved posts
+  const fetchApprovedPosts = async () => {
+    try {
+      const res = await axios.get(`${BASE_API_URL}/api/posts`, { withCredentials: true });
+      // Filter only approved posts
+      const approved = res.data.filter(post => post.status === 'approved');
+      setApprovedPosts(approved);
+    } catch (err) {
+      console.error('Error fetching approved posts:', err);
+    }
+  };
+
+  // Fetch all users
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(`${BASE_API_URL}/api/admin/users`, { withCredentials: true });
+      setUsers(res.data);
+      
+      // Filter administrators (users with role='admin')
+      const admins = res.data.filter(user => user.role === 'admin');
+      setAdministrators(admins);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    }
+  };
+
   useEffect(() => {
     fetchPendingPosts();
     fetchDeniedPosts();
-    fetchPosts();
-    fetchTags(); 
+    fetchApprovedPosts();
+    fetchUsers();
+    fetchTags();
   }, []);
 
   if (loading) return <div>Loading pending posts...</div>;
@@ -340,6 +307,14 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       <div className='admin-container'>
         <div className='admin-sidebar'>
           <h1 id="admin-header">Dashboard</h1>
+
+          <button
+            className={`sidebar-button ${activeSection === 'metrics' ? 'active' : ''}`}
+            onClick={() => setActiveSection("metrics")}
+          >
+            Metrics
+          </button>
+
           <button
             className={`sidebar-button ${activeSection === 'pending' ? 'active' : ''}`}
             onClick={() => setActiveSection("pending")}
@@ -355,7 +330,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           <button
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
             onClick={() => {
-              console.log('Tags button clicked');
+
               setActiveSection('tags');
               fetchTags(); // Refresh tags when clicking the tab
             }}
@@ -371,6 +346,18 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         </div>
 
         <div className='admin-main-content'>
+          {/* Metrics Section */}
+          {activeSection === "metrics" && (
+            <div style={{padding: '20px'}}>
+              <h1>Metrics</h1>
+              <p>Number of approved posts: {approvedPosts.length}</p>
+              <p>Number of denied posts: {deniedPosts.length}</p>
+              <p>Number of pending posts: {pendingPosts.length}</p>
+              <p>Number of users: {users.length}</p>
+              <p>Number of tags: {tags.length}</p>
+              <p>Number of Administrators: {administrators.length}</p>
+            </div>
+          )}
           {/* Tags Section */}
           {activeSection === "tags" && (
             <div style={{padding: '20px'}}>
@@ -486,6 +473,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             </div>
           )}
           
+
+          
           {/* Pending Posts Section */}
           {activeSection === "pending" && (
             <div>
@@ -550,23 +539,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           </div>
         </div>
       )}
-
-      {showMessageModal && selectedMessage && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h1>Message from <strong>{selectedMessage.name}</strong></h1>
-            <p><strong>Email:</strong> {selectedMessage.email}</p>
-            <p id='modal-message' style={{ marginTop: '1rem' }}>{selectedMessage.message}</p>
-            <div className="modal-buttons">
-              <button onClick={handleCloseMessageModal} className="modal-cancel-button">Close</button>
-              <button className="modal-respond-button">Respond</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
     </>
   );
 }
