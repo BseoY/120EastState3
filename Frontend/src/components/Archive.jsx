@@ -180,7 +180,8 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       <header>
         <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       </header>
-      
+      <br></br>
+
       <div className="archive-header">
         <div>
           <h1>Digital Archive</h1>

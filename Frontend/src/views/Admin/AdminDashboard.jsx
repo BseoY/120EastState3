@@ -12,7 +12,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [deniedPosts, setDeniedPosts] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("pending");
+  const [activeSection, setActiveSection] = useState("metrics");
   const [showDenyModal, setShowDenyModal] = useState(false);
   const [approvedPosts, setApprovedPosts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -298,7 +298,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     fetchTags();
   }, []);
 
-  if (loading) return <div>Loading pending posts...</div>;
+  if (loading) return <div><br></br>Loading Admin Dashboard..</div>;
 
   return (
     <>
