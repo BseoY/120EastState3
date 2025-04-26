@@ -13,20 +13,46 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     message: ''
   });
   
+  // Maximum character limits (kept simple)
+  const maxNameChars = 50;
+  const maxMessageChars = 500;
+  
   const [statusMessage, setStatusMessage] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear email error when user types in email field
+    if (name === 'email') {
+      setEmailError('');
+    }
+  };
+  
+  // Character count displays
+  const nameCount = `${formData.name.length}/${maxNameChars}`;
+  const messageCount = `${formData.message.length}/${maxMessageChars}`;
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate email before submission
+    if (!validateEmail(formData.email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    
     try {
       const res = await axios.post(`${BASE_API_URL}/api/about/contact`, formData);
-      setStatusMessage('Thanks for reaching out!');
+      setStatusMessage('Your message has been sent. Thanks for reaching out!');
       setFormData({ name: '', email: '', message: '' });
+      setEmailError('');
     } catch (error) {
       console.error(error);
       setStatusMessage('Something went wrong. Please try again.');
@@ -37,15 +63,11 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     <div className="about-container">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <div className="about-content">
-        <h1>About 120EastState</h1>
+        <h1>About Us</h1>
         <div className="about-section">
           <h2>The Digital Archive</h2>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
             Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
-        </div>
-        
-        <div className="about-section">
-          <h2>120 East State</h2>
           <ul>
             <li>Preserve historical documents and artifacts</li>
             <li>Make historical information accessible to everyone</li>
@@ -53,7 +75,24 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             <li>Engage the community in preserving local history</li>
           </ul>
         </div>
-
+        
+        <div className="about-section">
+          <h2>120 East State</h2>
+          <p>120 East State (120ES) was formed in April 2022 to create The Steeple Center in the heart of Trenton. 
+            120ES’s purpose is to transform the First Presbyterian Church complex in the heart of Trenton into a 
+            community-centered performing arts venue, an engine of economic development, and an opportunity for local
+            empowerment giving voice, space, and welcome to its neighbors. As the steeple of this historic church has 
+            stretched high above the downtown skyline signaling hope and mission, 120ES seeks to redirect the path laid 
+            300 years ago and create a symbol of shared vision in the community.</p>
+          <h3>120ES’s Values</h3>
+          <ul>
+            <li>Continuity</li>
+            <li>Community</li>
+            <li>Development</li>
+            <li>Inclusion</li>
+            <li>Belief and Hope</li>
+          </ul>
+        </div>
         <div className="about-section">
           <h2>Contact Us</h2>
           <p>If you have any questions or inquiries, please contact us at:</p>
@@ -65,15 +104,22 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               onChange={handleChange}
               placeholder="Name"
               required
-            ></input>
+              maxLength={maxNameChars}
+            />
+            <small className="char-count">
+              {nameCount}
+            </small>
             <input
-              type="text"
+              type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="Your Email"
               required
+              pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+              title="Please enter a valid email address"
             ></input>
+            {emailError && <p className="email-error">{emailError}</p>}
             <textarea 
               id="subject"
               name="message"
@@ -81,7 +127,11 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               onChange={handleChange}
               placeholder="Message"
               required
+              maxLength={maxMessageChars}
             ></textarea>
+            <small className="char-count">
+              {messageCount}
+            </small>
             <input
               type="submit"
               name="submit"
@@ -104,6 +154,9 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             </div>
             <figcaption>Henry Li (COS '27), Andrew Cho (COS '27), Brian Seo (COS '27)</figcaption>
           </figure>
+          <p>We are a team of computer science students at Princeton University that were excited to help 120 East State build
+            a digital platform for preserving and sharing the rich history and culture of 120 East State Street.
+          </p>
         </div>
       </div>
 

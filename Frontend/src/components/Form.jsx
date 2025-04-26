@@ -349,6 +349,7 @@ function Form({ onNewPost, user }) {
                   name="tag"
                   value={formData.tag}
                   onChange={handleChange}
+                  required
                   className="tag-dropdown"
                   disabled={tagsLoading}
                 >

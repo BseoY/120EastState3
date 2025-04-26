@@ -337,6 +337,12 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           >
             Tags
           </button>
+          <button
+            className={`sidebar-button ${activeSection === 'announcements' ? 'active' : ''}`}
+            onClick={() => setActiveSection('announcements')}
+          >
+            Announcements
+          </button>
           <button 
             className={`sidebar-button`}
             onClick={() => navigate("/archive")}
@@ -346,9 +352,14 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         </div>
 
         <div className='admin-main-content'>
+          {activeSection === "announcements" && (
+            <div>
+              <h1>Announcements</h1>
+            </div>
+          )}
           {/* Metrics Section */}
           {activeSection === "metrics" && (
-            <div style={{padding: '20px'}}>
+            <div>
               <h1>Metrics</h1>
               <p>Number of approved posts: {approvedPosts.length}</p>
               <p>Number of denied posts: {deniedPosts.length}</p>
@@ -360,7 +371,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           )}
           {/* Tags Section */}
           {activeSection === "tags" && (
-            <div style={{padding: '20px'}}>
+            <div>
               <h1>Tag Management</h1>
               <button 
                 className="add-tag-button"
