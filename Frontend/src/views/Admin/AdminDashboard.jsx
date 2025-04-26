@@ -417,24 +417,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                           style={{ maxWidth: '200px', maxHeight: '200px' }} 
                         />
                         <button 
-                          type="button" 
+                          type="button"
                           onClick={handleRemoveImage}
-                          style={{
-                            marginTop: '10px',
-                            padding: '5px 10px',
-                            backgroundColor: '#ff4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
+                          style={{marginTop: '10px', padding: '5px 10px', backgroundColor: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
                         >
                           Remove Image
                         </button>
                       </div>
                     )}
                     
-                    <div className="form-buttons" style={{display: 'flex', gap: '10px'}}>
+                    <div className="form-buttons" style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
                       <button type="button" onClick={resetTagForm} style={{padding: '8px 16px', backgroundColor: '#ddd', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Cancel</button>
                       <button type="submit" style={{padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>{currentTag ? 'Update' : 'Create'}</button>
                     </div>

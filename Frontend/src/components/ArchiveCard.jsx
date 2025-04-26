@@ -8,10 +8,32 @@ function ArchiveCard({ post }) {
     <Link to={`/post/${post.id}`} className="post-link">
       <div className="archive-item">
         <div className="item-image">
-          <img 
-            src={post.image_url || defaultPic} 
-            alt={post.title} 
-          />
+          {post.media && post.media.length > 0 ? (
+            // Display first media item based on type
+            post.media[0].media_type === 'image' ? (
+              <img src={post.media[0].url} alt={post.media[0].caption || post.title} />
+            ) : post.media[0].media_type === 'video' ? (
+              <div className="video-thumbnail">
+                <video src={post.media[0].url} />
+                <div className="video-icon-overlay">▶</div>
+              </div>
+            ) : post.media[0].media_type === 'audio' ? (
+              <div className="audio-thumbnail">
+                <div className="audio-icon">🎵</div>
+                <p>{post.media[0].filename || 'Audio file'}</p>
+              </div>
+            ) : (
+              <div className="document-thumbnail">
+                <div className="document-icon">📄</div>
+                <p>{post.media[0].filename || 'Document'}</p>
+              </div>
+            )
+          ) : (
+            // Default placeholder if no media
+            <div className="placeholder-image">
+              <img src={defaultPic} alt={post.title} />
+            </div>
+          )}
         </div>
 
         {post.tag && (

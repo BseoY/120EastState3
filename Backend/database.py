@@ -1,6 +1,7 @@
-#Defines databse schema and maps python classes to database tables using sqlalchemy
+#Defines database schema and maps python classes to database tables using sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from enum import Enum
 
 db = SQLAlchemy()  
 
@@ -17,8 +18,6 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     # Tag field (string) for posts
     tag = db.Column(db.String(100), nullable=True)
-    image_url = db.Column(db.String(500), nullable=True)
-    video_url = db.Column(db.String(500), nullable=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Allow null for backward compatibility
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
@@ -39,18 +38,26 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.name}>'
 
+class MediaType(str, Enum):
+    IMAGE = 'image'
+    VIDEO = 'video'
+    AUDIO = 'audio'
+    DOCUMENT = 'document'
+    
 # Media Table
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    url = db.Column(db.String(200), nullable=False)
-    media_type = db.Column(db.String(50), nullable=False)  # e.g., image, video
+    url = db.Column(db.String(500), nullable=False)
+    media_type = db.Column(db.String(50), nullable=False)  # 'image', 'video', 'audio', 'document'
+    public_id = db.Column(db.String(200), nullable=True)  # Cloudinary public ID
+    filename = db.Column(db.String(200), nullable=True)  # Original filename
     caption = db.Column(db.String(500), nullable=True)
-
-    post = db.relationship('Post', backref=db.backref('media', lazy=True))
-
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    post = db.relationship('Post', backref=db.backref('media_files', lazy=True, cascade='all, delete-orphan'))
+    
     def __repr__(self):
-        return f'<Media {self.url}>'
+        return f'<Media {self.media_type}: {self.filename}>'
 
 # Announcements Table
 class Announcement(db.Model):

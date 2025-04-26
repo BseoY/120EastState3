@@ -7,13 +7,20 @@ import './PostDetail.css';
 
 const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
+interface Media {
+  id: number;
+  url: string;
+  media_type: string;
+  caption: string | null;
+  filename: string | null;
+}
+
 interface Post {
   id: number;
   title: string;
   content: string;
   tag: string;
-  image_url: string | null;
-  video_url: string | null;
+  media: Media[];
   date_created: string;
   author: string;
   profile_pic: string | null;
@@ -116,35 +123,74 @@ const PostDetail: React.FC<PostDetailProps> = ({
               </div>
             </header>
             
-            {post.image_url && (
-              <div className="post-image-container">
-                <img 
-                  src={post.image_url} 
-                  alt={post.title} 
-                  className="post-image" 
-                  style={{ maxWidth: "100%", width: "auto", height: "auto" }} 
-                />
-              </div>
-            )}
+            {/* Display media content */}
+            <div className="post-media-container">
+              {post.media && post.media.length > 0 ? (
+                <div className="media-gallery">
+                  {post.media.map((media, index) => (
+                    <div key={index} className={`media-item media-type-${media.media_type}`}>
+                      {media.media_type === 'image' && (
+                        <div className="post-image-container">
+                          <img 
+                            src={media.url} 
+                            alt={media.caption || post.title} 
+                            className="post-image" 
+                          />
+                          {media.caption && <p className="media-caption">{media.caption}</p>}
+                        </div>
+                      )}
+                      
+                      {media.media_type === 'video' && (
+                        <div className="post-video-container">
+                          <video 
+                            src={media.url} 
+                            controls 
+                            className="post-video"
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                          {media.caption && <p className="media-caption">{media.caption}</p>}
+                        </div>
+                      )}
+                      
+                      {media.media_type === 'audio' && (
+                        <div className="post-audio-container">
+                          <audio 
+                            src={media.url} 
+                            controls 
+                            className="post-audio"
+                          >
+                            Your browser does not support the audio tag.
+                          </audio>
+                          <p className="media-filename">{media.filename || 'Audio file'}</p>
+                          {media.caption && <p className="media-caption">{media.caption}</p>}
+                        </div>
+                      )}
+                      
+                      {media.media_type === 'document' && (
+                        <div className="post-document-container">
+                          <a href={media.url} target="_blank" rel="noopener noreferrer" className="document-link">
+                            <div className="document-icon">📄</div>
+                            <p className="media-filename">{media.filename || 'Document'}</p>
+                          </a>
+                          {media.caption && <p className="media-caption">{media.caption}</p>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-media-message">
+                  <p>No media files attached to this post.</p>
+                </div>
+              )}
+            </div>
             
             <div className="post-body">
               {post.content.split('\n').map((paragraph, index) => (
                 paragraph ? <p key={index}>{paragraph}</p> : <br key={index} />
               ))}
             </div>
-            
-            {post.video_url && (
-              <div className="post-video-container">
-                <video 
-                  src={post.video_url} 
-                  controls 
-                  className="post-video"
-                  poster={post.image_url || undefined}
-                >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            )}
             
             <div className="post-footer">
               <div className="post-actions">

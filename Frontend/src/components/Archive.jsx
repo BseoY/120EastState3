@@ -269,12 +269,38 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
           filteredPosts.map((post, index) => (
             <Link to={`/post/${post.id}`} className="post-link" key={post.id || index}>
               <div className="archive-item">
-                {/* Image/Video at the top with fallback to filler image */}
+                {/* Media content at the top with fallback to filler image */}
                 <div className="item-image">
-                  <img 
-                    src={post.image_url || require('../assets/Image/120es_blue.jpg')} 
-                    alt={post.title} 
-                  />
+                  {post.media && post.media.length > 0 ? (
+                    // Check what type of media to display
+                    post.media[0].media_type === 'image' ? (
+                      <img 
+                        src={post.media[0].url} 
+                        alt={post.media[0].caption || post.title} 
+                      />
+                    ) : post.media[0].media_type === 'video' ? (
+                      <div className="video-thumbnail">
+                        <video src={post.media[0].url} alt={post.title} />
+                        <div className="video-icon-overlay">▶</div>
+                      </div>
+                    ) : post.media[0].media_type === 'audio' ? (
+                      <div className="audio-thumbnail">
+                        <div className="audio-icon">🎵</div>
+                        <p>{post.media[0].filename || 'Audio file'}</p>
+                      </div>
+                    ) : (
+                      <div className="document-thumbnail">
+                        <div className="document-icon">📄</div>
+                        <p>{post.media[0].filename || 'Document'}</p>
+                      </div>
+                    )
+                  ) : (
+                    // Fallback to placeholder image if no media
+                    <img 
+                      src={require('../assets/Image/120es_blue.jpg')} 
+                      alt={post.title} 
+                    />
+                  )}
                 </div>
                 
                 {/* Tag below the image */}

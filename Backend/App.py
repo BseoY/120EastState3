@@ -10,7 +10,7 @@ from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 
 # Local imports
-from database import db, Post, User, ContactMessage, Tag
+from database import db, Post, User, ContactMessage, Tag, Media
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, get_current_user, require_roles
@@ -121,13 +121,19 @@ def get_posts_by_tag(tag):
             'title': post.title,
             'content': post.content,
             'tag': post.tag,
-            'image_url': post.image_url,
-            'video_url': post.video_url,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
             'profile_pic': post.user.profile_pic if post.user else None,
-            'status': post.status
+            'status': post.status,
+            'media': [{
+                'id': media.id,
+                'url': media.url,
+                'media_type': media.media_type,
+                'public_id': media.public_id,
+                'filename': media.filename,
+                'caption': media.caption
+            } for media in Media.query.filter_by(post_id=post.id).all()]
         } for post in posts])
     except Exception as e:
         return jsonify({'error': f'Error fetching posts by tag: {str(e)}'}), 500
@@ -186,7 +192,7 @@ def handle_message():
     
     Methods:
         GET: Retrieve all approved posts
-        POST: Create a new post with optional media attachments
+        POST: Create a new post with optional media attachments (up to 5 files)
         OPTIONS: Handle preflight CORS requests
         
     Returns:
@@ -201,19 +207,37 @@ def handle_message():
         # Retrieve all approved posts from the database
         try:
             posts = Post.query.filter_by(status='approved').order_by(Post.date_created.desc()).all()
-            return jsonify([{
-                'id': post.id,
-                'title': post.title,
-                'content': post.content,
-                'tag': post.tag,
-                'image_url': post.image_url,
-                'video_url': post.video_url,
-                'date_created': post.date_created,
-                'user_id': post.user_id,
-                'author': post.user.name if post.user else 'Anonymous',
-                'profile_pic': post.user.profile_pic if post.user else None,
-                'status': post.status
-            } for post in posts])
+            posts_data = []
+            
+            for post in posts:
+                try:
+                    # Get all media files for this post
+                    media_files = Media.query.filter_by(post_id=post.id).all()
+                    media_data = [{
+                        'id': media.id,
+                        'url': media.url,
+                        'media_type': media.media_type,
+                        'public_id': media.public_id,
+                        'filename': media.filename,
+                        'caption': media.caption
+                    } for media in media_files]
+                    
+                    posts_data.append({
+                        'id': post.id,
+                        'title': post.title,
+                        'content': post.content,
+                        'tag': post.tag,
+                        'media': media_data,
+                        'date_created': post.date_created,
+                        'user_id': post.user_id,
+                        'author': post.user.name if post.user else 'Anonymous',
+                        'profile_pic': post.user.profile_pic if post.user else None,
+                        'status': post.status
+                    })
+                except Exception as e:
+                    print(f"Error processing post {post.id}: {str(e)}")
+            
+            return jsonify(posts_data)
         except Exception as e:
             return jsonify({'error': f'Error fetching posts: {str(e)}'}), 500
     
@@ -232,43 +256,96 @@ def handle_message():
             if not title or not content:
                 return jsonify({'error': 'Title and content are required'}), 400
 
-            image_url = None
-            video_url = None
-            
-            # Handle image upload
-            if 'image' in request.files:
-                image_file = request.files['image']
-                if image_file.filename != '':
-                    upload_result = cloudinary.uploader.upload(
-                        image_file,
-                        folder="120EastState3",
-                        resource_type="auto"
-                    )
-                    image_url = upload_result.get('secure_url')
-
-            # Handle video upload
-            if 'video' in request.files:
-                video_file = request.files['video']
-                if video_file.filename != '':
-                    upload_result = cloudinary.uploader.upload(
-                        video_file,
-                        folder="120EastState3/videos",
-                        resource_type="video"
-                    )
-                    video_url = upload_result.get('secure_url')
-
             # Create and save the new post
             new_post = Post(
                 title=title,
                 content=content,
                 tag=tag,
-                image_url=image_url,
-                video_url=video_url,
                 user_id=user.id,
                 status='pending'
             )
             
             db.session.add(new_post)
+            db.session.flush()  # Flush to get the new post ID without committing transaction
+            
+            # Process media uploads (up to 5 files)
+            media_files = []
+            media_count = 0
+            max_files = 5  # Maximum allowed files
+            
+            # Process all media files in the request
+            # Look for media files with names in format 'media_0', 'media_1', etc.
+            for i in range(max_files):
+                media_key = f'media_{i}'
+                if media_key in request.files and media_count < max_files:
+                    file = request.files[media_key]
+                    if file and file.filename != '':
+                        try:
+                            filename = file.filename
+                            # Determine resource type based on file extension
+                            file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                            
+                            # Determine media type and resource type for Cloudinary
+                            if file_ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff']:
+                                media_type = 'image'
+                                resource_type = 'image'
+                                folder = "120EastState3/images"
+                            elif file_ext in ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']:
+                                media_type = 'video'
+                                resource_type = 'video'
+                                folder = "120EastState3/videos"
+                            elif file_ext in ['mp3', 'wav', 'ogg', 'aac', 'flac']:
+                                media_type = 'audio'
+                                resource_type = 'video'  # Cloudinary uses 'video' resource type for audio
+                                folder = "120EastState3/audio"
+                            else:
+                                media_type = 'document'
+                                resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
+                                folder = "120EastState3/documents"
+                            
+                            # Get caption if provided
+                            caption = request.form.get(f"{media_key}_caption", "")
+                            
+                            # Upload to Cloudinary
+                            upload_result = cloudinary.uploader.upload(
+                                file,
+                                folder=folder,
+                                resource_type=resource_type
+                            )
+                            
+                            secure_url = upload_result.get('secure_url')
+                            public_id = upload_result.get('public_id')
+                            
+                            if not secure_url:
+                                continue  # Skip if upload failed
+                            
+                            # Create media record
+                            media = Media(
+                                post_id=new_post.id,
+                                url=secure_url,
+                                media_type=media_type,
+                                public_id=public_id,
+                                filename=filename,
+                                caption=caption
+                            )
+                            db.session.add(media)
+                            
+                            # Add to response data
+                            media_files.append({
+                                'url': secure_url,
+                                'media_type': media_type,
+                                'filename': filename,
+                                'public_id': public_id,
+                                'caption': caption
+                            })
+                            
+                            media_count += 1
+                        except Exception as upload_error:
+                            print(f"Error uploading {file.filename}: {str(upload_error)}")
+            
+            db.session.commit()
+            
+            # Final commit to save all changes
             db.session.commit()
             
             return jsonify({
@@ -278,8 +355,14 @@ def handle_message():
                     'title': title,
                     'content': content,
                     'tag': tag,
-                    'image_url': image_url,
-                    'video_url': video_url
+                    'media': [{
+                        'id': media.id,
+                        'url': media.url,
+                        'media_type': media.media_type,
+                        'public_id': media.public_id,
+                        'filename': media.filename,
+                        'caption': media.caption
+                    } for media in Media.query.filter_by(post_id=new_post.id).all()]
                 }
             }), 201
             
@@ -316,10 +399,16 @@ def get_user_posts():
             'title': post.title,
             'content': post.content,
             'tag': post.tag,
-            'image_url': post.image_url,
-            'video_url': post.video_url,
             'date_created': post.date_created.isoformat() if post.date_created else None,
-            'status': post.status
+            'status': post.status,
+            'media': [{
+                'id': media.id,
+                'url': media.url,
+                'media_type': media.media_type,
+                'public_id': media.public_id,
+                'filename': media.filename,
+                'caption': media.caption
+            } for media in Media.query.filter_by(post_id=post.id).all()]
         } for post in user_posts])
     except Exception as e:
         return jsonify({'error': f'Error retrieving user posts: {str(e)}'}), 500
@@ -400,13 +489,19 @@ def get_pending_posts():
         'title': post.title,
         'content': post.content,
         'tag': post.tag,
-        'image_url': post.image_url,
-        'video_url': post.video_url,
         'date_created': post.date_created,
         'user_id': post.user_id,
         'author': post.user.name if post.user else 'Anonymous',
         'profile_pic': post.user.profile_pic if post.user else None,
-        'status': post.status
+        'status': post.status,
+        'media': [{
+            'id': media.id,
+            'url': media.url,
+            'media_type': media.media_type,
+            'public_id': media.public_id,
+            'filename': media.filename,
+            'caption': media.caption
+        } for media in Media.query.filter_by(post_id=post.id).all()]
     } for post in pending_posts])
 
 @app.route('/api/admin/denied-posts', methods=['GET'])
@@ -425,13 +520,19 @@ def get_denied_posts():
         'title': post.title,
         'content': post.content,
         'tag': post.tag,
-        'image_url': post.image_url,
-        'video_url': post.video_url,
         'date_created': post.date_created,
         'user_id': post.user_id,
         'author': post.user.name if post.user else 'Anonymous',
         'profile_pic': post.user.profile_pic if post.user else None,
-        'status': post.status
+        'status': post.status,
+        'media': [{
+            'id': media.id,
+            'url': media.url,
+            'media_type': media.media_type,
+            'public_id': media.public_id,
+            'filename': media.filename,
+            'caption': media.caption
+        } for media in Media.query.filter_by(post_id=post.id).all()]
     } for post in pending_posts])
 
 @app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
@@ -530,13 +631,19 @@ def get_post_by_id(post_id):
             'title': post.title,
             'content': post.content,
             'tag': post.tag,
-            'image_url': post.image_url,
-            'video_url': post.video_url,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
             'profile_pic': post.user.profile_pic if post.user else None,
-            'status': post.status
+            'status': post.status,
+            'media': [{
+                'id': media.id,
+                'url': media.url,
+                'media_type': media.media_type,
+                'public_id': media.public_id,
+                'filename': media.filename,
+                'caption': media.caption
+            } for media in Media.query.filter_by(post_id=post.id).all()]
         })
 
     except Exception as e:

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "../styles/Form.css";
 import { BASE_API_URL } from '../utils/constants';
+import { FaImage, FaVideo, FaFileAudio, FaFile, FaTimes, FaPlus } from 'react-icons/fa';
 
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({
@@ -9,18 +10,17 @@ function Form({ onNewPost, user }) {
     content: "",  // Add content field
     tag: "",      // Add tag field
   });
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [videoPreview, setVideoPreview] = useState(null);
-  const fileInputRef = useRef(null);
-  const videoInputRef = useRef(null);
+  
+  // Media state - for handling multiple media files
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaInputKey, setMediaInputKey] = useState(Date.now()); // For forcing input refresh
+  const mediaInputRef = useRef(null);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [tags, setTags] = useState([]);
   const [tagsLoading, setTagsLoading] = useState(true);
-  const [mediaType, setMediaType] = useState("image"); // or "video"
   
   // Fetch tags when component mounts
   useEffect(() => {
@@ -47,47 +47,85 @@ function Form({ onNewPost, user }) {
     });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      // Create a preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+  // Handle media file selection
+  const handleMediaChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Check if adding these files would exceed the limit
+    if (mediaFiles.length + files.length > 5) {
+      setError("You can only upload up to 5 files");
+      return;
     }
+    
+    // Process each selected file
+    const newMediaPromises = files.map(file => {
+      return new Promise((resolve) => {
+        // Determine file type
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        let mediaType = 'document'; // Default type
+        
+        // Determine media type based on extension
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'].includes(fileExt)) {
+          mediaType = 'image';
+        } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExt)) {
+          mediaType = 'video';
+        } else if (['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExt)) {
+          mediaType = 'audio';
+        }
+        
+        // Create preview URL
+        if (mediaType === 'image') {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve({
+              file,
+              type: mediaType,
+              preview: reader.result,
+              caption: ''
+            });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // For video, audio, documents - use URL.createObjectURL
+          const preview = URL.createObjectURL(file);
+          resolve({
+            file,
+            type: mediaType,
+            preview,
+            caption: ''
+          });
+        }
+      });
+    });
+    
+    // Add all new media files to state
+    Promise.all(newMediaPromises).then(newMediaFiles => {
+      setMediaFiles(prev => [...prev, ...newMediaFiles]);
+      // Clear the file input to allow selecting the same file again
+      setMediaInputKey(Date.now());
+    });
   };
-
-  const handleImageRemove = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  
+  // Remove a media file
+  const handleMediaRemove = (index) => {
+    setMediaFiles(prev => {
+      const newFiles = [...prev];
+      // If it's a video/audio with an object URL, revoke it to free memory
+      if (newFiles[index].type !== 'image' && newFiles[index].preview) {
+        URL.revokeObjectURL(newFiles[index].preview);
+      }
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
   };
-
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedVideo(file);
-      // Create a preview URL
-      const url = URL.createObjectURL(file);
-      setVideoPreview(url);
-    }
-  };
-
-  const handleVideoRemove = () => {
-    setSelectedVideo(null);
-    setVideoPreview(null);
-    if (videoInputRef.current) {
-      videoInputRef.current.value = "";
-    }
-    // Revoke the object URL to free up memory
-    if (videoPreview) {
-      URL.revokeObjectURL(videoPreview);
-    }
+  
+  // Update media caption
+  const handleCaptionChange = (index, caption) => {
+    setMediaFiles(prev => {
+      const newFiles = [...prev];
+      newFiles[index].caption = caption;
+      return newFiles;
+    });
   };
 
   const resetForm = () => {
@@ -96,12 +134,15 @@ function Form({ onNewPost, user }) {
       content: "",
       tag: ""
     });
-    setSelectedImage(null);
-    setImagePreview(null);
-    setSelectedVideo(null);
-    setVideoPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (videoInputRef.current) videoInputRef.current.value = "";
+    
+    // Reset media files
+    mediaFiles.forEach(media => {
+      if (media.type !== 'image' && media.preview) {
+        URL.revokeObjectURL(media.preview);
+      }
+    });
+    setMediaFiles([]);
+    setMediaInputKey(Date.now());
   };
 
   
@@ -122,8 +163,17 @@ function Form({ onNewPost, user }) {
       formPayload.append('title', formData.title);
       formPayload.append('content', formData.content);
       if (formData.tag) formPayload.append('tag', formData.tag);
-      if (selectedImage) formPayload.append('image', selectedImage);
-      if (selectedVideo) formPayload.append('video', selectedVideo);
+      
+      // Append all media files to the form data
+      mediaFiles.forEach((media, index) => {
+        // Use a unique field name for each file
+        formPayload.append(`media_${index}`, media.file);
+        
+        // If there's a caption, add it with a matching field name
+        if (media.caption) {
+          formPayload.append(`media_${index}_caption`, media.caption);
+        }
+      });
   
       const response = await axios.post(
         `${BASE_API_URL}/api/posts`,
@@ -135,6 +185,11 @@ function Form({ onNewPost, user }) {
           withCredentials: true
         }
       );
+      
+      // If onNewPost function is provided, call it with the new post data
+      if (onNewPost && response.data && response.data.post) {
+        onNewPost(response.data.post);
+      }
   
       // Success handling
       setSuccess(true);
@@ -151,94 +206,108 @@ function Form({ onNewPost, user }) {
     <>
       <div>
         <form onSubmit={handleSubmit} className="form-container">
-          <div className="media-container">
-            <div className="media-toggle">
-              <button
-                type="button"
-                className={mediaType === "image" ? "active" : ""}
-                onClick={() => setMediaType("image")}
-              >
-                Upload Image
-              </button>
-              <button
-                type="button"
-                className={mediaType === "video" ? "active" : ""}
-                onClick={() => setMediaType("video")}
-              >
-                Upload Video
-              </button>
+          <div className="media-upload-container">
+            <div className="media-upload-header">
+              <h3>Upload Media</h3>
+              <p className="media-upload-info">Upload up to 5 files (images, videos, audio, documents)</p>
             </div>
-
-            {/* Image Upload */}
-            {mediaType === "image" && (
-            <div className="form-group" id="image">
-              <label htmlFor="image-input"></label>
-              <div className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
-                <input
-                  type="file"
-                  id="image-input"
-                  name="image"
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  ref={fileInputRef}
-                  className="image-input"
-                />
-                <div className="file-upload-label">Choose an image</div>
-              </div>
-              
-              
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="image-preview-container">
-                  <img src={imagePreview} alt="Preview" className="image-preview" />
-                  <button 
-                    type="button" 
-                    onClick={handleImageRemove} 
-                    className="remove-image-btn"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
+            
+            {/* Media Upload Button */}
+            <div className="media-upload-button-container">
+              <button 
+                type="button" 
+                className="media-upload-button"
+                onClick={() => mediaInputRef.current.click()}
+                disabled={mediaFiles.length >= 5}
+              >
+                <FaPlus className="media-upload-icon" />
+                <span>Add Media ({mediaFiles.length}/5)</span>
+              </button>
+              <input
+                key={mediaInputKey}
+                type="file"
+                id="media-input"
+                name="media"
+                onChange={handleMediaChange}
+                accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+                ref={mediaInputRef}
+                className="media-input"
+                style={{ display: 'none' }}
+                multiple
+              />
             </div>
+            
+            {/* Error message if too many files */}
+            {error && error.includes("upload up to 5 files") && (
+              <div className="media-upload-error">{error}</div>
             )}
-
-            {/* Video Upload */}
-            {mediaType === "video" && (
-            <div className="form-group" id="video">
-              <label htmlFor="video-input"></label>
-              <div className="custom-file-upload" onClick={() => videoInputRef.current.click()}>
-                <input
-                  type="file"
-                  id="video-input"
-                  name="video"
-                  onChange={handleVideoChange}
-                  accept="video/*"
-                  ref={videoInputRef}
-                  className="video-input"
-                />
-                <div className="file-upload-label">Choose a video</div>
+            
+            {/* Media Previews */}
+            {mediaFiles.length > 0 && (
+              <div className="media-preview-grid">
+                {mediaFiles.map((media, index) => (
+                  <div key={index} className={`media-preview-item media-type-${media.type}`}>
+                    {/* Preview based on media type */}
+                    {media.type === 'image' && (
+                      <img src={media.preview} alt="Preview" className="media-preview-image" />
+                    )}
+                    
+                    {media.type === 'video' && (
+                      <div className="media-preview-wrapper">
+                        <video 
+                          src={media.preview} 
+                          controls 
+                          className="media-preview-video" 
+                        />
+                        <div className="media-type-icon video-icon">
+                          <FaVideo />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {media.type === 'audio' && (
+                      <div className="media-preview-wrapper">
+                        <audio 
+                          src={media.preview} 
+                          controls 
+                          className="media-preview-audio" 
+                        />
+                        <div className="media-type-icon audio-icon">
+                          <FaFileAudio />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {media.type === 'document' && (
+                      <div className="media-preview-wrapper document-preview">
+                        <div className="media-type-icon document-icon">
+                          <FaFile />
+                        </div>
+                        <p className="document-name">{media.file.name}</p>
+                      </div>
+                    )}
+                    
+                    {/* Caption input */}
+                    <input
+                      type="text"
+                      placeholder="Add a caption"
+                      value={media.caption}
+                      onChange={(e) => handleCaptionChange(index, e.target.value)}
+                      className="media-caption-input"
+                    />
+                    
+                    {/* Remove button */}
+                    <button 
+                      type="button" 
+                      onClick={() => handleMediaRemove(index)} 
+                      className="remove-media-btn"
+                      aria-label="Remove media"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                ))}
               </div>
-              
-              {/* Video Preview */}
-              {videoPreview && (
-                <div className="video-preview-container">
-                  <video 
-                    src={videoPreview} 
-                    controls 
-                    className="video-preview" 
-                    style={{ maxWidth: '100%', maxHeight: '300px' }}
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleVideoRemove} 
-                    className="remove-video-btn"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
             )}
           </div>
 
