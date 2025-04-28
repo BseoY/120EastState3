@@ -1,5 +1,5 @@
 from flask import Flask
-from Models import db, Post
+from database import db, Post
 import os
 import dotenv
 from sqlalchemy import Column, String, text
@@ -121,5 +121,17 @@ with app.app_context():
         print("date_created column already exists in ContactMessage table.")
 
 
+
+    # Check if media table exists and has the public_id column
+    if 'media' in tables:
+        media_columns = [column['name'] for column in inspector.get_columns('media')]
+        if 'public_id' not in media_columns:
+            print("Adding public_id column to Media table...")
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE media ADD COLUMN public_id VARCHAR(200)'))
+                conn.commit()
+            print("public_id column added successfully!")
+        else:
+            print("public_id column already exists in Media table.")
 
 print("Schema update complete!")
