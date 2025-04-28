@@ -122,9 +122,21 @@ with app.app_context():
 
 
 
-    # Check if media table exists and has the public_id column
+    # Check if media table exists and verify all required columns are present
     if 'media' in tables:
         media_columns = [column['name'] for column in inspector.get_columns('media')]
+        
+        # The Media model has the following columns that need to be checked:
+        # 1. id (primary key, should already exist)
+        # 2. post_id (foreign key, should already exist)
+        # 3. url (should already exist)
+        # 4. media_type (should already exist)
+        # 5. public_id
+        # 6. filename
+        # 7. caption
+        # 8. uploaded_at
+        
+        # Check for public_id column
         if 'public_id' not in media_columns:
             print("Adding public_id column to Media table...")
             with db.engine.connect() as conn:
@@ -133,5 +145,35 @@ with app.app_context():
             print("public_id column added successfully!")
         else:
             print("public_id column already exists in Media table.")
+            
+        # Check for filename column
+        if 'filename' not in media_columns:
+            print("Adding filename column to Media table...")
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE media ADD COLUMN filename VARCHAR(200)'))
+                conn.commit()
+            print("filename column added successfully!")
+        else:
+            print("filename column already exists in Media table.")
+        
+        # Check for caption column
+        if 'caption' not in media_columns:
+            print("Adding caption column to Media table...")
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE media ADD COLUMN caption VARCHAR(500)'))
+                conn.commit()
+            print("caption column added successfully!")
+        else:
+            print("caption column already exists in Media table.")
+            
+        # Check for uploaded_at column
+        if 'uploaded_at' not in media_columns:
+            print("Adding uploaded_at column to Media table...")
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE media ADD COLUMN uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP'))
+                conn.commit()
+            print("uploaded_at column added successfully!")
+        else:
+            print("uploaded_at column already exists in Media table.")
 
 print("Schema update complete!")
