@@ -267,10 +267,10 @@
 
 .archive-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(300px, 1fr));
   gap: 30px;
   margin-top: 20px;
-  padding: 0 20px;
+  max-width: 1200px;
 }
 
 .post-link {
@@ -506,8 +506,11 @@
 }
 
 .no-results {
-  grid-column: 1 / -1;
-  text-align: center;
+  grid-column: span 3; /* Ensure it takes up the entire width of the grid */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
   padding: 40px 0;
 }
 

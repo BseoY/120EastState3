@@ -155,6 +155,8 @@ def require_roles(*roles):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            if request.method == 'OPTIONS':
+                return f(*args, **kwargs)
             user = get_current_user()
             if not user:
                 return jsonify({'error': 'Authentication required'}), 401

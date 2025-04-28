@@ -1,0 +1,38 @@
+#expectation-header {
+  margin-top: 10px;
+}
+
+#share-story-list {
+  margin: 10px;
+  padding: 0;
+}
+
+#agreement {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-cancel-button {
+  background-color: lightgray;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: not-allowed;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* When checkbox is checked */
+.modal-cancel-button.enabled {
+  background-color: #176d8c; /* Green */
+  color: white;
+  cursor: pointer;
+}
+
+/* When checkbox is NOT checked */
+.modal-cancel-button.disabled {
+  background-color: lightgray;
+  color: black;
+  cursor: not-allowed;
+}

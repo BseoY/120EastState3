@@ -476,6 +476,7 @@ def upload_file():
 @app.route('/api/admin/pending-posts', methods=['GET'])
 @require_roles('admin')
 def get_pending_posts():
+    print("alkfsdjlafsd")
     """Get all pending posts that need admin approval
     
     This endpoint is restricted to users with 'admin' role
@@ -568,6 +569,60 @@ def deny_post(post_id):
     feedback = request.json.get('feedback', None) if request.json else None
     return update_post_status(post_id, 'denied', feedback)
 
+@app.route('/api/admin/posts/<int:post_id>/edit', methods=['PUT', 'OPTIONS'])
+@require_roles('admin')
+def edit_post_admin(post_id):
+    if request.method == 'OPTIONS':
+        # No authentication required for OPTIONS
+        response = jsonify({'message': 'Preflight OK'})
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'PUT, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+        
+    post = db.session.get(Post, post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+        
+    try:
+
+        data = request.json
+        
+        # Update post fields if provided in request
+        if 'title' in data:
+            post.title = data['title']
+        if 'content' in data:
+            post.content = data['content']
+        if 'tag' in data:
+            post.tag = data['tag']
+            
+        # Save changes
+        db.session.commit()
+        
+        # Return updated post data
+        return jsonify({
+            'id': post.id,
+            'title': post.title,
+            'content': post.content,
+            'tag': post.tag,
+            'date_created': post.date_created,
+            'user_id': post.user_id,
+            'author': post.user.name if post.user else 'Anonymous',
+            'profile_pic': post.user.profile_pic if post.user else None,
+            'status': post.status,
+            'media': [{
+                'id': media.id,
+                'url': media.url,
+                'media_type': media.media_type,
+                'public_id': media.public_id,
+                'filename': media.filename,
+                'caption': media.caption
+            } for media in Media.query.filter_by(post_id=post.id).all()]
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error updating post: {str(e)}'}), 500
+    
 @app.route('/api/admin/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
 @require_roles('admin')
 def delete_post_admin(post_id):

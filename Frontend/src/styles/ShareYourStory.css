@@ -149,3 +149,10 @@
   color: rgb(255, 255, 255);
   font-weight: 400;
 }
+
+#show-expectations {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-right: 10px;
+}

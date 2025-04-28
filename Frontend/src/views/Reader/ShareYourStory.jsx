@@ -26,9 +26,7 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
     <div>
       {showModal && <InfoModal onClose={() => setShowModal(false)} />}
       <div className="share-story-container">
-        <header>
-          <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-        </header>
+        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <div className="share-story-header">
           <br></br>
           <h1>Share Your Story</h1>
@@ -40,6 +38,9 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
         </div>
         {isAuthenticated ? (
           <div className="share-story-form-container">
+            <button onClick={() => setShowModal(true)} id='show-expectations'>
+              ?
+            </button>
             <Form onNewPost={handleNewPost} user={user} />
           </div>
         ) : (

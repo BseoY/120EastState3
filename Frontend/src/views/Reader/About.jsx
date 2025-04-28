@@ -106,9 +106,8 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               required
               maxLength={maxNameChars}
             />
-            <small className="char-count">
-              {nameCount}
-            </small>
+            <small className="char-count">{formData.name.length}/{maxNameChars}</small>
+
             <input
               type="email"
               name="email"
@@ -118,8 +117,9 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               required
               pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
               title="Please enter a valid email address"
-            ></input>
+            />
             {emailError && <p className="email-error">{emailError}</p>}
+            
             <textarea 
               id="subject"
               name="message"
@@ -132,12 +132,14 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             <small className="char-count">
               {messageCount}
             </small>
+
             <input
               type="submit"
               name="submit"
               id="contact-submit"
-             ></input>
+            />
           </form>
+
           {statusMessage && (
             <p id="status-message">
               {statusMessage}
