@@ -92,15 +92,15 @@ db.init_app(app)
 # Register blueprints
 app.register_blueprint(auth_bp)
 
-with app.app_context():
-    try:
+# with app.app_context():
+    # try:
         # In development, drop and recreate tables to pick up schema changes
-        if os.getenv("ENV") != "production":
-            db.drop_all()
-        db.create_all()
-    except Exception as e:
-        print(f"Error creating tables: {e}")
-        # Continue execution even if table creation fails
+        # if os.getenv("ENV") != "production":
+        #     db.drop_all()
+        # db.create_all()
+    # except Exception as e:
+    #     print(f"Error creating tables: {e}")
+    #     # Continue execution even if table creation fails
 
 # API Routes
 

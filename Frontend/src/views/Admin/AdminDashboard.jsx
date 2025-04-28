@@ -376,7 +376,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               <button 
                 className="add-tag-button"
                 onClick={() => setTagFormVisible(true)}
-                style={{padding: '8px 16px', marginBottom: '20px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                style={{padding: '8px 16px', marginBottom: '20px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
               >
                 Add New Tag
               </button>

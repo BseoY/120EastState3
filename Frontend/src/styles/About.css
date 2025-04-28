@@ -99,12 +99,19 @@
   margin-bottom: none;
 }
 
-.char-count {
-  float: right;
-  color: #777;
+/* Character Count Styling */
+.character-count {
+  text-align: right;
   font-size: 0.8rem;
-  margin-top: 2px;
-  margin-bottom: 10px;
+  color: #666;
+  margin-top: 0.3rem;
+  padding-right: 0;
+  width: 100%;
+}
+
+.count-warning {
+  color: #e53935;
+  font-weight: bold;
 }
 
 .email-error {

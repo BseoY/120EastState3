@@ -267,15 +267,15 @@ textarea {
 }
 
 .video-icon {
-  color: #e53935;
+  color: #1F8CB5;
 }
 
 .audio-icon {
-  color: #43a047;
+  color: #1F8CB5;
 }
 
 .document-icon {
-  color: #1565c0;
+  color: #1F8CB5;
   font-size: 2rem;
 }
 
@@ -332,6 +332,20 @@ textarea {
 .submit-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+/* Character Count */
+.character-count {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.3rem;
+  padding-right: 10%;
+}
+
+.count-warning {
+  color: #e53935;
+  font-weight: bold;
 }
 
 /* Status Messages */

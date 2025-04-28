@@ -79,10 +79,8 @@ function HomePage({
           </div>
           <div className="mission-content">
             <p>
-              120 East Group aims to preserve and share the hidden story of a historic church
-              with nearly 300 years of history. A platform for local and global communities to
-              connect and rebuild an auditory of life in the old city of Trenton. What was life
-              like decades ago?
+              120 East State aims to preserve and share the hidden stories and nearly 300 years of rich history of the First Presbyterian Church of Trenton and the surrounding area
+              A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?
             </p>
           </div>
         </div>
@@ -91,10 +89,6 @@ function HomePage({
         <section className="archive-section">
           <TagBoxes />
         </section>
-
-      {/* <section className="carousel-section">
-        <Carousel posts={posts} loading={loading} error={error} />
-      </section> */}
     </div>
   );
 }

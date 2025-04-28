@@ -26,6 +26,7 @@ const TagBoxes = () => {
   return (
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
+      <br></br>
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
         {loading ? (
           <p>Loading categories...</p>
