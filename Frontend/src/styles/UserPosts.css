@@ -167,6 +167,46 @@
     gap: 1rem;
     margin-bottom: 1rem;
   }
+
+  .archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.admin-actions-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Make buttons and text adapt to smaller screens */
+@media (max-width: 600px) {
+  .user-posts-container {
+    padding: 1rem;
+  }
+
+  .tab {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .delete-btn,
+  .deny-button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .post-detail-container {
+    padding: 1rem;
+  }
+
+  .post-detail-image,
+  .post-detail-video {
+    max-height: 250px;
+  }
+}
   
   .tab {
     padding: 0.5rem 1rem;

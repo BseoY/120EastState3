@@ -25,7 +25,7 @@ class Post(db.Model):
     def __repr__(self):
         return f'<Post {self.title}>'
     
-# User Table
+# User Table    
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     google_id = db.Column(db.String(120), unique=True, nullable=False)
