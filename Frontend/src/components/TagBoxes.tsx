@@ -38,6 +38,7 @@ const TagBoxes = () => {
   return (
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
+      <div className="section-divider"></div>
       <br></br>
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
         {loading ? (
@@ -49,6 +50,7 @@ const TagBoxes = () => {
             key={tag.id} 
             to={`/archive?tag=${encodeURIComponent(tag.name)}`} 
             style={{width: '250px', height: '250px', position: 'relative', margin: '0 auto', borderRadius: '8px', overflow: 'hidden', textDecoration: 'none'}}
+            className='tag-box'
           >
             {/* Background image or fallback */}
             {tag.image_url ? (

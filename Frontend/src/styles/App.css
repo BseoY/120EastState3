@@ -345,6 +345,7 @@ li {
   position: relative;
   background-color: #fff;
   margin-top: -15px; /* Reduced to match the smaller curve */
+  margin-bottom: 20px;
   z-index: 5;
 }
 
@@ -355,6 +356,14 @@ li {
   border-radius: 50% 50% 0 0 / 30px;
   margin-top: -15px;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.02);
+}
+.curve-top-gray {
+  height: 30px;
+  width: 100%;
+  background-color: #f3f3f3;
+  border-radius: 50% 50% 0 0 / 30px;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.02);
+  z-index: 1;
 }
 
 .mission-section {
@@ -395,10 +404,9 @@ li {
 }
 
 .archive-section {
-  background-color: #f8f8f8;
-  padding: 60px 20px;
+  background-color: #f3f3f3;
+  padding: 0px 20px;
   text-align: center;
-  border-top: 1px solid #eaeaea;
 }
 
 /* General disabled button styling */
@@ -435,8 +443,7 @@ button:disabled {
   margin-right: auto;         /* Center horizontally within parent */
 }
 .archive-section {
-  padding: 3rem 2rem;
-  background: #f8f9fa;
+  background-color: #f3f3f3;
   text-align: center;
 }
 

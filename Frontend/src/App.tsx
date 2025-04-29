@@ -85,9 +85,11 @@ function HomePage({
             </p>
           </div>
         </div>
-        </section>
+      </section>
 
+        <div className="curve-top-gray"></div>
         <section className="archive-section">
+
           <TagBoxes />
         </section>
     </div>
