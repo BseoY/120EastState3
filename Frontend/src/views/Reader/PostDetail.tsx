@@ -253,7 +253,6 @@ const PostDetail: React.FC<PostDetailProps> = ({
                     </div>
                   ) : (
                     <div className="no-media-message">
-                      <p>No media files attached to this post.</p>
                     </div>
                   )}
                 </div>
