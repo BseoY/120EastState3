@@ -8,9 +8,7 @@ import cloudinary
 import cloudinary.uploader
 from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
-
-# Local imports
-from database import db, Post, User, ContactMessage, Tag, Media, Announcement
+from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, get_current_user, require_roles
@@ -759,11 +757,6 @@ def send_message():
         name = data["name"]
         sender_email = data["email"]
         message_content = data["message"]
-
-        # Store message in database
-        new_msg = ContactMessage(name=name, email=sender_email, message=message_content)
-        db.session.add(new_msg)
-        db.session.commit()
         
         # Send email to organization email
         try:

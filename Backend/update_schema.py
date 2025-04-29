@@ -344,25 +344,6 @@ with app.app_context():
     else:
         print("role column already exists in User table.")
         
-    # Check for admin_action table
-    if 'admin_action' not in tables:
-        print("Creating AdminAction table...")
-        with db.engine.connect() as conn:
-            conn.execute(text('''
-                CREATE TABLE admin_action (
-                    id SERIAL PRIMARY KEY,
-                    admin_id INTEGER REFERENCES "user"(id),
-                    action_type VARCHAR(50) NOT NULL,
-                    target_type VARCHAR(50) NOT NULL,
-                    target_id INTEGER NOT NULL,
-                    details TEXT,
-                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            '''))
-            conn.commit()
-        print("AdminAction table created successfully!")
-    else:
-        print("AdminAction table already exists.")
 
     # Don't create test data automatically - this can be done manually if needed
     # More important to get the schema right first
