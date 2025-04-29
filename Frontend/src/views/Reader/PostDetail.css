@@ -4,7 +4,7 @@
 }
 
 .post-detail-container {
-  max-width: 1200px; /* Increased max-width to accommodate larger images */
+  max-width: 90%; /* Increased max-width to accommodate larger images */
   width: 1200px;
   margin: 0 auto;
   padding: 2rem;
@@ -429,4 +429,41 @@ textarea.form-control {
 
 .edit-button:hover {
   background-color: #0b7dda;
+}
+
+@media (max-width: 768px) {
+  .post-detail-container {
+    width: 100%;       /* full width */
+    max-width: 100%;   /* no max width */
+    padding: 1rem;     /* a little smaller padding */
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+  
+  .post-title {
+    font-size: 1.8rem;
+  }
+
+  .post-body {
+    font-size: 1rem;
+  }
+
+  .media-gallery {
+    grid-template-columns: 1fr; /* stack media items */
+  }
+  .post-actions {
+    justify-content: center;
+    flex-direction: column; /* stack buttons vertically if you want */
+    align-items: center;
+    gap: 10px;
+  }
+
+  .share-qr-button,
+  .edit-button,
+  .deny-button,
+  .delete-post-btn {
+    text-align: center;
+  }
 }
