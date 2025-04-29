@@ -30,12 +30,6 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.name}>'
-
-class MediaType(str, Enum):
-    IMAGE = 'image'
-    VIDEO = 'video'
-    AUDIO = 'audio'
-    DOCUMENT = 'document'
     
 # Media Table
 class Media(db.Model):
