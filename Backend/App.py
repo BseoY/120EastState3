@@ -1,6 +1,6 @@
 # Standard library imports
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # Third-party imports
 from dotenv import load_dotenv
@@ -10,7 +10,7 @@ from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 
 # Local imports
-from database import db, Post, User, ContactMessage, Tag, Media
+from database import db, Post, User, ContactMessage, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, get_current_user, require_roles
@@ -185,6 +185,9 @@ def delete_tag(tag_id):
     db.session.delete(tag)
     db.session.commit()
     return jsonify({'message': f'Tag {tag_id} deleted'})
+
+
+
 
 @app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
 def handle_message():
@@ -815,6 +818,264 @@ def get_all_users():
         } for user in users])
     except Exception as e:
         return jsonify({'error': f'Error fetching users: {str(e)}'}), 500
+
+@app.route('/api/announcements', methods=['GET', 'POST'])
+def handle_announcements():
+    """Handle announcement operations
+    
+    Methods:
+        GET: Retrieve all active announcements
+        POST: Create a new announcement (admin only)
+    
+    Returns:
+        GET: JSON array of all active announcements
+        POST: JSON with new announcement details
+    """
+    if request.method == 'GET':
+        # Get current datetime for filtering expired announcements
+        current_time = datetime.utcnow()
+        
+        # Query for active announcements that are either not expired or don't have an expiration date
+        announcements = Announcement.query.filter(
+            Announcement.is_active == True,
+            Announcement.date_start <= current_time,
+            # Either no expiration date (date_end is None) or expiration date is in the future
+            (Announcement.date_end.is_(None) | (Announcement.date_end >= current_time))
+        ).order_by(Announcement.date_created.desc()).all()
+        
+        result = [{
+            'id': announcement.id,
+            'title': announcement.title,
+            'content': announcement.content,
+            'date_created': announcement.date_created,
+            'date_start': announcement.date_start,
+            'date_end': announcement.date_end,
+            'is_active': announcement.is_active,
+            'user': {
+                'id': announcement.user.id,
+                'name': announcement.user.name,
+                'profile_pic': announcement.user.profile_pic
+            } if announcement.user else None
+        } for announcement in announcements]
+        
+        return jsonify(result)
+    
+    elif request.method == 'POST':
+        # Check if user is admin
+        current_user = get_current_user()
+        if not current_user or current_user.role != 'admin':
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        try:
+            data = request.json
+            
+            # Required fields
+            title = data.get('title')
+            content = data.get('content')
+            date_start = data.get('date_start')
+            
+            # Optional fields
+            date_end = data.get('date_end')  # Can be null for no expiration
+            
+            if not title or not content or not date_start:
+                return jsonify({'error': 'Missing required fields'}), 400
+            
+            # Convert string dates to datetime objects
+            try:
+                date_start = datetime.fromisoformat(date_start.replace('Z', '+00:00'))
+                if date_end:
+                    date_end = datetime.fromisoformat(date_end.replace('Z', '+00:00'))
+                else:
+                    date_end = None  # No expiration date
+            except ValueError:
+                return jsonify({'error': 'Invalid date format'}), 400
+            
+            # Create new announcement
+            new_announcement = Announcement(
+                user_id=current_user.id,
+                title=title,
+                content=content,
+                date_start=date_start,
+                date_end=date_end,
+                is_active=True
+            )
+            
+            db.session.add(new_announcement)
+            db.session.commit()
+            
+            return jsonify({
+                'message': 'Announcement created successfully',
+                'announcement': {
+                    'id': new_announcement.id,
+                    'title': new_announcement.title,
+                    'content': new_announcement.content,
+                    'date_created': new_announcement.date_created,
+                    'date_start': new_announcement.date_start,
+                    'date_end': new_announcement.date_end,
+                    'is_active': new_announcement.is_active
+                }
+            }), 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Error creating announcement: {str(e)}'}), 500
+
+@app.route('/api/announcements/<int:announcement_id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_single_announcement(announcement_id):
+    """Handle operations on a single announcement
+    
+    Methods:
+        GET: Retrieve a specific announcement
+        PUT: Update an announcement (admin only)
+        DELETE: Delete an announcement (admin only)
+    
+    Args:
+        announcement_id: The ID of the announcement to operate on
+    
+    Returns:
+        GET: JSON with announcement details
+        PUT: JSON with updated announcement details
+        DELETE: JSON confirmation message
+    """
+    # Get the announcement
+    announcement = db.session.get(Announcement, announcement_id)
+    if not announcement:
+        return jsonify({'error': 'Announcement not found'}), 404
+    
+    if request.method == 'GET':
+        return jsonify({
+            'id': announcement.id,
+            'title': announcement.title,
+            'content': announcement.content,
+            'date_created': announcement.date_created,
+            'date_start': announcement.date_start,
+            'date_end': announcement.date_end,
+            'is_active': announcement.is_active,
+            'user': {
+                'id': announcement.user.id,
+                'name': announcement.user.name,
+                'profile_pic': announcement.user.profile_pic
+            } if announcement.user else None
+        })
+    
+    # Check if user is admin for PUT and DELETE operations
+    current_user = get_current_user()
+    if not current_user or current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    if request.method == 'PUT':
+        try:
+            data = request.json
+            
+            # Update fields if provided in the request
+            if 'title' in data:
+                announcement.title = data['title']
+            if 'content' in data:
+                announcement.content = data['content']
+            if 'date_start' in data:
+                try:
+                    announcement.date_start = datetime.fromisoformat(data['date_start'].replace('Z', '+00:00'))
+                except ValueError:
+                    return jsonify({'error': 'Invalid date_start format'}), 400
+            if 'date_end' in data:
+                if data['date_end']:
+                    try:
+                        announcement.date_end = datetime.fromisoformat(data['date_end'].replace('Z', '+00:00'))
+                    except ValueError:
+                        return jsonify({'error': 'Invalid date_end format'}), 400
+                else:
+                    announcement.date_end = None  # Remove expiration date
+            if 'is_active' in data:
+                announcement.is_active = bool(data['is_active'])
+            
+            db.session.commit()
+            
+            return jsonify({
+                'message': 'Announcement updated successfully',
+                'announcement': {
+                    'id': announcement.id,
+                    'title': announcement.title,
+                    'content': announcement.content,
+                    'date_created': announcement.date_created,
+                    'date_start': announcement.date_start,
+                    'date_end': announcement.date_end,
+                    'is_active': announcement.is_active
+                }
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Error updating announcement: {str(e)}'}), 500
+    
+    elif request.method == 'DELETE':
+        try:
+            db.session.delete(announcement)
+            db.session.commit()
+            
+            return jsonify({
+                'message': 'Announcement deleted successfully',
+                'id': announcement_id
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Error deleting announcement: {str(e)}'}), 500
+
+@app.route('/api/admin/announcements', methods=['GET'])
+@require_roles('admin')
+def get_all_announcements_admin():
+    """Get all announcements for admin dashboard (including expired/inactive)
+    
+    This endpoint is restricted to users with 'admin' role
+    
+    Returns:
+        JSON array of all announcements
+    """
+    try:
+        # Get all announcements for admin view (including inactive and expired)
+        announcements = Announcement.query.order_by(Announcement.date_created.desc()).all()
+        
+        result = [{
+            'id': announcement.id,
+            'title': announcement.title,
+            'content': announcement.content,
+            'date_created': announcement.date_created,
+            'date_start': announcement.date_start,
+            'date_end': announcement.date_end,
+            'is_active': announcement.is_active,
+            'status': get_announcement_status(announcement),
+            'user': {
+                'id': announcement.user.id,
+                'name': announcement.user.name,
+                'profile_pic': announcement.user.profile_pic
+            } if announcement.user else None
+        } for announcement in announcements]
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': f'Error fetching announcements: {str(e)}'}), 500
+
+def get_announcement_status(announcement):
+    """Helper function to determine the current status of an announcement
+    
+    Args:
+        announcement: The announcement object
+    
+    Returns:
+        String status: 'scheduled', 'active', 'expired', or 'inactive'
+    """
+    current_time = datetime.utcnow()
+    
+    if not announcement.is_active:
+        return 'inactive'
+    
+    if announcement.date_start > current_time:
+        return 'scheduled'
+    
+    if announcement.date_end and announcement.date_end < current_time:
+        return 'expired'
+    
+    return 'active'
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

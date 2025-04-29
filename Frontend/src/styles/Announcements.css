@@ -1,0 +1,166 @@
+/* Announcements Page Styles */
+.announcements-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  min-height: 80vh; /* Makes the section take up at least 80% of the viewport height */
+}
+
+/* This is now handled by the section-header from App.css */
+/* Keeping this for backward compatibility */
+
+
+.announcements-loading,
+.announcements-error,
+.announcements-empty {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  color: #666;
+  min-height: 300px; /* Ensure minimum height for these states */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.announcements-error {
+  color: #e74c3c;
+  background-color: #fdf3f2;
+}
+
+/* Announcement Banner Styles */
+.announcement-banner {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.announcement-banner:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.announcement-header {
+  padding: 20px 20px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.announcement-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.announcement-date {
+  font-size: 0.9rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+}
+
+.announcement-content {
+  padding: 20px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #444;
+  min-height: 100px;
+  white-space: pre-line; /* Preserves line breaks from the content */
+}
+
+.announcement-footer {
+  padding: 10px 20px 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.announcement-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.announcement-end-date {
+  color: #1F8CB5;
+}
+
+/* Status Badges for Admin View */
+.status-badge-active {
+  background-color: #e6f7ff;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-badge-scheduled {
+  background-color: #f6ffed;
+  color: #52c41a;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-badge-expired {
+  background-color: #fff2e8;
+  color: #fa8c16;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-badge-inactive {
+  background-color: #f5f5f5;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .announcements-heading {
+    font-size: 2rem;
+  }
+  
+  .announcement-title {
+    font-size: 1.5rem;
+  }
+  
+  .announcement-content {
+    font-size: 1rem;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .announcements-page {
+    padding: 10px;
+  }
+  
+  .announcements-heading {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .announcement-title {
+    font-size: 1.3rem;
+  }
+  
+  .announcement-header,
+  .announcement-content,
+  .announcement-footer {
+    padding: 15px 10px;
+  }
+}

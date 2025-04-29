@@ -31,6 +31,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [newTagOrder, setNewTagOrder] = useState(0);
   const [newTagImage, setNewTagImage] = useState('');
   const [imageFile, setImageFile] = useState(null);
+  
+  // Announcement management states
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementFormVisible, setAnnouncementFormVisible] = useState(false);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+  const [newAnnouncementTitle, setNewAnnouncementTitle] = useState('');
+  const [newAnnouncementContent, setNewAnnouncementContent] = useState('');
+  const [newAnnouncementStartDate, setNewAnnouncementStartDate] = useState('');
+  const [newAnnouncementEndDate, setNewAnnouncementEndDate] = useState('');
+  const [hasExpirationDate, setHasExpirationDate] = useState(true);
 
   const fetchPendingPosts = async () => {
     try {
@@ -289,6 +299,217 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       console.error('Error fetching users:', err);
     }
   };
+  
+  // Format date for datetime-local input
+  const formatDateForInput = (date) => {
+    return date.toISOString().slice(0, 16);
+  };
+  
+  // Fetch all announcements
+  const fetchAnnouncements = async () => {
+    try {
+      // First try to get all announcements from admin endpoint
+      // If that fails (possibly due to missing backend implementation), fall back to regular endpoint
+      try {
+        const res = await axios.get(`${BASE_API_URL}/api/admin/announcements`, { withCredentials: true });
+        setAnnouncements(res.data);
+      } catch (adminErr) {
+        console.warn('Admin announcements endpoint failed, trying public endpoint:', adminErr);
+        const res = await axios.get(`${BASE_API_URL}/api/announcements`, { withCredentials: true });
+        setAnnouncements(res.data);
+      }
+    } catch (err) {
+      console.error('Error fetching announcements:', err);
+      // Set empty array to prevent UI errors
+      setAnnouncements([]);
+    }
+  };
+  
+  // Create a new announcement
+  const createAnnouncement = async () => {
+    try {
+      // Make sure dates are in ISO format for the backend
+      const startDate = new Date(newAnnouncementStartDate).toISOString();
+      let endDate = null;
+      if (hasExpirationDate && newAnnouncementEndDate) {
+        endDate = new Date(newAnnouncementEndDate).toISOString();
+      }
+      
+      const formData = {
+        title: newAnnouncementTitle,
+        content: newAnnouncementContent,
+        date_start: startDate,
+        date_end: endDate
+      };
+      
+      console.log('Creating announcement with data:', formData);
+      
+      const res = await axios.post(
+        `${BASE_API_URL}/api/announcements`,
+        formData,
+        { withCredentials: true }
+      );
+      
+      console.log('Announcement created successfully:', res.data);
+      
+      // Add new announcement to state - handle both response formats
+      if (res.data.announcement) {
+        setAnnouncements([res.data.announcement, ...announcements]);
+      } else if (res.data.id) {
+        // If the API returns the announcement directly
+        setAnnouncements([res.data, ...announcements]);
+      }
+      
+      // Reset form
+      resetAnnouncementForm();
+      alert('Announcement created successfully!');
+    } catch (err) {
+      console.error('Error creating announcement:', err);
+      alert('Failed to create announcement: ' + (err.response?.data?.error || 'Unknown error'));
+    }
+  };
+  
+  // Update an existing announcement
+  const updateAnnouncement = async () => {
+    if (!currentAnnouncement) return;
+    
+    try {
+      // Make sure dates are in ISO format for the backend
+      const startDate = new Date(newAnnouncementStartDate).toISOString();
+      let endDate = null;
+      if (hasExpirationDate && newAnnouncementEndDate) {
+        endDate = new Date(newAnnouncementEndDate).toISOString();
+      }
+      
+      const formData = {
+        title: newAnnouncementTitle,
+        content: newAnnouncementContent,
+        date_start: startDate,
+        date_end: endDate
+      };
+      
+      console.log('Updating announcement with data:', formData);
+      
+      const res = await axios.put(
+        `${BASE_API_URL}/api/announcements/${currentAnnouncement.id}`,
+        formData,
+        { withCredentials: true }
+      );
+      
+      console.log('Announcement updated successfully:', res.data);
+      
+      // Update announcement in state - handle both response formats
+      if (res.data.announcement) {
+        setAnnouncements(announcements.map(announcement => 
+          announcement.id === currentAnnouncement.id ? res.data.announcement : announcement
+        ));
+      } else if (res.data.id) {
+        // If the API returns the announcement directly
+        setAnnouncements(announcements.map(announcement => 
+          announcement.id === currentAnnouncement.id ? res.data : announcement
+        ));
+      }
+      
+      // Reset form
+      resetAnnouncementForm();
+      alert('Announcement updated successfully!');
+    } catch (err) {
+      console.error('Error updating announcement:', err);
+      alert('Failed to update announcement: ' + (err.response?.data?.error || 'Unknown error'));
+    }
+  };
+  
+  // Delete an announcement
+  const deleteAnnouncement = async (announcementId) => {
+    if (!window.confirm('Are you sure you want to delete this announcement?')) return;
+    
+    try {
+      await axios.delete(
+        `${BASE_API_URL}/api/announcements/${announcementId}`,
+        { withCredentials: true }
+      );
+      
+      // Remove announcement from state
+      setAnnouncements(announcements.filter(announcement => announcement.id !== announcementId));
+    } catch (err) {
+      console.error('Error deleting announcement:', err);
+      alert('Failed to delete announcement. Please try again.');
+    }
+  };
+  
+  // Toggle announcement active status
+  const toggleAnnouncementStatus = async (announcement) => {
+    try {
+      const newStatus = !announcement.is_active;
+      
+      await axios.put(
+        `${BASE_API_URL}/api/announcements/${announcement.id}`,
+        { is_active: newStatus },
+        { withCredentials: true }
+      );
+      
+      // Update announcement in state
+      setAnnouncements(announcements.map(a => 
+        a.id === announcement.id ? {...a, is_active: newStatus} : a
+      ));
+    } catch (err) {
+      console.error('Error toggling announcement status:', err);
+      alert('Failed to update announcement status. Please try again.');
+    }
+  };
+  
+  // Handle edit announcement button click
+  const handleEditAnnouncement = (announcement) => {
+    setCurrentAnnouncement(announcement);
+    setNewAnnouncementTitle(announcement.title);
+    setNewAnnouncementContent(announcement.content);
+    
+    // Format dates for datetime-local input
+    if (announcement.date_start) {
+      const startDate = new Date(announcement.date_start);
+      setNewAnnouncementStartDate(formatDateForInput(startDate));
+    }
+    
+    if (announcement.date_end) {
+      const endDate = new Date(announcement.date_end);
+      setNewAnnouncementEndDate(formatDateForInput(endDate));
+      setHasExpirationDate(true);
+    } else {
+      setHasExpirationDate(false);
+      setNewAnnouncementEndDate('');
+    }
+    
+    setAnnouncementFormVisible(true);
+  };
+  
+  // Reset announcement form
+  const resetAnnouncementForm = () => {
+    setCurrentAnnouncement(null);
+    setNewAnnouncementTitle('');
+    setNewAnnouncementContent('');
+    
+    // Set default start date to now
+    const now = new Date();
+    setNewAnnouncementStartDate(formatDateForInput(now));
+    
+    // Set default end date to 7 days from now
+    const sevenDaysLater = new Date();
+    sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+    setNewAnnouncementEndDate(formatDateForInput(sevenDaysLater));
+    
+    setHasExpirationDate(true);
+    setAnnouncementFormVisible(false);
+  };
+  
+  // Submit announcement form
+  const handleAnnouncementFormSubmit = (e) => {
+    e.preventDefault();
+    if (currentAnnouncement) {
+      updateAnnouncement();
+    } else {
+      createAnnouncement();
+    }
+  };
 
   useEffect(() => {
     fetchPendingPosts();
@@ -296,6 +517,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     fetchApprovedPosts();
     fetchUsers();
     fetchTags();
+    fetchAnnouncements();
   }, []);
 
   if (loading) return <div><br></br>Loading Admin Dashboard..</div>;
@@ -352,11 +574,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         </div>
 
         <div className='admin-main-content'>
-          {activeSection === "announcements" && (
-            <div>
-              <h1>Announcements</h1>
-            </div>
-          )}
           {/* Metrics Section */}
           {activeSection === "metrics" && (
             <div>
@@ -512,6 +729,172 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                         <ArchiveCard post={post} />
                         <div className="admin-actions-overlay">
                           <button onClick={() => reApprovePost(post.id)} className="approve-button">Re-Approve</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Announcements Section */}
+            {activeSection === "announcements" && (
+              <div>
+                <h1>Announcements</h1>
+                <button 
+                  onClick={() => {
+                    const now = new Date();
+                    const sevenDaysLater = new Date();
+                    sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+                    
+                    setNewAnnouncementStartDate(formatDateForInput(now));
+                    setNewAnnouncementEndDate(formatDateForInput(sevenDaysLater));
+                    setHasExpirationDate(true);
+                    setAnnouncementFormVisible(true);
+                  }}
+                  style={{padding: '8px 16px', marginBottom: '20px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                >
+                  Add New Announcement
+                </button>
+                
+                {announcementFormVisible && (
+                  <div style={{border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px'}}>
+                    <h2>{currentAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</h2>
+                    <form onSubmit={handleAnnouncementFormSubmit}>
+                      <div style={{marginBottom: '15px'}}>
+                        <label>Title:</label>
+                        <input 
+                          type="text" 
+                          value={newAnnouncementTitle} 
+                          onChange={(e) => setNewAnnouncementTitle(e.target.value)}
+                          required
+                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
+                        />
+                      </div>
+                      
+                      <div style={{marginBottom: '15px'}}>
+                        <label>Content:</label>
+                        <textarea 
+                          value={newAnnouncementContent} 
+                          onChange={(e) => setNewAnnouncementContent(e.target.value)}
+                          required
+                          rows={5}
+                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
+                        />
+                      </div>
+                      
+                      <div style={{marginBottom: '15px'}}>
+                        <label>Start Date:</label>
+                        <input 
+                          type="datetime-local" 
+                          value={newAnnouncementStartDate} 
+                          onChange={(e) => setNewAnnouncementStartDate(e.target.value)}
+                          required
+                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
+                        />
+                      </div>
+                      
+                      <div style={{marginBottom: '15px'}}>
+                        <label>
+                          <input 
+                            type="checkbox" 
+                            checked={hasExpirationDate} 
+                            onChange={(e) => setHasExpirationDate(e.target.checked)}
+                            style={{marginRight: '8px'}}
+                          />
+                          Has Expiration Date
+                        </label>
+                      </div>
+                      
+                      {hasExpirationDate && (
+                        <div style={{marginBottom: '15px'}}>
+                          <label>End Date:</label>
+                          <input 
+                            type="datetime-local" 
+                            value={newAnnouncementEndDate} 
+                            onChange={(e) => setNewAnnouncementEndDate(e.target.value)}
+                            required={hasExpirationDate}
+                            min={newAnnouncementStartDate}
+                            style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
+                          />
+                        </div>
+                      )}
+                      
+                      <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
+                        <button 
+                          type="button" 
+                          onClick={resetAnnouncementForm}
+                          style={{padding: '8px 16px', backgroundColor: '#ddd', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="submit"
+                          style={{padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                        >
+                          {currentAnnouncement ? 'Update' : 'Create'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+                
+                {announcements.length === 0 ? (
+                  <p>No announcements found</p>
+                ) : (
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
+                    {announcements.map((announcement) => (
+                      <div key={announcement.id} style={{border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden'}}>
+                        <div style={{position: 'relative'}}>
+                          <div style={{position: 'absolute', top: 0, right: 0, padding: '4px 8px', borderRadius: '0 0 0 4px', fontSize: '0.8rem', fontWeight: '500'}} className={`status-badge-${announcement.status}`}>
+                            {announcement.status}
+                          </div>
+                          
+                          <div style={{padding: '15px'}}>
+                            <h3 style={{margin: '0 0 10px 0'}}>{announcement.title}</h3>
+                            
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.8rem', color: '#666'}}>
+                              <span>Start: {new Date(announcement.date_start).toLocaleDateString()}</span>
+                              {announcement.date_end ? (
+                                <span>End: {new Date(announcement.date_end).toLocaleDateString()}</span>
+                              ) : (
+                                <span>No Expiration</span>
+                              )}
+                            </div>
+                            
+                            <p style={{marginBottom: '15px', fontSize: '0.9rem'}}>{announcement.content}</p>
+                            
+                            <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
+                              <button 
+                                onClick={() => toggleAnnouncementStatus(announcement)}
+                                style={{
+                                  padding: '6px 12px', 
+                                  backgroundColor: announcement.is_active ? '#f6ffed' : '#f5f5f5',
+                                  color: announcement.is_active ? '#52c41a' : '#666',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  fontSize: '0.875rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {announcement.is_active ? 'Deactivate' : 'Activate'}
+                              </button>
+                              
+                              <button 
+                                onClick={() => handleEditAnnouncement(announcement)}
+                                style={{padding: '6px 12px', backgroundColor: '#e6f7ff', color: '#0066cc', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer'}}
+                              >
+                                Edit
+                              </button>
+                              
+                              <button 
+                                onClick={() => deleteAnnouncement(announcement.id)}
+                                style={{padding: '6px 12px', backgroundColor: '#fff1f0', color: '#f5222d', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer'}}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}

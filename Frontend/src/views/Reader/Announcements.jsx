@@ -1,0 +1,116 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import BASE_API_URL from '../../config';
+import Nav from '../../components/Nav';
+import '../../styles/Announcements.css';
+import '../../styles/App.css';
+
+/**
+ * AnnouncementBanner component displays an individual announcement
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.announcement - The announcement object to display
+ * @returns {JSX.Element} The announcement banner component
+ */
+const AnnouncementBanner = ({ announcement }) => {
+  // Format date for display
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  return (
+    <div className="announcement-banner">
+      <div className="announcement-header">
+        <h2 className="announcement-title">{announcement.title}</h2>
+        <div className="announcement-date">
+          Posted: {formatDate(announcement.date_created)}
+        </div>
+      </div>
+      <div className="announcement-content">
+        {announcement.content}
+      </div>
+      <div className="announcement-footer">
+        <div className="announcement-dates">
+          <span>Active from: {formatDate(announcement.date_start)}</span>
+          {announcement.date_end && (
+            <span className="announcement-end-date">
+              Until: {formatDate(announcement.date_end)}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Announcements component displays all site announcements
+ * 
+ * @param {Object} props - Component props 
+ * @param {Object} props.user - The current user object
+ * @param {boolean} props.isAuthenticated - Whether the user is authenticated
+ * @param {Function} props.handleLogout - Function to handle logout
+ * @returns {JSX.Element} The announcements page
+ */
+const Announcements = ({ user, isAuthenticated, handleLogout }) => {
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${BASE_API_URL}/api/announcements`);
+        
+        // Sort announcements by date_created in descending order (most recent first)
+        const sortedAnnouncements = response.data.sort((a, b) => {
+          return new Date(b.date_created) - new Date(a.date_created);
+        });
+        
+        setAnnouncements(sortedAnnouncements);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+        setError('Could not load announcements. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
+
+  return (
+    <div className="app-container">
+      <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      
+      <div className="content-container">
+        <div className="curve-top"></div>
+        <div className="announcements-section">
+          <div className="section-header">
+            <h2>Announcements</h2>
+            <div className="section-divider"></div>
+          </div>
+          
+          {loading ? (
+            <div className="announcements-loading">Loading announcements...</div>
+          ) : error ? (
+            <div className="announcements-error">{error}</div>
+          ) : announcements.length === 0 ? (
+            <div className="announcements-empty">No announcements available at this time.</div>
+          ) : (
+            <div className="announcements-list">
+              {announcements.map(announcement => (
+                <AnnouncementBanner key={announcement.id} announcement={announcement} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Announcements;

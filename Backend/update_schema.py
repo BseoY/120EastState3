@@ -1,8 +1,32 @@
 from flask import Flask
-from database import db, Post
+from database import db, Announcement
 import os
 import dotenv
-from sqlalchemy import Column, String, text
+from datetime import datetime
+from sqlalchemy import inspect, text
+from sqlalchemy.exc import SQLAlchemyError, ProgrammingError, OperationalError
+
+# Custom function to execute DDL safely
+def execute_ddl_safely(conn, ddl_statement):
+    """Safely execute a DDL statement and handle potential errors"""
+    try:
+        conn.execute(text(ddl_statement))
+        conn.commit()
+        return True
+    except ProgrammingError as e:
+        # Usually occurs when something already exists
+        if "already exists" in str(e):
+            print(f"Info: {str(e)}")
+            return True
+        print(f"SQL Error: {str(e)}")
+        return False
+    except OperationalError as e:
+        # Usually occurs when something doesn't exist
+        print(f"Operation Error: {str(e)}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        return False
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -12,6 +36,10 @@ app = Flask(__name__)
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://test1:120ES3@127.0.0.1:5432/testdb')
+# Replace 'postgres://' with 'postgresql://' for Heroku compatibility
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
@@ -176,4 +204,176 @@ with app.app_context():
         else:
             print("uploaded_at column already exists in Media table.")
 
-print("Schema update complete!")
+    # Focus specifically on the Announcement table
+    print("\n=== ANNOUNCEMENT TABLE UPDATE ===\n")
+    
+    # Check if Announcement table exists
+    if 'announcement' not in tables:
+        print("Creating Announcement table...")
+        success = execute_ddl_safely(db.engine.connect(), '''
+            CREATE TABLE announcement (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES "user"(id),
+                title VARCHAR(200) NOT NULL,
+                content TEXT NOT NULL,
+                date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_start TIMESTAMP NOT NULL,
+                date_end TIMESTAMP,
+                is_active BOOLEAN DEFAULT TRUE
+            )
+        ''')
+        
+        if success:
+            print("✅ Announcement table created successfully!")
+        else:
+            print("❌ Failed to create Announcement table. Check database connection.")
+    else:
+        print("Announcement table already exists. Checking structure...")
+        
+        # Refresh columns data to ensure we have the most up-to-date information
+        inspector = inspect(db.engine)
+        announcement_columns = [column for column in inspector.get_columns('announcement')]
+        announcement_col_names = [column['name'] for column in announcement_columns]
+        
+        # Add missing columns if needed
+        if 'is_active' not in announcement_col_names:
+            print("Adding is_active column to Announcement table...")
+            success = execute_ddl_safely(db.engine.connect(), 
+                'ALTER TABLE announcement ADD COLUMN is_active BOOLEAN DEFAULT TRUE')
+            if success:
+                print("✅ is_active column added successfully!")
+            else:
+                print("❌ Failed to add is_active column.")
+        else:
+            print("✓ is_active column already exists.")
+        
+        # Make date_end nullable if it exists and is not nullable
+        date_end_column = None
+        for column in announcement_columns:
+            if column['name'] == 'date_end':
+                date_end_column = column
+                break
+        
+        if date_end_column:
+            if not date_end_column.get('nullable', False):
+                print("Updating date_end column to be nullable...")
+                success = execute_ddl_safely(db.engine.connect(),
+                    'ALTER TABLE announcement ALTER COLUMN date_end DROP NOT NULL')
+                if success:
+                    print("✅ date_end column updated to be nullable!")
+                else:
+                    print("❌ Failed to make date_end nullable. It might already be nullable.")
+            else:
+                print("✓ date_end is already nullable.")
+        else:
+            # date_end column doesn't exist, add it
+            print("Adding date_end column to Announcement table...")
+            success = execute_ddl_safely(db.engine.connect(),
+                'ALTER TABLE announcement ADD COLUMN date_end TIMESTAMP')
+            if success:
+                print("✅ date_end column added successfully!")
+            else:
+                print("❌ Failed to add date_end column.")
+                
+        # Check for date_start column explicitly - this is what your error message is about
+        if 'date_start' not in announcement_col_names:
+            print("CRITICAL: Adding missing date_start column to Announcement table...")
+            success = execute_ddl_safely(db.engine.connect(),
+                'ALTER TABLE announcement ADD COLUMN date_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')
+            if success:
+                print("✅ date_start column added successfully!")
+            else:
+                print("❌ Failed to add date_start column.")
+    
+    # Check if Tag table exists
+    if 'tag' not in tables:
+        print("Creating Tag table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('''
+                CREATE TABLE tag (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(50) NOT NULL UNIQUE,
+                    description TEXT,
+                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    color VARCHAR(20) DEFAULT '#3498db'
+                )
+            '''))
+            conn.commit()
+        print("Tag table created successfully!")
+    else:
+        print("Tag table already exists.")
+        
+        # Check for Tag table structure
+        tag_columns = [column['name'] for column in inspector.get_columns('tag')]
+        
+        if 'color' not in tag_columns:
+            print("Adding color column to Tag table...")
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE tag ADD COLUMN color VARCHAR(20) DEFAULT \'#3498db\''))
+                conn.commit()
+            print("color column added successfully!")
+        else:
+            print("color column already exists in Tag table.")
+    
+    # Check if post_tag table exists (many-to-many relationship between Post and Tag)
+    if 'post_tag' not in tables:
+        print("Creating post_tag junction table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('''
+                CREATE TABLE post_tag (
+                    post_id INTEGER REFERENCES post(id) ON DELETE CASCADE,
+                    tag_id INTEGER REFERENCES tag(id) ON DELETE CASCADE,
+                    PRIMARY KEY (post_id, tag_id)
+                )
+            '''))
+            conn.commit()
+        print("post_tag table created successfully!")
+    else:
+        print("post_tag table already exists.")
+        
+    # Check for additional User columns that may have been added
+    user_columns = [column['name'] for column in inspector.get_columns('user')]
+    
+    # Make sure User has role column
+    if 'role' not in user_columns:
+        print("Adding role column to User table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE "user" ADD COLUMN role VARCHAR(50) DEFAULT \'user\''))
+            conn.commit()
+        print("role column added successfully!")
+    else:
+        print("role column already exists in User table.")
+        
+    # Check for admin_action table
+    if 'admin_action' not in tables:
+        print("Creating AdminAction table...")
+        with db.engine.connect() as conn:
+            conn.execute(text('''
+                CREATE TABLE admin_action (
+                    id SERIAL PRIMARY KEY,
+                    admin_id INTEGER REFERENCES "user"(id),
+                    action_type VARCHAR(50) NOT NULL,
+                    target_type VARCHAR(50) NOT NULL,
+                    target_id INTEGER NOT NULL,
+                    details TEXT,
+                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            '''))
+            conn.commit()
+        print("AdminAction table created successfully!")
+    else:
+        print("AdminAction table already exists.")
+
+    # Don't create test data automatically - this can be done manually if needed
+    # More important to get the schema right first
+
+    print("\n=== DATABASE UPDATE SUMMARY ===\n")
+    print("✅ Schema update attempts completed.")
+    print("✅ Announcement table structure should now match the model definition.")
+    print("\nNext steps:")
+    print("1. Restart your Flask application")
+    print("2. Try accessing the announcements endpoints again")
+    print("3. If still getting errors, check the Flask logs for specific error messages")
+    print("\nIf you want to manually verify the database structure, run:")
+    print("\tpsql <your-connection-string>")
+    print("\t\SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = 'announcement';")
