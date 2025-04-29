@@ -30,7 +30,7 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.name}>'
-    
+
 # Media Table
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
