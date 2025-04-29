@@ -28,7 +28,11 @@ function Form({ onNewPost, user }) {
       try {
         setTagsLoading(true);
         const response = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(response.data);
+        // Sort tags alphabetically by name
+        const sortedTags = response.data.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
       } catch (error) {
         console.error("Error fetching tags:", error);
       } finally {

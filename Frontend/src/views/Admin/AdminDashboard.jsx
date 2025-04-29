@@ -29,7 +29,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [tagFormVisible, setTagFormVisible] = useState(false);
   const [currentTag, setCurrentTag] = useState(null);
   const [newTagName, setNewTagName] = useState('');
-  const [newTagOrder, setNewTagOrder] = useState(0);
+  // Removed newTagOrder state as we're now sorting alphabetically
   const [newTagImage, setNewTagImage] = useState('');
   const [imageFile, setImageFile] = useState(null);
   
@@ -151,7 +151,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         `${BASE_API_URL}/api/admin/tags`,
         {
           name: newTagName,
-          display_order: parseInt(newTagOrder) || 0,
+          // No longer using display_order since we're sorting alphabetically
           image_url: imageUrl
         },
         { withCredentials: true }
@@ -193,7 +193,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         `${BASE_API_URL}/api/admin/tags/${currentTag.id}`,
         {
           name: newTagName,
-          display_order: parseInt(newTagOrder) || 0,
+          // No longer using display_order since we're sorting alphabetically
           image_url: imageUrl
         },
         { withCredentials: true }
@@ -229,7 +229,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const handleEditTag = (tag) => {
     setCurrentTag(tag);
     setNewTagName(tag.name);
-    setNewTagOrder(tag.display_order || 0);
+    // No longer using display_order
     setNewTagImage(tag.image_url || '');
     setImageFile(null);
     setTagFormVisible(true);
@@ -253,7 +253,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const resetTagForm = () => {
     setCurrentTag(null);
     setNewTagName('');
-    setNewTagOrder(0);
+    // No longer using display_order
     setNewTagImage('');
     setImageFile(null);
     setTagFormVisible(false);
@@ -598,6 +598,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               >
                 Add New Tag
               </button>
+              <p>Tags shown below are in order of when they were created. Otherwise, tags are sorted alphabetically.</p>
               
               {tagFormVisible && (
                 <div className="tag-form-container" style={{border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px'}}>
@@ -614,20 +615,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       />
                     </div>
                     
-                    <div className="form-group" style={{marginBottom: '15px'}}>
-                      <label>Display Order:</label>
-                        <input 
-                          type="number" 
-                          value={newTagOrder || 0} 
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? '' : parseInt(e.target.value);
-                            setNewTagOrder(val === '' ? 0 : val);
-                          }}
-                          required
-                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                        />
-                    </div>
-                    
+                    {/* Removed display order field since we're now sorting alphabetically */}
                     <div className="form-group" style={{marginBottom: '15px'}}>
                       <label>Background Image:</label>
                       <input 
@@ -679,7 +667,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       {/* Content overlay */}
                       <div style={{position: 'relative', padding: '15px', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', color: 'white', display: 'flex', flexDirection: 'column'}}>
                         <h3>{tag.name}</h3>
-                        <p>Order: {tag.display_order}</p>
+                        {/* Removed display order display */}
                         
                         {/* Actions */}
                         <div style={{marginTop: 'auto', display: 'flex', gap: '10px'}}>

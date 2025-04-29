@@ -62,10 +62,13 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
         setPosts(postsResponse.data);
         setFilteredPosts(postsResponse.data);
         
-        // Fetch tags
+        // Fetch tags and sort alphabetically by name
         const tagsResponse = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(tagsResponse.data);
-        console.log('Fetched tags:', tagsResponse.data);
+        const sortedTags = tagsResponse.data.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
+        console.log('Fetched tags:', sortedTags);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message);
