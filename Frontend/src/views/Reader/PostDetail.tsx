@@ -181,7 +181,9 @@ const PostDetail: React.FC<PostDetailProps> = ({
               <>
                 <header>
                   <div className="post-meta">
-                    <Link to={`/tag/${post.tag}`} className="post-tag">#{post.tag}</Link>
+                    <Link to="/archive" className="back-button">
+                      ← Back to Archive
+                    </Link>
                     <span className="post-date">{formatDate(post.date_created)}</span>
                   </div>
                   <h1 className="post-title">{post.title}</h1>
@@ -277,11 +279,11 @@ const PostDetail: React.FC<PostDetailProps> = ({
                         <button onClick={() => denyPost(post.id)} className="deny-button">Deny Post</button>
                       </div>
                     )}
-                    <Link to="/archive" className="back-button">
-                      ← Back to Archive
-                    </Link>
+                    <Link to={`/tag/${post.tag}`} className="post-tag">#{post.tag}</Link>
                   </div>
+
                 </div>
+
               </>
             ) : (
               // EDIT MODE
