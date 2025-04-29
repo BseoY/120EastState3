@@ -1,6 +1,5 @@
 /* Simple Form Container */
 .form-container {
-  width: 80vw;
   margin: 0;
   background-color: rgb(255, 255, 255);
   display: flex;
