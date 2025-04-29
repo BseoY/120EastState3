@@ -28,7 +28,11 @@ function Form({ onNewPost, user }) {
       try {
         setTagsLoading(true);
         const response = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(response.data);
+        // Sort tags alphabetically by name
+        const sortedTags = response.data.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
       } catch (error) {
         console.error("Error fetching tags:", error);
       } finally {
@@ -41,6 +45,15 @@ function Form({ onNewPost, user }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Apply character limits
+    if (name === 'title' && value.length > 100) {
+      return; // Don't update if exceeding 100 char limit for title
+    }
+    if (name === 'content' && value.length > 1500) {
+      return; // Don't update if exceeding 1500 char limit for content
+    }
+    
     setFormData({
       ...formData,
       [name]: value,
@@ -323,7 +336,15 @@ function Form({ onNewPost, user }) {
                 onChange={handleChange}
                 required
                 placeholder="Enter post title"
+                maxLength={100}
               />
+              <div className="character-count">
+                {/* Warning near 75 characters out of 100*/}
+                <span className={formData.title.length >= 75 ? "count-warning" : ""}>
+                  {formData.title.length}
+                </span>
+                /100 characters
+              </div>
             </div>
 
             {/* Content */}
@@ -336,7 +357,15 @@ function Form({ onNewPost, user }) {
                 onChange={handleChange}
                 required
                 placeholder="Enter content"
+                maxLength={1500}
               />
+              <div className="character-count">
+                {/* Warning near 1400 characters out of 1500*/}
+                <span className={formData.content.length >= 1400 ? "count-warning" : ""}>
+                  {formData.content.length}
+                </span>
+                /1500 characters
+              </div>
             </div>
 
 
@@ -368,7 +397,7 @@ function Form({ onNewPost, user }) {
         </form>
         
         {error && <div className="form-status error">{error}</div>}
-        {success && <div className="form-status success">Your story has been sent for review!</div>}
+        {success && <div className="form-status success">Your story has been sent for review! You will recieve an email regarding the status of your submission.</div>}
       </div>
     </>
     

@@ -21,6 +21,7 @@ export default function Sidebar({ isAdmin }) {
         <a className='menu-option' href='/archive'>Archive</a>
         <a className='menu-option' href='/share'>Share Your Story</a>
         <a className='menu-option' href='/about'>About</a>
+        <a className='menu-option' href='/announcements'>Announcements</a>
         {isAdmin && <a className='menu-option' href='/admin'>Admin</a>}
       </ul>
       

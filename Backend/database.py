@@ -5,13 +5,6 @@ from enum import Enum
 
 db = SQLAlchemy()  
 
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200), nullable=False)
-
-    def __repr__(self):
-        return f'<Message {self.content}>'
-    
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -38,12 +31,6 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.name}>'
 
-class MediaType(str, Enum):
-    IMAGE = 'image'
-    VIDEO = 'video'
-    AUDIO = 'audio'
-    DOCUMENT = 'document'
-    
 # Media Table
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,19 +53,14 @@ class Announcement(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_start = db.Column(db.DateTime, nullable=False)
+    date_end = db.Column(db.DateTime, nullable=True)  # Changed to nullable to allow no expiration date
+    is_active = db.Column(db.Boolean, default=True)  # Flag to manually enable/disable announcements
 
     user = db.relationship('User', backref=db.backref('announcements', lazy=True))
 
     def __repr__(self):
         return f'<Announcement {self.title}>'
-
-class ContactMessage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    is_read = db.Column(db.Boolean, default=False)
 
 # Tag Table
 class Tag(db.Model):
@@ -91,18 +73,3 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f'<Tag {self.name}>'
-
-# Administration Actions Table
-class AdminAction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    action = db.Column(db.String(100), nullable=False)  # e.g., approved, rejected, deleted
-    date_of_action = db.Column(db.DateTime, default=datetime.utcnow)
-    feedback = db.Column(db.String(500), nullable=True)
-
-    user = db.relationship('User', backref=db.backref('admin_actions', lazy=True))
-    post = db.relationship('Post', backref=db.backref('admin_actions', lazy=True))
-
-    def __repr__(self):
-        return f'<AdminAction {self.action}>'

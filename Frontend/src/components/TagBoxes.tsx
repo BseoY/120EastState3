@@ -5,14 +5,26 @@ import axios from 'axios';
 import { BASE_API_URL } from '../utils/constants';
 
 const TagBoxes = () => {
-  const [tags, setTags] = useState<any[]>([]);
+  // Define Tag interface for proper typing
+  interface Tag {
+    id: number;
+    name: string;
+    image_url?: string;
+    display_order?: number;
+  }
+  
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const response = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(response.data);
+        // Sort tags alphabetically by name
+        const sortedTags = response.data.sort((a: Tag, b: Tag) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
       } catch (error) {
         console.error('Error fetching tags:', error);
       } finally {
@@ -26,6 +38,7 @@ const TagBoxes = () => {
   return (
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
+      <br></br>
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
         {loading ? (
           <p>Loading categories...</p>

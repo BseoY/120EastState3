@@ -449,11 +449,11 @@ button:disabled {
   color: #333;
 }
 
+/* Blue Section Divider */
 .section-divider {
-  width: 100px;
+  width: 130px;
   height: 3px;
-  background: #007bff;
-  margin: 0.5rem auto;
+  background: #1F8CB5;
 }
 
 .recent-archives-grid {

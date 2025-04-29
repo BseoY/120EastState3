@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 import axios from 'axios';
-import Nav from '../../components/Nav';
-import { BASE_API_URL } from '../../utils/constants';
+import Nav from './Nav';
+import Sidebar from './Sidebar';
+import '../styles/PostDetail.css';
+import { BASE_API_URL } from '../utils/constants';
+import { formatLocalDate, formatLocalDateTime } from '../utils/dateUtils';
 import '../../styles/PostDetail.css'; // Optional, for styling
 
 function PostDetail({ user, isAuthenticated, handleLogout }) {
@@ -123,7 +127,7 @@ function PostDetail({ user, isAuthenticated, handleLogout }) {
             <h1>{post.title}</h1>
             <p><strong>Tag:</strong> {post.tag}</p>
             <p><strong>By:</strong> {post.author}</p>
-            <p><strong>Date:</strong> {new Date(post.date_created).toLocaleDateString()}</p>
+            <p><strong>Date:</strong> {formatLocalDateTime(post.date_created)}</p>
 
             {post.image_url && (
               <img src={post.image_url} alt={post.title} className="post-detail-image" />

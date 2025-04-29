@@ -6,6 +6,7 @@ import Nav from './Nav';
 import Form from './Form';
 import ArchiveCard from '../components/ArchiveCard';
 import { BASE_API_URL } from '../utils/constants';
+import { formatLocalDate, toISODateString } from '../utils/dateUtils';
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // Local state
@@ -61,10 +62,13 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
         setPosts(postsResponse.data);
         setFilteredPosts(postsResponse.data);
         
-        // Fetch tags
+        // Fetch tags and sort alphabetically by name
         const tagsResponse = await axios.get(`${BASE_API_URL}/api/tags`);
-        setTags(tagsResponse.data);
-        console.log('Fetched tags:', tagsResponse.data);
+        const sortedTags = tagsResponse.data.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
+        console.log('Fetched tags:', sortedTags);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message);
@@ -104,7 +108,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       filtered = filtered.filter(post => {
         if (!post.date_created) return false;
         
-        const postDate = new Date(post.date_created).toISOString().split('T')[0];
+        const postDate = toISODateString(post.date_created);
         return postDate === dateFilter;
       });
     }
@@ -317,11 +321,7 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
                     <div className="item-byline">
                       <span className="contributor-name-subtle">{post.author || 'Unknown contributor'}</span>
                       <span className="item-date-subtle">
-                        {post.date_created ? new Date(post.date_created).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        }) : 'Unknown date'}
+                        {formatLocalDate(post.date_created)}
                       </span>
                     </div>
                   </div>

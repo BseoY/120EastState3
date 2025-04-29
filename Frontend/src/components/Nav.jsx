@@ -6,6 +6,8 @@ import useAuth from '../hooks/useAuth';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';  
 import defaultProfile from '../assets/Image/defaultprofile.png';
+import axios from 'axios';
+import BASE_API_URL from '../config';
 
 function Nav({ user, isAuthenticated, onLogout }) {
   const isMobile = useIsMobile();
@@ -18,8 +20,10 @@ function Nav({ user, isAuthenticated, onLogout }) {
   const [userPosts, setUserPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [dropVis, setDropVis] = useState(false);
+  const [unreadAnnouncementsCount, setUnreadAnnouncementsCount] = useState(0);
 
   // Close dropdown when clicking outside
+  // Effect to handle clicks outside the dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropVis && !event.target.closest('.user-nav-info')) {
@@ -32,6 +36,49 @@ function Nav({ user, isAuthenticated, onLogout }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropVis]);
+  
+  // Effect to check for unread announcements - user specific
+  useEffect(() => {
+    // Skip if user is not authenticated
+    if (!isAuthenticated || !user) {
+      return;
+    }
+    
+    // Function to check for new announcements
+    const checkForNewAnnouncements = async () => {
+      try {
+        // Get all announcements
+        const response = await axios.get(`${BASE_API_URL}/api/announcements`);
+        const announcements = response.data;
+        
+        // Create a user-specific key for localStorage
+        const userKey = `lastViewedAnnouncements_${user.id}`;
+        
+        // Get the last viewed timestamp from localStorage for this specific user
+        const lastViewedTimestamp = localStorage.getItem(userKey) || '0';
+        
+        // Count announcements created after the last viewed timestamp
+        const unreadCount = announcements.filter(announcement => {
+          const announcementDate = new Date(announcement.date_created).getTime();
+          return announcementDate > parseInt(lastViewedTimestamp);
+        }).length;
+        
+        setUnreadAnnouncementsCount(unreadCount);
+      } catch (error) {
+        console.error('Error checking for new announcements:', error);
+      }
+    };
+    
+    // Check for unread announcements when component mounts
+    checkForNewAnnouncements();
+    
+    // Mark announcements as read when visiting the announcements page
+    if (location.pathname === '/announcements' && user) {
+      const userKey = `lastViewedAnnouncements_${user.id}`;
+      localStorage.setItem(userKey, Date.now().toString());
+      setUnreadAnnouncementsCount(0);
+    }
+  }, [location.pathname, isAuthenticated, user]);  // Re-run when location, auth status, or user changes
 
   const fetchUserPosts = async () => {
     if (!isAuthenticated) return;
@@ -70,6 +117,12 @@ function Nav({ user, isAuthenticated, onLogout }) {
             <a href="/share" className='nav-link'>Share Your Story</a>
             <a href="/archive" className='nav-link'>Archive</a>
             <a href="/about" className='nav-link'>About</a>
+            <a href="/announcements" className='nav-link'>
+              Announcements
+              {unreadAnnouncementsCount > 0 && (
+                <span className="notification-badge">{unreadAnnouncementsCount}</span>
+              )}
+            </a>
             {isAdmin && <a href="/admin" className='nav-link'>Admin</a>}
           </div>
         )}

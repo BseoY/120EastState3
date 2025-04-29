@@ -15,6 +15,7 @@ import ShareYourStory from './views/Reader/ShareYourStory';
 import PendingPosts from './views/Admin/PendingPosts';
 import NotFound from './components/NotFound'; // 👈 create this component
 import Error from "./views/Admin/Error";
+import Announcements from './views/Reader/Announcements'; // Import the Announcements component
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
 
@@ -79,10 +80,8 @@ function HomePage({
           </div>
           <div className="mission-content">
             <p>
-              120 East Group aims to preserve and share the hidden story of a historic church
-              with nearly 300 years of history. A platform for local and global communities to
-              connect and rebuild an auditory of life in the old city of Trenton. What was life
-              like decades ago?
+              120 East State aims to preserve and share the hidden stories and nearly 300 years of rich history of the First Presbyterian Church of Trenton and the surrounding area
+              A platform for local and global communities to connect and rebuild an auditory of life in the old city of Trenton. What was life like decades ago?
             </p>
           </div>
         </div>
@@ -91,10 +90,6 @@ function HomePage({
         <section className="archive-section">
           <TagBoxes />
         </section>
-
-      {/* <section className="carousel-section">
-        <Carousel posts={posts} loading={loading} error={error} />
-      </section> */}
     </div>
   );
 }
@@ -294,6 +289,13 @@ const [posts, setPosts] = useState<PostType[]>([]);
           <ProtectedRoute isAuthenticated={isAuthenticated} authChecked={authChecked} allowedRoles={['admin']} user={user}>
             <PendingPosts user={user} isAuthenticated={isAuthenticated} handleLogout={handleLogout} />
           </ProtectedRoute>
+        } />
+        <Route path="/announcements" element={
+          <Announcements
+            user={user}
+            isAuthenticated={isAuthenticated}
+            handleLogout={handleLogout}
+          />
         } />
         <Route path="/error" element={<Error />} />
         <Route path="*" element={<NotFound />} />

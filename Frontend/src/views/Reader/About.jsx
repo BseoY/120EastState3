@@ -15,6 +15,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   
   // Maximum character limits (kept simple)
   const maxNameChars = 50;
+  const maxEmailChars = 100;
   const maxMessageChars = 500;
   
   const [statusMessage, setStatusMessage] = useState('');
@@ -31,6 +32,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   };
   
   // Character count displays
+  const emailCount = `${formData.email.length}/${maxEmailChars}`;
   const nameCount = `${formData.name.length}/${maxNameChars}`;
   const messageCount = `${formData.message.length}/${maxMessageChars}`;
 
@@ -96,6 +98,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         <div className="about-section">
           <h2>Contact Us</h2>
           <p>If you have any questions or inquiries, please contact us at:</p>
+          <br></br>
           <form id="contact-form" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -106,7 +109,12 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               required
               maxLength={maxNameChars}
             />
-            <small className="char-count">{formData.name.length}/{maxNameChars}</small>
+            <div className="character-count">
+              <span className={formData.name.length >= (maxNameChars * 0.8) ? "count-warning" : ""}>
+                {formData.name.length}
+              </span>
+              /{maxNameChars} characters
+            </div>
 
             <input
               type="email"
@@ -117,9 +125,16 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               required
               pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
               title="Please enter a valid email address"
+              maxLength={maxEmailChars}
             />
             {emailError && <p className="email-error">{emailError}</p>}
-            
+            <div className="character-count">
+              <span className={formData.email.length >= (maxEmailChars * 0.8) ? "count-warning" : ""}>
+                {formData.email.length}
+              </span>
+              /{maxEmailChars} characters
+            </div>
+
             <textarea 
               id="subject"
               name="message"
@@ -129,9 +144,12 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
               required
               maxLength={maxMessageChars}
             ></textarea>
-            <small className="char-count">
-              {messageCount}
-            </small>
+            <div className="character-count">
+              <span className={formData.message.length >= (maxMessageChars * 0.8) ? "count-warning" : ""}>
+                {formData.message.length}
+              </span>
+              /{maxMessageChars} characters
+            </div>
 
             <input
               type="submit"
