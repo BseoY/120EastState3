@@ -4,6 +4,7 @@ import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../styles/Announcements.css';
 import '../../styles/App.css';
+import { formatLocalDate } from '../../utils/dateUtils';
 
 /**
  * AnnouncementBanner component displays an individual announcement
@@ -13,10 +14,9 @@ import '../../styles/App.css';
  * @returns {JSX.Element} The announcement banner component
  */
 const AnnouncementBanner = ({ announcement }) => {
-  // Format date for display
+  // Use our utility function for consistent date formatting across the app
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return formatLocalDate(dateString);
   };
 
   return (

@@ -5,6 +5,7 @@ import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
 import ArchiveCard from '../../components/ArchiveCard';
+import { formatLocalDateTimeForInput } from '../../utils/dateUtils';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
@@ -300,9 +301,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
   
-  // Format date for datetime-local input
+  // Format date for datetime-local input with proper timezone handling
   const formatDateForInput = (date) => {
-    return date.toISOString().slice(0, 16);
+    return formatLocalDateTimeForInput(date);
   };
   
   // Fetch all announcements
