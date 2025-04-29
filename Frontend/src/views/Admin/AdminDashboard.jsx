@@ -671,7 +671,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                         
                         {/* Actions */}
                         <div style={{marginTop: 'auto', display: 'flex', gap: '10px'}}>
-                          <button onClick={() => handleEditTag(tag)} style={{flex: 1, padding: '8px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Edit</button>
+                          <button onClick={() => handleEditTag(tag)} style={{flex: 1, padding: '8px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Edit</button>
                           <button onClick={() => deleteTag(tag.id)} style={{flex: 1, padding: '8px', backgroundColor: '#cc3300', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Delete</button>
                         </div>
                       </div>

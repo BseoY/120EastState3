@@ -27,6 +27,11 @@
   text-align: left;
 }
 
+.about-section h3 {
+  color: #333;
+  text-align: left;
+}
+
 .about-section p {
   color: #666;
   line-height: 1.6;

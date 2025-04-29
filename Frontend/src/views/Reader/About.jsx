@@ -70,6 +70,8 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
           <h2>The Digital Archive</h2>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
             Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
+          <br></br>
+          <h3>Mission</h3>
           <ul>
             <li>Preserve historical documents and artifacts</li>
             <li>Make historical information accessible to everyone</li>
@@ -86,6 +88,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             empowerment giving voice, space, and welcome to its neighbors. As the steeple of this historic church has 
             stretched high above the downtown skyline signaling hope and mission, 120ES seeks to redirect the path laid 
             300 years ago and create a symbol of shared vision in the community.</p>
+          <br></br>
           <h3>120ES’s Values</h3>
           <ul>
             <li>Continuity</li>
