@@ -38,7 +38,7 @@ def jwt_required(f):
             data = jwt.decode(
                 token,
                 os.getenv("JWT_SECRET"),
-                algorithms=[os.getenv("JWT_ALGORITHM", "HS256")]
+                algorithms=[os.getenv("JWT_ALGORITHM")]
             )
             
             # Load user into request context
