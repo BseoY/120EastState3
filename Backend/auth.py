@@ -20,9 +20,6 @@ oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN')
 
-def get_frontend_origin():
-    return FRONTEND_ORIGIN
-
 # JWT
 JWT_SECRET = os.getenv('JWT_SECRET')
 JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
@@ -197,11 +194,8 @@ def callback():
                 algorithm=JWT_ALGORITHM
             )
             
-            # Get the frontend origin using the existing function
-            frontend_url = get_frontend_origin()
-            
             # Construct the full redirect URL with the token as a query parameter
-            redirect_url = f"{frontend_url}?token={token}"
+            redirect_url = f"{FRONTEND_ORIGIN}?token={token}"
             
             print(f"Redirecting to: {redirect_url}")
             return redirect(redirect_url)
