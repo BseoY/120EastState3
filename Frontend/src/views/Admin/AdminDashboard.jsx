@@ -666,7 +666,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       )}
                       
                       {/* Content overlay */}
-                      <div style={{position: 'relative', padding: '15px', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', color: 'white', display: 'flex', flexDirection: 'column'}}>
+                      <div style={{position: 'relative', padding: '15px', height: '100%', color: 'white', display: 'flex', flexDirection: 'column'}}>
                         <h3>{tag.name}</h3>
                         {/* Removed display order display */}
                         
