@@ -18,6 +18,15 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
+# Frontend origin
+FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN')
+
+# JWT
+JWT_SECRET = os.getenv('JWT_SECRET')
+JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
+JWT_EXP_DELTA_SECONDS = os.getenv('JWT_EXP_DELTA_SECONDS')
+
+
 # Shared helpers
 def jwt_required(f):
     """Decorator to protect routes with JWT authentication"""
@@ -37,8 +46,8 @@ def jwt_required(f):
             # Decode and verify the token
             data = jwt.decode(
                 token,
-                os.getenv("JWT_SECRET"),
-                algorithms=[os.getenv("JWT_ALGORITHM")]
+                JWT_SECRET,
+                algorithms=[JWT_ALGORITHM]
             )
             
             # Load user into request context
@@ -95,10 +104,7 @@ def get_or_create_user(userinfo):
 
 # Helper to determine frontend origin
 def get_frontend_origin():
-    env = os.getenv('ENV')
-    if env == 'production':
-        return 'https://one20es-frontend-ea37035e8ebf.herokuapp.com'
-    return 'http://localhost:3000'
+    return FRONTEND_ORIGIN
 
 @auth_bp.route('/api/auth/login', methods=['GET'])
 def login():
@@ -170,8 +176,8 @@ def callback():
             user = get_or_create_user(userinfo)
             
             # Create JWT token
-            exp = datetime.utcnow() + timedelta(
-                seconds=int(os.getenv('JWT_EXP_DELTA_SECONDS', 604800))  # Default 1 week
+            exp = datetime.now(datetime.UTC) + timedelta(
+                seconds=int(JWT_EXP_DELTA_SECONDS)  # One week default in .env
             )
             payload = {
                 "sub": user.google_id,
@@ -183,8 +189,8 @@ def callback():
             }
             token = jwt.encode(
                 payload,
-                os.getenv("JWT_SECRET"),
-                algorithm=os.getenv("JWT_ALGORITHM", "HS256")
+                JWT_SECRET,
+                algorithm=JWT_ALGORITHM
             )
             
             # Determine redirect target (from state parameter or session)
