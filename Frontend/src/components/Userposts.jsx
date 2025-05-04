@@ -6,6 +6,9 @@ import '../styles/UserPosts.css';
 import Nav from './Nav';
 import ArchiveCard from './ArchiveCard';
 
+// Helper function to get JWT token
+const getAuthToken = () => localStorage.getItem('authToken') || '';
+
 function UserPosts({ user, isAuthenticated, onLogout }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,10 +20,10 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
     const fetchUserPosts = async () => {
       try {
         const response = await axios.get(`${BASE_API_URL}/api/user/posts`, {
-          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
           }
         });
         setPosts(response.data);
@@ -47,7 +50,9 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
 
     try {
       await axios.delete(`${BASE_API_URL}/api/user/posts/${postId}`, {
-        withCredentials: true
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
       });
       setPosts(prev => prev.filter(post => post.id !== postId));
     } catch (err) {

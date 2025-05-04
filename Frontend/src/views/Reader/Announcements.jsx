@@ -6,6 +6,9 @@ import '../../styles/Announcements.css';
 import '../../styles/App.css';
 import { formatLocalDate } from '../../utils/dateUtils';
 
+// Helper to get the auth token for JWT authentication
+const getAuthToken = () => localStorage.getItem('authToken') || '';
+
 /**
  * AnnouncementBanner component displays an individual announcement
  * 
@@ -62,7 +65,12 @@ const Announcements = ({ user, isAuthenticated, handleLogout }) => {
     const fetchAnnouncements = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${BASE_API_URL}/api/announcements`);
+        // Add JWT token to the request header for authentication
+        const response = await axios.get(`${BASE_API_URL}/api/announcements`, {
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          }
+        });
         
         // Sort announcements by date_created in descending order (most recent first)
         const sortedAnnouncements = response.data.sort((a, b) => {

@@ -18,11 +18,10 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
+FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN')
+
 def get_frontend_origin():
-    env = os.getenv('ENV')
-    if env == 'production':
-        return 'https://one20es-frontend-ea37035e8ebf.herokuapp.com'
-    return 'http://localhost:3000'
+    return FRONTEND_ORIGIN
 
 # JWT
 JWT_SECRET = os.getenv('JWT_SECRET')
@@ -35,6 +34,9 @@ def jwt_required(f):
     """Decorator to protect routes with JWT authentication"""
     @wraps(f)
     def wrapper(*args, **kwargs):
+        # Initialize g.current_user to None by default
+        g.current_user = None
+        
         # Skip checks for OPTIONS requests (CORS preflight)
         if request.method == 'OPTIONS':
             return f(*args, **kwargs)
@@ -62,6 +64,8 @@ def jwt_required(f):
             return jsonify({"error":"Token expired"}), 401
         except jwt.InvalidTokenError:
             return jsonify({"error":"Invalid token"}), 401
+        except Exception as e:
+            return jsonify({"error":f"Authentication error: {str(e)}"}), 401
 
         return f(*args, **kwargs)
     return wrapper

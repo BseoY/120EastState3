@@ -3,6 +3,8 @@ import axios from "axios";
 import "../styles/Form.css";
 import { BASE_API_URL } from '../utils/constants';
 import { FaImage, FaVideo, FaFileAudio, FaFile, FaTimes, FaPlus } from 'react-icons/fa';
+// Import authService if it exists, otherwise create a simple function to get the token
+let getAuthToken = () => localStorage.getItem('authToken') || '';
 
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({
@@ -188,14 +190,18 @@ function Form({ onNewPost, user }) {
         }
       });
   
+      // Get the authentication token
+      const token = getAuthToken();
+      
       const response = await axios.post(
         `${BASE_API_URL}/api/posts`,
         formPayload,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': token ? `Bearer ${token}` : ''
           },
-          withCredentials: true
+          withCredentials: false // Use JWT instead of cookies
         }
       );
       

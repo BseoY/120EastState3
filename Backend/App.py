@@ -175,6 +175,7 @@ def delete_tag(tag_id):
 
 @app.route('/api/handle_message', methods=['GET', 'POST', 'OPTIONS'])
 @app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])  # Keep old route for backward compatibility
+@jwt_required
 def handle_message():
     """Handle post operations (create new posts and get all posts)
     
@@ -378,6 +379,17 @@ def get_user_posts():
         GET: JSON array of all posts created by the user
         OPTIONS: Response with appropriate CORS headers
     """
+    # Handle OPTIONS request separately (CORS preflight)
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+        
     # Current user is already verified by @jwt_required and available in g.current_user
     user = g.current_user
         
@@ -397,7 +409,6 @@ def get_user_posts():
                 'profile_pic': user.profile_pic,
                 'status': post.status,
                 'date_created': post.date_created,
-                'feedback': post.feedback
             }
             result.append(post_data)
             
@@ -808,7 +819,8 @@ def get_all_users():
     except Exception as e:
         return jsonify({'error': f'Error fetching users: {str(e)}'}), 500
 
-@app.route('/api/announcements', methods=['GET', 'POST'])
+@app.route('/api/announcements', methods=['GET', 'POST', 'OPTIONS'])
+@jwt_required
 def handle_announcements():
     """Handle announcement operations
     
@@ -820,7 +832,17 @@ def handle_announcements():
         GET: JSON array of all active announcements
         POST: JSON with new announcement details
     """
-    if request.method == 'GET':
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+        
+    elif request.method == 'GET':
         # Get current datetime for filtering expired announcements
         current_time = datetime.utcnow()
         
@@ -850,8 +872,8 @@ def handle_announcements():
         return jsonify(result)
     
     elif request.method == 'POST':
-        # Check if user is admin
-        current_user = get_current_user()
+        # Check if user is admin - g.current_user is set by the @jwt_required decorator
+        current_user = g.current_user
         if not current_user or current_user.role != 'admin':
             return jsonify({'error': 'Unauthorized'}), 403
         

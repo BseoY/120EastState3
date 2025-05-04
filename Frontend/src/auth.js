@@ -6,11 +6,12 @@ import BASE_API_URL from './config';
 
 // Configure axios defaults
 axios.defaults.baseURL = BASE_API_URL;
+console.log('Auth service initialized with baseURL:', BASE_API_URL);
 
 // Add a request interceptor to attach the JWT token to all requests
 axios.interceptors.request.use(config => {
-  // For all requests, ensure we have the proper CORS settings
-  config.withCredentials = true;
+  // For JWT auth, we don't need withCredentials
+  config.withCredentials = false;
   
   // For all requests, add the Authorization header if we have a token
   const token = localStorage.getItem('authToken');
@@ -55,6 +56,7 @@ const authService = {
     const token = params.get('token');
     
     if (token) {
+      console.log('Token found in URL, saving to localStorage');
       // Save token to localStorage
       localStorage.setItem('authToken', token);
       
@@ -62,7 +64,10 @@ const authService = {
       window.history.replaceState({}, document.title, window.location.pathname);
       return true;
     }
-    return false;
+    
+    // Check if we already have a token stored
+    const existingToken = localStorage.getItem('authToken');
+    return !!existingToken;
   },
 
   /**

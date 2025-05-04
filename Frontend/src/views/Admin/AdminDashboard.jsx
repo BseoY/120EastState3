@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
+// Get token from localStorage for JWT authentication
+const getAuthToken = () => localStorage.getItem('authToken') || '';
 import '../../../src/styles/Admin.css';
 import ArchiveCard from '../../components/ArchiveCard';
 import defaultPic from '../../assets/Image/120es_blue.jpg';
@@ -46,7 +48,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
   const fetchPendingPosts = async () => {
     try {
-      const res = await axios.get(`${BASE_API_URL}/api/admin/pending-posts`, { withCredentials: true });
+      const res = await axios.get(`${BASE_API_URL}/api/admin/pending-posts`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
       setPendingPosts(res.data);
 
     } catch (err) {
@@ -58,7 +64,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   
   const fetchDeniedPosts = async () => {
     try {
-      const res = await axios.get(`${BASE_API_URL}/api/admin/denied-posts`, { withCredentials: true });
+      const res = await axios.get(`${BASE_API_URL}/api/admin/denied-posts`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
       setDeniedPosts(res.data);
     } catch (err) {
       console.error('Error reapproving posts:', err);
@@ -70,7 +80,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       await axios.post(
         `${BASE_API_URL}/api/admin/posts/${postId}/approve`,
         {},
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
 
       setDeniedPosts((prev) => prev.filter((post) => post.id !== postId));
@@ -85,7 +99,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       await axios.post(
         endpoint, 
         { feedback }, 
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
 
       setPendingPosts((prev) => prev.filter((post) => post.id !== postId));
@@ -120,7 +138,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Fetch all tags
   const fetchTags = async () => {
     try {
-      const res = await axios.get(`${BASE_API_URL}/api/tags`, { withCredentials: true });
+      const res = await axios.get(`${BASE_API_URL}/api/tags`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
       setTags(res.data);
     } catch (err) {
       console.error('Error fetching tags:', err);
@@ -140,7 +162,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         const uploadRes = await axios.post(
           `${BASE_API_URL}/api/upload`,
           formData,
-          { withCredentials: true }
+          {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
         );
         
         // Get image URL from response
@@ -155,7 +181,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           // No longer using display_order since we're sorting alphabetically
           image_url: imageUrl
         },
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       // Update UI
@@ -182,7 +212,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         const uploadRes = await axios.post(
           `${BASE_API_URL}/api/upload`,
           formData,
-          { withCredentials: true }
+          {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
         );
         
         // Get image URL from response
@@ -194,10 +228,13 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         `${BASE_API_URL}/api/admin/tags/${currentTag.id}`,
         {
           name: newTagName,
-          // No longer using display_order since we're sorting alphabetically
           image_url: imageUrl
         },
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       // Update UI
@@ -216,7 +253,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     try {
       await axios.delete(
         `${BASE_API_URL}/api/admin/tags/${tagId}`,
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       // Remove tag from state
@@ -279,7 +320,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Fetch approved posts
   const fetchApprovedPosts = async () => {
     try {
-      const res = await axios.get(`${BASE_API_URL}/api/posts`, { withCredentials: true });
+      const res = await axios.get(`${BASE_API_URL}/api/posts`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
       // Filter only approved posts
       const approved = res.data.filter(post => post.status === 'approved');
       setApprovedPosts(approved);
@@ -291,7 +336,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${BASE_API_URL}/api/admin/users`, { withCredentials: true });
+      const res = await axios.get(`${BASE_API_URL}/api/admin/users`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
       setUsers(res.data);
       
       // Filter administrators (users with role='admin')
@@ -313,11 +362,19 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       // First try to get all announcements from admin endpoint
       // If that fails (possibly due to missing backend implementation), fall back to regular endpoint
       try {
-        const res = await axios.get(`${BASE_API_URL}/api/admin/announcements`, { withCredentials: true });
+        const res = await axios.get(`${BASE_API_URL}/api/admin/announcements`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
         setAnnouncements(res.data);
       } catch (adminErr) {
         console.warn('Admin announcements endpoint failed, trying public endpoint:', adminErr);
-        const res = await axios.get(`${BASE_API_URL}/api/announcements`, { withCredentials: true });
+        const res = await axios.get(`${BASE_API_URL}/api/announcements`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
         setAnnouncements(res.data);
       }
     } catch (err) {
@@ -349,7 +406,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       const res = await axios.post(
         `${BASE_API_URL}/api/announcements`,
         formData,
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       console.log('Announcement created successfully:', res.data);
@@ -395,7 +456,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       const res = await axios.put(
         `${BASE_API_URL}/api/announcements/${currentAnnouncement.id}`,
         formData,
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       console.log('Announcement updated successfully:', res.data);
@@ -428,7 +493,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     try {
       await axios.delete(
         `${BASE_API_URL}/api/announcements/${announcementId}`,
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       // Remove announcement from state
@@ -447,7 +516,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       await axios.put(
         `${BASE_API_URL}/api/announcements/${announcement.id}`,
         { is_active: newStatus },
-        { withCredentials: true }
+        {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
       );
       
       // Update announcement in state
