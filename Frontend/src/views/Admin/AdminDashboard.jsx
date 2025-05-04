@@ -5,6 +5,7 @@ import BASE_API_URL from '../../config';
 import Nav from '../../components/Nav';
 import '../../../src/styles/Admin.css';
 import ArchiveCard from '../../components/ArchiveCard';
+import defaultPic from '../../assets/Image/120es_blue.jpg';
 import { formatLocalDateTimeForInput } from '../../utils/dateUtils';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
@@ -130,7 +131,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const createTag = async () => {
     try {
       // First upload image if there is one
-      let imageUrl = '';
+      let imageUrl = defaultPic; // Set default image URL
       if (imageFile) {
         const formData = new FormData();
         formData.append('file', imageFile);
@@ -143,7 +144,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         );
         
         // Get image URL from response
-        imageUrl = uploadRes.data.image_url || '';
+        imageUrl = uploadRes.data.image_url || defaultPic;
       }
 
       // Create tag in database
@@ -172,7 +173,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     
     try {
       // Handle image upload if needed
-      let imageUrl = newTagImage;
+      let imageUrl = newTagImage || defaultPic; // Use existing image or default
       if (imageFile) {
         const formData = new FormData();
         formData.append('file', imageFile);
@@ -657,11 +658,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 <div className='tag-container' style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
                   {tags.map((tag) => (
                     <div key={tag.id} className='tag-item' style={{width: '250px', height: '250px', position: 'relative', margin: '0 auto 20px auto', borderRadius: '8px', overflow: 'hidden'}}>
-                      {/* Background image or fallback */}
+                      {/* Background image or defaultPic fallback */}
                       {tag.image_url ? (
                         <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${tag.image_url})`, backgroundSize: 'cover', filter: 'grayscale(100%)'}}></div>
                       ) : (
-                        <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#f0f0f0'}}></div>
+                        <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${defaultPic})`, backgroundSize: 'cover', filter: 'grayscale(100%)'}}></div>
                       )}
                       
                       {/* Content overlay */}
