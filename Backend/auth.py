@@ -2,7 +2,7 @@ import os
 import json
 import requests
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from oauthlib.oauth2 import WebApplicationClient
 from flask import Blueprint, session, redirect, request, url_for, jsonify, g
 from database import User, db
@@ -176,7 +176,8 @@ def callback():
             user = get_or_create_user(userinfo)
             
             # Create JWT token
-            exp = datetime.now(datetime.UTC) + timedelta(
+            # Using utcnow for backward compatibility, but adding timezone info
+            exp = datetime.utcnow() + timedelta(
                 seconds=int(JWT_EXP_DELTA_SECONDS)  # One week default in .env
             )
             payload = {
