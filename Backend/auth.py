@@ -18,8 +18,11 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-# Frontend origin
-FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN')
+def get_frontend_origin():
+    env = os.getenv('ENV')
+    if env == 'production':
+        return 'https://one20es-frontend-ea37035e8ebf.herokuapp.com'
+    return 'http://localhost:3000'
 
 # JWT
 JWT_SECRET = os.getenv('JWT_SECRET')
@@ -101,10 +104,6 @@ def get_or_create_user(userinfo):
         db.session.commit()
         
     return user
-
-# Helper to determine frontend origin
-def get_frontend_origin():
-    return FRONTEND_ORIGIN
 
 @auth_bp.route('/api/auth/login', methods=['GET'])
 def login():
@@ -194,19 +193,14 @@ def callback():
                 algorithm=JWT_ALGORITHM
             )
             
-            # Determine redirect target (from state parameter or session)
-            return_to = request.args.get('state') or session.pop('return_to', None)
-            frontend = get_frontend_origin()
-            target = frontend
+            # Get the frontend origin using the existing function
+            frontend_url = get_frontend_origin()
             
-            if return_to:
-                # Ensure return_to has a leading slash
-                if not return_to.startswith('/'):
-                    return_to = '/' + return_to
-                target = f"{frontend}{return_to}"
-                
-            # Redirect to frontend with the JWT token
-            return redirect(f"{target}?token={token}")
+            # Construct the full redirect URL with the token as a query parameter
+            redirect_url = f"{frontend_url}?token={token}"
+            
+            print(f"Redirecting to: {redirect_url}")
+            return redirect(redirect_url)
         else:
             return jsonify({'error': 'User email not verified by Google'}), 400
             
