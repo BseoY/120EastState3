@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import axios from "axios";
 import "./styles/App.css";
 import Nav from "./components/Nav";
+import authService from './auth';
 import UserPosts from './components/Userposts';
 import TagBoxes from './components/TagBoxes';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,7 +22,7 @@ const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v17444922
 
 // Change this import (note the exact filename case)
 
-const BASE_API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
+import BASE_API_URL from './config';
 
 // Standalone video element removed - using the one in HomePage component
 
@@ -107,27 +108,37 @@ const [posts, setPosts] = useState<PostType[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
 
-  // Check authentication status
+  // Initialize auth (check for token in URL)
   useEffect(() => {
+    // Initialize the auth service and check for token in URL
+    const tokenReceived = authService.initAuth();
+    if (tokenReceived) {
+      console.log('Token received from URL and stored');
+    }
+    
+    // Check authentication status
     const checkAuth = async () => {
       try {
         console.log('Checking authentication status...');
-        const response = await axios.get(`${BASE_API_URL}/api/auth/user`, {
-          withCredentials: true
-        });
-        
-        console.log('Auth response:', response.data);
-        if (response.data.authenticated) {
-          console.log('User is authenticated:', response.data.user);
-          setUser(response.data.user);
-          setIsAuthenticated(true);
+        if (authService.isAuthenticated()) {
+          // Get user data with the token
+          const userData = await authService.getCurrentUser();
+          if (userData && userData.authenticated) {
+            console.log('User is authenticated:', userData.user);
+            setUser(userData.user);
+            setIsAuthenticated(true);
+          } else {
+            console.log('Token invalid or expired');
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         } else {
-          console.log('User is not authenticated');
+          console.log('No auth token found');
           setUser(null);
           setIsAuthenticated(false);
         }
       } catch (error: any) {
-        console.error("Error checking authentication:", error);
+        console.error('Error checking authentication:', error);
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -136,42 +147,13 @@ const [posts, setPosts] = useState<PostType[]>([]);
     };
 
     checkAuth();
-    
-    // Add event listener for OAuth redirect completion
-    const handleAuthRedirect = () => {
-      // If we detect this might be a redirect from OAuth (URL contains code/token params)
-      if (window.location.search.includes('code=') || 
-          window.location.search.includes('token=') ||
-          window.location.pathname.includes('callback')) {
-        console.log('Detected possible auth redirect, rechecking authentication');
-        checkAuth();
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    };
-    
-    // Check immediately in case we're on a redirect
-    handleAuthRedirect();
-    
-    // Add listener for URL changes (e.g. history navigation)
-    window.addEventListener('popstate', handleAuthRedirect);
-    
-    return () => {
-      window.removeEventListener('popstate', handleAuthRedirect);
-    };
-  }, []);
+  }, []); 
 
   // Fetch posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${BASE_API_URL}/api/posts`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true
-        });
-
+        const response = await axios.get(`${BASE_API_URL}/api/handle_message`);
         setPosts(response.data);
       } catch (error: any) {
         console.error("Error fetching posts:", error);
@@ -189,21 +171,16 @@ const [posts, setPosts] = useState<PostType[]>([]);
   };
 
   const handleLoginSuccess = (userData: any) => {
+    // With JWT authentication, this will be called after the token is received
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${BASE_API_URL}/api/auth/logout`, {}, {
-        withCredentials: true
-      });
-
-      setUser(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+  const handleLogout = () => {
+    // With JWT authentication, we just need to remove the token
+    authService.logout();
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   return (

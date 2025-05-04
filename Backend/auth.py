@@ -1,8 +1,10 @@
 import os
 import json
 import requests
+import jwt
+from datetime import datetime, timedelta
 from oauthlib.oauth2 import WebApplicationClient
-from flask import Blueprint, session, redirect, request, url_for, jsonify
+from flask import Blueprint, session, redirect, request, url_for, jsonify, g
 from database import User, db
 from functools import wraps
 
@@ -15,6 +17,81 @@ GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configura
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+# Shared helpers
+def jwt_required(f):
+    """Decorator to protect routes with JWT authentication"""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        # Skip checks for OPTIONS requests (CORS preflight)
+        if request.method == 'OPTIONS':
+            return f(*args, **kwargs)
+            
+        # Check for Authorization header
+        auth = request.headers.get("Authorization", None)
+        if not auth or not auth.startswith("Bearer "):
+            return jsonify({"error":"Missing token"}), 401
+
+        token = auth.split()[1]
+        try:
+            # Decode and verify the token
+            data = jwt.decode(
+                token,
+                os.getenv("JWT_SECRET"),
+                algorithms=[os.getenv("JWT_ALGORITHM", "HS256")]
+            )
+            
+            # Load user into request context
+            g.current_user = User.query.filter_by(google_id=data["sub"]).first()
+            if not g.current_user:
+                return jsonify({"error":"Unknown user"}), 401
+                
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error":"Token expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error":"Invalid token"}), 401
+
+        return f(*args, **kwargs)
+    return wrapper
+
+def require_roles(*roles):
+    """Decorator to check if the authenticated user has the required role"""
+    def decorator(f):
+        @wraps(f)
+        @jwt_required  # First verify JWT is valid
+        def wrapper(*args, **kwargs):
+            # g.current_user is set by jwt_required
+            if g.current_user.role not in roles:
+                return jsonify({'error': 'Unauthorized'}), 403
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def get_or_create_user(userinfo):
+    """Find or create a user from Google userinfo"""
+    user = User.query.filter_by(google_id=userinfo['sub']).first()
+    
+    # Assign admin role if appropriate
+    admin_domains = ['@princeton.edu', '@120eaststate.org']
+    is_admin = any(userinfo['email'].endswith(d) for d in admin_domains)
+    
+    if not user:
+        # Create new user
+        user = User(
+            google_id=userinfo['sub'],
+            email=userinfo['email'],
+            name=userinfo['name'],
+            profile_pic=userinfo.get('picture'),
+            role='admin' if is_admin else 'user'
+        )
+        db.session.add(user)
+        db.session.commit()
+    elif is_admin and user.role != 'admin':
+        # Update existing user to admin if needed
+        user.role = 'admin'
+        db.session.commit()
+        
+    return user
 
 # Helper to determine frontend origin
 def get_frontend_origin():
@@ -87,10 +164,28 @@ def callback():
         userinfo_resp = requests.get(uri, headers=headers, data=body, timeout=5)
         userinfo = userinfo_resp.json()
 
-        # Verify email and create session
+        # Verify email and create JWT token
         if userinfo.get('email_verified'):
-            # Store user info in session
-            session['user_info'] = userinfo
+            # Find or create the user
+            user = get_or_create_user(userinfo)
+            
+            # Create JWT token
+            exp = datetime.utcnow() + timedelta(
+                seconds=int(os.getenv('JWT_EXP_DELTA_SECONDS', 604800))  # Default 1 week
+            )
+            payload = {
+                "sub": user.google_id,
+                "email": user.email,
+                "name": user.name,
+                "role": user.role,
+                "profile_pic": user.profile_pic,
+                "exp": exp.timestamp()
+            }
+            token = jwt.encode(
+                payload,
+                os.getenv("JWT_SECRET"),
+                algorithm=os.getenv("JWT_ALGORITHM", "HS256")
+            )
             
             # Determine redirect target (from state parameter or session)
             return_to = request.args.get('state') or session.pop('return_to', None)
@@ -103,8 +198,8 @@ def callback():
                     return_to = '/' + return_to
                 target = f"{frontend}{return_to}"
                 
-            # Redirect to frontend with successful login
-            return redirect(target)
+            # Redirect to frontend with the JWT token
+            return redirect(f"{target}?token={token}")
         else:
             return jsonify({'error': 'User email not verified by Google'}), 400
             
@@ -114,54 +209,20 @@ def callback():
 
 @auth_bp.route('/api/auth/logout', methods=['POST'])
 def logout():
-    session.pop('user_info', None)
+    # For JWT, logout is handled client-side by removing the token
+    # Nothing to do server-side
     return jsonify({'success': True, 'message': 'Logged out'})
 
 @auth_bp.route('/api/auth/user', methods=['GET'])
+@jwt_required
 def get_user():
-    user = get_current_user()
-    if user:
-        return jsonify({'authenticated': True, 'user': {
-            'id': user.id,
-            'name': user.name,
-            'email': user.email,
-            'profile_pic': user.profile_pic,
-            'role': user.role
-        }})
-    return jsonify({'authenticated': False})
+    user = g.current_user
+    return jsonify({'authenticated': True, 'user': {
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'profile_pic': user.profile_pic,
+        'role': user.role
+    }})
 
-# Shared helpers
-def get_current_user():
-    if 'user_info' not in session:
-        return None
-    info = session['user_info']
-    user = User.query.filter_by(google_id=info['sub']).first()
-    # Assign admin role
-    admin_domains = ['@princeton.edu', '@120eaststate.org']
-    if user and any(user.email.endswith(d) for d in admin_domains):
-        user.role = 'admin'
-    if not user:
-        user = User(
-            google_id=info['sub'],
-            email=info['email'],
-            name=info['name'],
-            profile_pic=info.get('picture')
-        )
-        db.session.add(user)
-        db.session.commit()
-    return user
 
-def require_roles(*roles):
-    def decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            if request.method == 'OPTIONS':
-                return f(*args, **kwargs)
-            user = get_current_user()
-            if not user:
-                return jsonify({'error': 'Authentication required'}), 401
-            if user.role not in roles:
-                return jsonify({'error': 'Unauthorized'}), 403
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator

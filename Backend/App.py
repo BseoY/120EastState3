@@ -1,17 +1,18 @@
 # Standard library imports
 import os
+import jwt
 from datetime import datetime, timedelta
 
 # Third-party imports
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
-from flask import Flask, jsonify, request, session, redirect, url_for
+from flask import Flask, jsonify, request, redirect, url_for, g
 from flask_cors import CORS
 from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
-from auth import auth_bp, get_current_user, require_roles
+from auth import auth_bp, jwt_required, require_roles
 
 # Load environment variables
 load_dotenv()
@@ -52,23 +53,8 @@ def after_request(response):
 
 
     
-# Session configuration
+# JWT secret configuration - used by auth.py
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-site cookies
-app.config['SESSION_COOKIE_SECURE'] = True      # Require HTTPS
-app.config['SESSION_COOKIE_HTTPONLY'] = True    # Not accessible via JavaScript
-
-# For local development, ensure cookies work cross-domain
-if os.getenv("ENV") != "production":
-    # Allow cookies to be set on localhost regardless of port
-    app.config['SESSION_COOKIE_DOMAIN'] = "localhost"
-    app.config['SESSION_COOKIE_PATH'] = '/'      # Available on all paths
-else:
-    # In production, allows cookies to be shared across Heroku domains
-    app.config['SESSION_COOKIE_DOMAIN'] = None   # Let the browser set the domain
-    app.config['SESSION_COOKIE_PATH'] = '/'      # Available on all paths
 
 # Cloudinary configuration
 configure_cloudinary()
@@ -136,7 +122,7 @@ def get_posts_by_tag(tag):
     except Exception as e:
         return jsonify({'error': f'Error fetching posts by tag: {str(e)}'}), 500
     
-# Authentication Helper Functions are now imported from auth.py
+# Authentication using JWT is now imported from auth.py
 
 # Auth routes are now handled by the auth blueprint
 @app.errorhandler(404)
@@ -187,7 +173,8 @@ def delete_tag(tag_id):
 
 
 
-@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/handle_message', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])  # Keep old route for backward compatibility
 def handle_message():
     """Handle post operations (create new posts and get all posts)
     
@@ -202,7 +189,14 @@ def handle_message():
         OPTIONS: Empty response for CORS preflight
     """
     if request.method == 'OPTIONS':
-        return '', 204  # Preflight response
+        response = jsonify({'message': 'Preflight OK'})
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
     
     elif request.method == 'GET':
         # Retrieve all approved posts from the database
@@ -244,7 +238,7 @@ def handle_message():
     
     elif request.method == 'POST':
         # Create a new post
-        user = get_current_user()
+        user = g.current_user
         if not user:
             return jsonify({'error': 'Authentication required'}), 401
 
@@ -372,6 +366,7 @@ def handle_message():
             return jsonify({'error': f'Error creating post: {str(e)}'}), 500
 
 @app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
+@jwt_required
 def get_user_posts():
     """Get all posts created by the current authenticated user
     
@@ -383,38 +378,38 @@ def get_user_posts():
         GET: JSON array of all posts created by the user
         OPTIONS: Response with appropriate CORS headers
     """
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
-        return response, 200
-    
-    user = get_current_user()
-    if not user:
-        return jsonify({'error': 'Authentication required'}), 401
-    
+    # Current user is already verified by @jwt_required and available in g.current_user
+    user = g.current_user
+        
     try:
-        user_posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_created.desc()).all()
-        return jsonify([{
-            'id': post.id,
-            'title': post.title,
-            'content': post.content,
-            'tag': post.tag,
-            'date_created': post.date_created.isoformat() if post.date_created else None,
-            'status': post.status,
-            'media': [{
-                'id': media.id,
-                'url': media.url,
-                'media_type': media.media_type,
-                'public_id': media.public_id,
-                'filename': media.filename,
-                'caption': media.caption
-            } for media in Media.query.filter_by(post_id=post.id).all()]
-        } for post in user_posts])
+        # Get the user's posts, sorted by most recent first
+        posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_created.desc()).all()
+        
+        # Format the posts for response
+        result = []
+        for post in posts:
+            post_data = {
+                'id': post.id,
+                'title': post.title,
+                'content': post.content,
+                'tag': post.tag,
+                'user_name': user.name,
+                'profile_pic': user.profile_pic,
+                'status': post.status,
+                'date_created': post.date_created,
+                'feedback': post.feedback
+            }
+            result.append(post_data)
+            
+        return jsonify(result)
     except Exception as e:
-        return jsonify({'error': f'Error retrieving user posts: {str(e)}'}), 500
-    
+        return jsonify({
+            'error': str(e),
+            'message': 'An error occurred while fetching your posts'
+        }), 500
+
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
+@jwt_required
 def upload_file():
     """Upload a file (image or video) to Cloudinary
     
@@ -430,10 +425,8 @@ def upload_file():
     if request.method == 'OPTIONS':
         return '', 204  # Empty response with 204 (No Content) status
         
-    # Check if user is authenticated
-    user = get_current_user()
-    if not user:
-        return jsonify({'error': 'Authentication required'}), 401
+    # Current user is already verified by @jwt_required and available in g.current_user
+    user = g.current_user
         
     # Validate file in request
     if 'file' not in request.files:
@@ -646,6 +639,7 @@ def delete_post_admin(post_id):
         return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
         
 @app.route('/api/user/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
+@jwt_required
 def delete_user_post(post_id):
     if request.method == 'OPTIONS':
         response = jsonify({'message': 'Preflight OK'})
@@ -653,7 +647,7 @@ def delete_user_post(post_id):
         response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
         return response, 200
 
-    user = get_current_user()
+    user = g.current_user
     if not user:
         return jsonify({'error': 'Authentication required'}), 401
 
@@ -670,10 +664,11 @@ def delete_user_post(post_id):
         return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
+@jwt_required
 def get_post_by_id(post_id):
     try:
         # If admin, allow access to all statuses
-        user = get_current_user()
+        user = g.current_user
         if user and user.role == 'admin':
             post = Post.query.filter_by(id=post_id).first()
         else:
@@ -751,6 +746,7 @@ def update_post_status(post_id, new_status, feedback=None):
 
 
 @app.route('/api/about/contact', methods=['POST'])
+@jwt_required
 def send_message():
     try:
         data = request.json
