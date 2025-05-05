@@ -1,7 +1,7 @@
 # Standard library imports
 import os
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Third-party imports
 from dotenv import load_dotenv
@@ -20,6 +20,10 @@ load_dotenv()
 # Initialize app
 app = Flask(__name__)
 
+app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
+app.config['JWT_SECRET'] = app.secret_key
+
+
 # CORS setup to support both local and deployed frontend
 allowed_origins = [
     "http://localhost:3000",
@@ -31,12 +35,26 @@ allowed_origins = [
 CORS(app, resources={
     r"/api/*": {
         "origins": allowed_origins,
-        "supports_credentials": True,
-        "allow_headers": ["Content-Type", "Authorization"],
-        "expose_headers": ["Content-Type", "Authorization"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        "supports_credentials": True
     }
 })
+
+# Cloudinary configuration
+configure_cloudinary()
+
+# Database configuration
+database_url = os.getenv('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+
 
 # Using frontend origin function from auth.py
 
@@ -52,39 +70,7 @@ def after_request(response):
     return response
 
 
-    
-# JWT secret configuration - used by auth.py
-app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
-
-# Cloudinary configuration
-configure_cloudinary()
-
 # OAuth configuration is now handled by auth.py
-
-# Database configuration
-# Handle Heroku PostgreSQL URL format
-database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize database
-db.init_app(app)
-
-# Register blueprints
-app.register_blueprint(auth_bp)
-
-# with app.app_context():
-    # try:
-        # In development, drop and recreate tables to pick up schema changes
-        # if os.getenv("ENV") != "production":
-        #     db.drop_all()
-        # db.create_all()
-    # except Exception as e:
-    #     print(f"Error creating tables: {e}")
-    #     # Continue execution even if table creation fails
 
 # API Routes
 
