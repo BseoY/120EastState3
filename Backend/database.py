@@ -1,10 +1,16 @@
-#Defines database schema and maps python classes to database tables using sqlalchemy
+#!/usr/bin/env python
+
+#-----------------------------------------------------------------------
+# database.py
+# Author: Andrew Cho, Brian Seo, Henry Li
+#   
+#-----------------------------------------------------------------------
+
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from enum import Enum
-
 db = SQLAlchemy()  
 
+# Post Table
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -18,14 +24,14 @@ class Post(db.Model):
     def __repr__(self):
         return f'<Post {self.title}>'
     
-# User Table    
+# User Table   
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     google_id = db.Column(db.String(120), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
     profile_pic = db.Column(db.String(500), nullable=True)  # URL to Google profile picture
-    role = db.Column(db.String(50), default='user')  # e.g., user, writer, admin
+    role = db.Column(db.String(50), default='user')  # user or admin
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):

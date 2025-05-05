@@ -1,30 +1,46 @@
+#!/usr/bin/env python
+
+#-----------------------------------------------------------------------
+# auth.py
+# Author: Andrew Cho, Brian Seo, Henry Li
+#   With lots of help from 
+# https://jwt.io/introduction#:~:text=JSON%20Web%20Token%20(JWT)%20is,because%20it%20is%20digitally%20signed.
+#-----------------------------------------------------------------------
+
 import os
 import json
 import requests
 import jwt
-from datetime import datetime, timedelta, timezone
-from oauthlib.oauth2 import WebApplicationClient
+import oauthlib.oauth2
 from flask import Blueprint, session, redirect, request, url_for, jsonify, g
+from datetime import datetime, timedelta
 from database import User, db
 from functools import wraps
+from dotenv import load_dotenv
+
+#-----------------------------------------------------------------------
+
+load_dotenv()
 
 # Blueprint for auth routes
 auth_bp = Blueprint('auth', __name__)
 
-# OAuth configuration (development only)
+# OAuth configuration (development only) to let access nonhttps. without it, it will throw an error
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-oauth_client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN')
+GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
+GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
+client = oauthlib.oauth2.WebApplicationClient(GOOGLE_CLIENT_ID)
+
+FRONTEND_ORIGIN = os.environ['FRONTEND_ORIGIN']
 
 # JWT
-JWT_SECRET = os.getenv('JWT_SECRET')
-JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
-JWT_EXP_DELTA_SECONDS = os.getenv('JWT_EXP_DELTA_SECONDS')
+JWT_SECRET = os.environ['JWT_SECRET']
+JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
+JWT_EXP_DELTA_SECONDS = os.environ['JWT_EXP_DELTA_SECONDS']
 
+#-----------------------------------------------------------------------
 
 # Shared helpers
 def jwt_required(f):
@@ -67,6 +83,8 @@ def jwt_required(f):
         return f(*args, **kwargs)
     return wrapper
 
+#-----------------------------------------------------------------------
+
 def require_roles(*roles):
     """Decorator to check if the authenticated user has the required role"""
     def decorator(f):
@@ -79,6 +97,8 @@ def require_roles(*roles):
             return f(*args, **kwargs)
         return wrapper
     return decorator
+
+#-----------------------------------------------------------------------
 
 def get_or_create_user(userinfo):
     """Find or create a user from Google userinfo"""
@@ -106,6 +126,8 @@ def get_or_create_user(userinfo):
         
     return user
 
+#-----------------------------------------------------------------------
+
 @auth_bp.route('/api/auth/login', methods=['GET'])
 def login():
     try:
@@ -115,11 +137,11 @@ def login():
             session['return_to'] = return_to
 
         # Get Google's OAuth configuration
-        google_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-        authorization_endpoint = google_cfg['authorization_endpoint']
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=2).json()
+        authorization_endpoint = google_provider_cfg['authorization_endpoint']
 
         # Build the redirect URI with proper callback URL
-        request_uri = oauth_client.prepare_request_uri(
+        request_uri = client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=url_for('auth.callback', _external=True),
             scope=['openid', 'email', 'profile'],
@@ -137,20 +159,23 @@ def login():
             'redirect_url': None
         }), 500
 
+#-----------------------------------------------------------------------
+
 @auth_bp.route('/api/auth/login/callback', methods=['GET'])
 def callback():
     try:
         # Get authorization code from Google's response
         code = request.args.get('code')
+        
         if not code:
             return jsonify({'error': 'Authorization code not provided'}), 400
 
         # Get token endpoint from Google's discovery document
-        google_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-        token_endpoint = google_cfg['token_endpoint']
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
+        token_endpoint = google_provider_cfg['token_endpoint']
         
         # Prepare and send token request
-        token_url, headers, body = oauth_client.prepare_token_request(
+        token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url,
             redirect_url=request.base_url,
@@ -162,11 +187,11 @@ def callback():
         )
         
         # Parse token response
-        oauth_client.parse_request_body_response(json.dumps(token_resp.json()))
+        client.parse_request_body_response(json.dumps(token_resp.json()))
 
         # Get user info using the token
-        userinfo_endpoint = google_cfg['userinfo_endpoint']
-        uri, headers, body = oauth_client.add_token(userinfo_endpoint)
+        userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
+        uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_resp = requests.get(uri, headers=headers, data=body, timeout=5)
         userinfo = userinfo_resp.json()
 
@@ -206,11 +231,15 @@ def callback():
         print(f"Callback error: {str(e)}")
         return jsonify({'error': f'Authentication error: {str(e)}'}), 500
 
+#-----------------------------------------------------------------------
+
 @auth_bp.route('/api/auth/logout', methods=['POST'])
 def logout():
-    # For JWT, logout is handled client-side by removing the token
+    # For JWT, logout is handled client-side by removing the token. simply returns a success message.
     # Nothing to do server-side
     return jsonify({'success': True, 'message': 'Logged out'})
+
+#-----------------------------------------------------------------------
 
 @auth_bp.route('/api/auth/user', methods=['GET'])
 @jwt_required

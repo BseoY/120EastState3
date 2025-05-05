@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+#-----------------------------------------------------------------------
+# email_functions.py
+# Author: Andrew Cho, Brian Seo, Henry Li
+#   
+#-----------------------------------------------------------------------
+
 import os
 import smtplib
 from email.message import EmailMessage

@@ -173,19 +173,67 @@ def delete_tag(tag_id):
 
 
 
-@app.route('/api/handle_message', methods=['GET', 'POST', 'OPTIONS'])
-@app.route('/api/posts', methods=['GET', 'POST', 'OPTIONS'])  # Keep old route for backward compatibility
-@jwt_required
-def handle_message():
-    """Handle post operations (create new posts and get all posts)
+# Public route for getting posts - no authentication required
+@app.route('/api/posts', methods=['GET', 'OPTIONS'])
+@app.route('/api/handle_message', methods=['GET', 'OPTIONS'])
+def get_public_posts():
+    """Get all approved posts - public route, no authentication required
     
     Methods:
         GET: Retrieve all approved posts
-        POST: Create a new post with optional media attachments (up to 5 files)
         OPTIONS: Handle preflight CORS requests
         
     Returns:
         GET: JSON array of all approved posts
+        OPTIONS: Empty response for CORS preflight
+    """
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+    
+    # Handle GET request - return all approved posts
+    try:
+        posts = Post.query.filter_by(status='approved').order_by(Post.date_created.desc()).all()
+        return jsonify([{
+            'id': post.id,
+            'title': post.title,
+            'content': post.content,
+            'tag': post.tag,
+            'date_created': post.date_created,
+            'user_id': post.user_id,
+            'author': post.user.name if post.user else 'Anonymous',
+            'profile_pic': post.user.profile_pic if post.user else None,
+            'status': post.status,
+            'media': [{
+                'id': media.id,
+                'url': media.url,
+                'media_type': media.media_type,
+                'public_id': media.public_id,
+                'filename': media.filename,
+                'caption': media.caption
+            } for media in Media.query.filter_by(post_id=post.id).all()]
+        } for post in posts])
+    except Exception as e:
+        return jsonify({'error': f'Error fetching posts: {str(e)}'}), 500
+
+# Protected route for creating posts - requires authentication
+@app.route('/api/posts', methods=['POST', 'OPTIONS'])
+@app.route('/api/handle_message', methods=['POST', 'OPTIONS'])
+@jwt_required
+def create_post():
+    """Create a new post - protected route, requires authentication
+    
+    Methods:
+        POST: Create a new post with optional media attachments
+        OPTIONS: Handle preflight CORS requests
+        
+    Returns:
         POST: JSON with new post details and confirmation message
         OPTIONS: Empty response for CORS preflight
     """
@@ -195,47 +243,11 @@ def handle_message():
         if origin and origin in allowed_origins:
             response.headers.add('Access-Control-Allow-Origin', origin)
             response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
             response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response, 200
     
-    elif request.method == 'GET':
-        # Retrieve all approved posts from the database
-        try:
-            posts = Post.query.filter_by(status='approved').order_by(Post.date_created.desc()).all()
-            posts_data = []
-            
-            for post in posts:
-                try:
-                    # Get all media files for this post
-                    media_files = Media.query.filter_by(post_id=post.id).all()
-                    media_data = [{
-                        'id': media.id,
-                        'url': media.url,
-                        'media_type': media.media_type,
-                        'public_id': media.public_id,
-                        'filename': media.filename,
-                        'caption': media.caption
-                    } for media in media_files]
-                    
-                    posts_data.append({
-                        'id': post.id,
-                        'title': post.title,
-                        'content': post.content,
-                        'tag': post.tag,
-                        'media': media_data,
-                        'date_created': post.date_created,
-                        'user_id': post.user_id,
-                        'author': post.user.name if post.user else 'Anonymous',
-                        'profile_pic': post.user.profile_pic if post.user else None,
-                        'status': post.status
-                    })
-                except Exception as e:
-                    print(f"Error processing post {post.id}: {str(e)}")
-            
-            return jsonify(posts_data)
-        except Exception as e:
-            return jsonify({'error': f'Error fetching posts: {str(e)}'}), 500
+    # Only handle POST requests in this route
     
     elif request.method == 'POST':
         # Create a new post
@@ -819,18 +831,18 @@ def get_all_users():
     except Exception as e:
         return jsonify({'error': f'Error fetching users: {str(e)}'}), 500
 
-@app.route('/api/announcements', methods=['GET', 'POST', 'OPTIONS'])
-@jwt_required
-def handle_announcements():
-    """Handle announcement operations
+# Public route for getting announcements - no authentication required
+@app.route('/api/announcements', methods=['GET', 'OPTIONS'])
+def get_public_announcements():
+    """Get all active announcements - public route, no authentication required
     
     Methods:
         GET: Retrieve all active announcements
-        POST: Create a new announcement (admin only)
-    
+        OPTIONS: Handle preflight CORS requests
+        
     Returns:
         GET: JSON array of all active announcements
-        POST: JSON with new announcement details
+        OPTIONS: Empty response for CORS preflight
     """
     if request.method == 'OPTIONS':
         response = jsonify({'message': 'Preflight OK'})
@@ -838,12 +850,12 @@ def handle_announcements():
         if origin and origin in allowed_origins:
             response.headers.add('Access-Control-Allow-Origin', origin)
             response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
             response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response, 200
-        
-    elif request.method == 'GET':
-        # Get current datetime for filtering expired announcements
+    
+    # Get current datetime for filtering expired announcements
+    try:
         current_time = datetime.utcnow()
         
         # Query for active announcements that are either not expired or don't have an expiration date
@@ -870,66 +882,91 @@ def handle_announcements():
         } for announcement in announcements]
         
         return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': f'Error fetching announcements: {str(e)}'}), 500
+
+# Protected route for creating announcements - requires admin authentication
+@app.route('/api/announcements', methods=['POST', 'OPTIONS'])
+@jwt_required
+def create_announcement():
+    """Create a new announcement - protected route, requires admin authentication
     
-    elif request.method == 'POST':
-        # Check if user is admin - g.current_user is set by the @jwt_required decorator
-        current_user = g.current_user
-        if not current_user or current_user.role != 'admin':
-            return jsonify({'error': 'Unauthorized'}), 403
+    Methods:
+        POST: Create a new announcement (admin only)
+        OPTIONS: Handle preflight CORS requests
         
+    Returns:
+        POST: JSON with new announcement details
+        OPTIONS: Empty response for CORS preflight
+    """
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight OK'})
+        origin = request.headers.get('Origin')
+        if origin and origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+    
+    # Check if user is admin - g.current_user is set by the @jwt_required decorator
+    current_user = g.current_user
+    if not current_user or current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    try:
+        data = request.json
+        
+        # Required fields
+        title = data.get('title')
+        content = data.get('content')
+        date_start = data.get('date_start')
+        
+        # Optional fields
+        date_end = data.get('date_end')  # Can be null for no expiration
+        
+        if not title or not content or not date_start:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Convert string dates to datetime objects
         try:
-            data = request.json
-            
-            # Required fields
-            title = data.get('title')
-            content = data.get('content')
-            date_start = data.get('date_start')
-            
-            # Optional fields
-            date_end = data.get('date_end')  # Can be null for no expiration
-            
-            if not title or not content or not date_start:
-                return jsonify({'error': 'Missing required fields'}), 400
-            
-            # Convert string dates to datetime objects
-            try:
-                date_start = datetime.fromisoformat(date_start.replace('Z', '+00:00'))
-                if date_end:
-                    date_end = datetime.fromisoformat(date_end.replace('Z', '+00:00'))
-                else:
-                    date_end = None  # No expiration date
-            except ValueError:
-                return jsonify({'error': 'Invalid date format'}), 400
-            
-            # Create new announcement
-            new_announcement = Announcement(
-                user_id=current_user.id,
-                title=title,
-                content=content,
-                date_start=date_start,
-                date_end=date_end,
-                is_active=True
-            )
-            
-            db.session.add(new_announcement)
-            db.session.commit()
-            
-            return jsonify({
-                'message': 'Announcement created successfully',
-                'announcement': {
-                    'id': new_announcement.id,
-                    'title': new_announcement.title,
-                    'content': new_announcement.content,
-                    'date_created': new_announcement.date_created,
-                    'date_start': new_announcement.date_start,
-                    'date_end': new_announcement.date_end,
-                    'is_active': new_announcement.is_active
-                }
-            }), 201
-            
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': f'Error creating announcement: {str(e)}'}), 500
+            date_start = datetime.fromisoformat(date_start.replace('Z', '+00:00'))
+            if date_end:
+                date_end = datetime.fromisoformat(date_end.replace('Z', '+00:00'))
+            else:
+                date_end = None  # No expiration date
+        except ValueError:
+            return jsonify({'error': 'Invalid date format'}), 400
+        
+        # Create new announcement
+        new_announcement = Announcement(
+            user_id=current_user.id,
+            title=title,
+            content=content,
+            date_start=date_start,
+            date_end=date_end,
+            is_active=True
+        )
+        
+        db.session.add(new_announcement)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Announcement created successfully',
+            'announcement': {
+                'id': new_announcement.id,
+                'title': new_announcement.title,
+                'content': new_announcement.content,
+                'date_created': new_announcement.date_created,
+                'date_start': new_announcement.date_start,
+                'date_end': new_announcement.date_end,
+                'is_active': new_announcement.is_active
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error creating announcement: {str(e)}'}), 500
 
 @app.route('/api/announcements/<int:announcement_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_single_announcement(announcement_id):

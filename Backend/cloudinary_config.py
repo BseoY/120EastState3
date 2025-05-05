@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+
+#-----------------------------------------------------------------------
+# cloudinary_config.py
+# Author: Andrew Cho, Brian Seo, Henry Li
+#   with help from cloudinary documentation
+#-----------------------------------------------------------------------
+
 import cloudinary
 import os
 from dotenv import load_dotenv
