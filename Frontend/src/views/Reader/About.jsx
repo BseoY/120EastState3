@@ -4,7 +4,8 @@ import BASE_API_URL from '../../config';
 import Footer from '../../components/Footer';
 import Nav from '../../components/Nav';
 import teamPhoto from '../../assets/Image/120ES3_team_photo.png';
-import teamPhotoHover from '../../assets/Image/TeamPhotoReal.png'; // Add your hover image
+import teamPhotoHover from '../../assets/Image/TeamPhotoReal.png';
+import churchPhoto from '../../assets/Image/church.jpeg';
 import '../../../src/styles/About.css';
 
 function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
@@ -65,8 +66,17 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   return (
     <div className="about-container">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      <div className='main-about'>
+        <div className='main-statement'>
+          <h2>The Digital Archive</h2>
+          <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
+            Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.
+          </p>
+        </div>
+        <img id="church-img" src={churchPhoto} alt="Church" />
+      </div>
+
       <div className="about-content">
-        <h1>About Us</h1>
         <div className="about-section">
           <h2>The Digital Archive</h2>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 

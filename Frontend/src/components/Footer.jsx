@@ -41,9 +41,6 @@ export default function Footer() {
           <p>Phone: 609-222-4246</p>
         </div>
       </footer>
-      <div className='footer-bottom'>
-        @120EastState
-      </div>
     </>
   );
 }

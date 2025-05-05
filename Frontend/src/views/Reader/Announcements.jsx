@@ -92,34 +92,35 @@ const Announcements = ({ user, isAuthenticated, handleLogout }) => {
   }, []);
 
   return (
-    <div className="app-container">
+    <>
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      
-      <div className="content-container">
-        <div className="curve-top"></div>
-        <div className="announcements-section">
-          <div className="section-header">
-            <h2>Announcements</h2>
-            <div className="section-divider"></div>
-          </div>
-          
-          {loading ? (
-            <div className="announcements-loading">Loading announcements...</div>
-          ) : error ? (
-            <div className="announcements-error">{error}</div>
-          ) : announcements.length === 0 ? (
-            <div className="announcements-empty">No announcements available at this time.</div>
-          ) : (
-            <div className="announcements-list">
-              {announcements.map(announcement => (
-                <AnnouncementBanner key={announcement.id} announcement={announcement} />
-              ))}
+      <div className="app-container">
+        <div className="content-container">
+          <div className="curve-top"></div>
+          <div className="announcements-section">
+            <div className="section-header">
+              <h2>Announcements</h2>
+              <div className="section-divider"></div>
             </div>
-          )}
+            
+            {loading ? (
+              <div className="announcements-loading">Loading announcements...</div>
+            ) : error ? (
+              <div className="announcements-error">{error}</div>
+            ) : announcements.length === 0 ? (
+              <div className="announcements-empty">No announcements available at this time.</div>
+            ) : (
+              <div className="announcements-list">
+                {announcements.map(announcement => (
+                  <AnnouncementBanner key={announcement.id} announcement={announcement} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+        <Footer></Footer>
       </div>
-      <Footer></Footer>
-    </div>
+    </>
   );
 };
 

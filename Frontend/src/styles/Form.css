@@ -316,12 +316,11 @@ textarea {
   background-color: #1F8CB5;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 30px;
   cursor: pointer;
-  height: 50px;
-  width: 150px;
   font-size: 1rem;
   margin-top: 2rem;
+  padding: 10px 20px;
 }
 
 .submit-button:hover {

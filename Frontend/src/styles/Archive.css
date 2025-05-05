@@ -44,9 +44,9 @@
   background-color: #1F8CB5;
   color: white;
   text-decoration: none;
-  padding: 12px 25px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 30px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -504,7 +504,7 @@
 }
 
 .no-results {
-  grid-column: span 3; /* Ensure it takes up the entire width of the grid */
+  grid-column: span 4; /* Ensure it takes up the entire width of the grid */
   display: flex;
   flex-direction: column;
   justify-content: center; /* Horizontally center */

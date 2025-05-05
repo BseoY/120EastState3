@@ -191,10 +191,10 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
 
   return (
     <>
+      <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <div className="archive-container">
         {/*<TagCloud />*/}
         <header>
-          <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         </header>
         <br></br>
 

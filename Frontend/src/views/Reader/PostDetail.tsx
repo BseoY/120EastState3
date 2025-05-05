@@ -83,13 +83,13 @@ const PostDetail: React.FC<PostDetailProps> = ({
 
   // Using the shared date formatting utility instead of local implementation
 
-  const denyPost = async (postId: number) => {
+  const deletePost = async (postId: number) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       try {
-        await axios.post(`${BASE_API_URL}/api/admin/posts/${postId}/deny`, {}, {
-          withCredentials: true
+        await axios.delete(`${BASE_API_URL}/api/admin/posts/${postId}`, {
+          withCredentials: true, // This should be in the config object
         });
-        navigate('/archive'); // Using navigate instead of window.location for better React practice
+        navigate('/archive'); // Redirect after successful deletion
       } catch (err) {
         console.error("Failed to delete post:", err);
         alert("Failed to delete post. Please try again.");
@@ -267,14 +267,13 @@ const PostDetail: React.FC<PostDetailProps> = ({
                       Share with QR Code
                     </button>
                     {isAuthenticated && user?.role === 'admin' && (
-                      <div>
+                      <div id="middle-actions">
                         <button onClick={() => setIsEditing(true)} className="edit-button">Edit Post</button>
-                        <button onClick={() => denyPost(post.id)} className="deny-button">Deny Post</button>
+                        <button onClick={() => deletePost(post.id)} className="deny-button">Delete Post</button>
                       </div>
                     )}
                     <Link to={`/tag/${post.tag}`} className="post-tag">#{post.tag}</Link>
                   </div>
-
                 </div>
 
               </>

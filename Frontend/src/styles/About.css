@@ -9,7 +9,35 @@
   padding: 35px 2rem 0; /* Added top padding to account for navbar height */
 }
 
+.main-about {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@media (width < 900px) {
+  .main-about {
+    flex-wrap: wrap;
+  }
+}
 
+.main-statement {
+  text-align: left;
+  padding: 3rem;
+}
+.main-statement h2 {
+  text-align: left;
+}
+.main-statement p {
+  font-weight: 350;
+}
+
+#church-img {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  mask-image: linear-gradient(to right, transparent, rgb(126, 126, 126) 30%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+}
 .about-section {
   background-color: white;
   border-radius: 8px;

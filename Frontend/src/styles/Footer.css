@@ -2,12 +2,13 @@
   display: flex;
   justify-content: space-between;
   gap: 2rem;
-  padding: 3rem 2rem;
+  padding: 2rem 2rem 1rem 2rem;
   background-color: #fff;
   margin-top: 50px;
   flex-wrap: wrap;
   font-family: Arial, sans-serif;
-  color: #333;
+  color: white;
+  background-color: #1F8CB5;
 }
 
 .footer-section {
@@ -21,8 +22,8 @@
 }
 
 .tagline {
-  font-size: 1.1rem;
-  color: #334e75;
+  font-size: 14pt;
+  color: #ffffff;
   margin-bottom: 1rem;
 }
 
@@ -31,7 +32,7 @@
   justify-content: center;
   gap: 1rem;
   font-size: 1.5rem;
-  color: #333;
+  color: #ffffff;
 }
 
 .social-icons a {
@@ -41,13 +42,13 @@
 }
 
 .social-icons a:hover {
-  color: #1F8CB5; /* or whatever hover color you want */
+  color: #15576f; /* or whatever hover color you want */
 }
 
 
 .center h3,
 .right h3 {
-  color: #1F8CB5;
+  color: #ffffff;
   font-size: 1.2rem;
   margin-bottom: 1rem;
 }
@@ -61,16 +62,17 @@
 .center ul li {
   margin-bottom: 0.5rem;
   font-weight: 300;
-  font-size: 20px;
+  font-size: 14pt;
 }
 
 .center ul li a {
-  color: #333;
+  color: #ffffff;
   text-decoration: none;
+  transition: color 0.3s
 }
 
 .center ul li a:hover {
-  color: #1F8CB5;
+  color: #15576f;
 }
 
 .right p {
@@ -79,7 +81,7 @@
 
 .footer-bottom {
   width: 100vw;
-  height: 50px;
+  height: 30px;
   background-color: #1F8CB5;
   display: flex;
   justify-content: center;

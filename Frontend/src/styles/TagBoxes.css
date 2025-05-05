@@ -2,6 +2,9 @@
   padding: 2rem;
   text-align: center;
 }
+.tag-boxes-container h2 {
+  color: #333;
+}
 
 .tag-boxes-grid {
   display: grid;
