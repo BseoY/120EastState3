@@ -687,14 +687,33 @@ def delete_user_post(post_id):
         return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
-@jwt_required
 def get_post_by_id(post_id):
     try:
+        # Check if user is authenticated (has a valid JWT)
+        user = None
+        auth_header = request.headers.get('Authorization')
+        
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            try:
+                # Decode and verify the token
+                data = jwt.decode(
+                    token,
+                    app.config.get('JWT_SECRET', os.environ.get('JWT_SECRET')),
+                    algorithms=[os.environ.get('JWT_ALGORITHM', 'HS256')]
+                )
+                
+                # Get user if token is valid
+                user = User.query.filter_by(google_id=data["sub"]).first()
+            except:
+                # If token is invalid, just continue as unauthenticated
+                pass
+                
         # If admin, allow access to all statuses
-        user = g.current_user
         if user and user.role == 'admin':
             post = Post.query.filter_by(id=post_id).first()
         else:
+            # For non-admins and unauthenticated users, only show approved posts
             post = Post.query.filter_by(id=post_id, status='approved').first()
 
         if not post:
