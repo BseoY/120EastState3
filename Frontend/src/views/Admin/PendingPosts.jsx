@@ -4,6 +4,7 @@ import BASE_API_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import '../../styles/Archive.css'; // reuse archive styles
+import { formatLocalDate } from '../../utils/dateUtils';
 
 function PendingPosts({ user, isAuthenticated, handleLogout }) {
   const [pendingPosts, setPendingPosts] = useState([]);
@@ -46,7 +47,7 @@ function PendingPosts({ user, isAuthenticated, handleLogout }) {
               <div className="item-byline">
                 <span className="contributor-name-subtle">{post.author}</span>
                 <span className="item-date-subtle">
-                  {new Date(post.date_created).toLocaleDateString()}
+                  {formatLocalDate(post.date_created)}
                 </span>
               </div>
             </div>

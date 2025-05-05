@@ -109,8 +109,18 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
       filtered = filtered.filter(post => {
         if (!post.date_created) return false;
         
-        const postDate = toISODateString(post.date_created);
-        return postDate === dateFilter;
+        // Create dates at midnight in local timezone for comparison
+        const filterDate = new Date(dateFilter + 'T00:00:00');
+        const postDateObj = new Date(post.date_created);
+        
+        // Reset time component to compare dates only
+        const localPostDate = new Date(
+          postDateObj.getFullYear(),
+          postDateObj.getMonth(),
+          postDateObj.getDate()
+        );
+        
+        return localPostDate.getTime() === filterDate.getTime();
       });
     }
     

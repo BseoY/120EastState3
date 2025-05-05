@@ -8,7 +8,7 @@ const getAuthToken = () => localStorage.getItem('authToken') || '';
 import '../../../src/styles/Admin.css';
 import ArchiveCard from '../../components/ArchiveCard';
 import defaultPic from '../../assets/Image/120es_blue.jpg';
-import { formatLocalDateTimeForInput } from '../../utils/dateUtils';
+import { formatLocalDateTimeForInput, formatLocalDate, toISODateString } from '../../utils/dateUtils';
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
@@ -351,10 +351,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
   
-  // Format date for datetime-local input with proper timezone handling
-  const formatDateForInput = (date) => {
-    return formatLocalDateTimeForInput(date);
-  };
+  // We're now using the shared formatLocalDateTimeForInput utility
   
   // Fetch all announcements
   const fetchAnnouncements = async () => {
@@ -494,10 +491,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       await axios.delete(
         `${BASE_API_URL}/api/announcements/${announcementId}`,
         {
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          withCredentials: true
         }
-      }
       );
       
       // Remove announcement from state
@@ -541,17 +539,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     
     // Format dates for datetime-local input
     if (announcement.date_start) {
-      const startDate = new Date(announcement.date_start);
-      setNewAnnouncementStartDate(formatDateForInput(startDate));
-    }
-    
-    if (announcement.date_end) {
-      const endDate = new Date(announcement.date_end);
-      setNewAnnouncementEndDate(formatDateForInput(endDate));
-      setHasExpirationDate(true);
-    } else {
-      setHasExpirationDate(false);
-      setNewAnnouncementEndDate('');
+      setNewAnnouncementStartDate(formatLocalDateTimeForInput(new Date(announcement.date_start)));
+      
+      // Handle end date if it exists
+      if (announcement.date_end) {
+        setNewAnnouncementEndDate(formatLocalDateTimeForInput(new Date(announcement.date_end)));
+        setHasExpirationDate(true);
+      } else {
+        setHasExpirationDate(false);
+        setNewAnnouncementEndDate('');
+      }
     }
     
     setAnnouncementFormVisible(true);
@@ -565,12 +562,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     
     // Set default start date to now
     const now = new Date();
-    setNewAnnouncementStartDate(formatDateForInput(now));
+    setNewAnnouncementStartDate(formatLocalDateTimeForInput(now));
     
-    // Set default end date to 7 days from now
     const sevenDaysLater = new Date();
     sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-    setNewAnnouncementEndDate(formatDateForInput(sevenDaysLater));
+    setNewAnnouncementEndDate(formatLocalDateTimeForInput(sevenDaysLater));
     
     setHasExpirationDate(true);
     setAnnouncementFormVisible(false);
@@ -810,8 +806,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                     const sevenDaysLater = new Date();
                     sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
                     
-                    setNewAnnouncementStartDate(formatDateForInput(now));
-                    setNewAnnouncementEndDate(formatDateForInput(sevenDaysLater));
+                    setNewAnnouncementStartDate(formatLocalDateTimeForInput(now));
+                    setNewAnnouncementEndDate(formatLocalDateTimeForInput(sevenDaysLater));
                     setHasExpirationDate(true);
                     setAnnouncementFormVisible(true);
                   }}
@@ -917,9 +913,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                             <h3 style={{margin: '0 0 10px 0'}}>{announcement.title}</h3>
                             
                             <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.8rem', color: '#666'}}>
-                              <span>Start: {new Date(announcement.date_start).toLocaleDateString()}</span>
+                              <span>Start: {formatLocalDate(announcement.date_start)}</span>
                               {announcement.date_end ? (
-                                <span>End: {new Date(announcement.date_end).toLocaleDateString()}</span>
+                                <span>End: {formatLocalDate(announcement.date_end)}</span>
                               ) : (
                                 <span>No Expiration</span>
                               )}

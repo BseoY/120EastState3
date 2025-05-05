@@ -5,6 +5,7 @@ import BASE_API_URL from '../../config';
 import { QRCodeSVG } from 'qrcode.react';
 import Nav from '../../components/Nav';
 import './PostDetail.css';
+import { formatLocalDate } from '../../utils/dateUtils';
 
 interface Media {
   id: number;
@@ -80,15 +81,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
     }
   }, [postId]);
 
-  // Format date to be more readable
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  // Using the shared date formatting utility instead of local implementation
 
   const denyPost = async (postId: number) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -184,7 +177,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                     <Link to="/archive" className="back-button">
                       ← Back to Archive
                     </Link>
-                    <span className="post-date">{formatDate(post.date_created)}</span>
+                    <span className="post-date">{formatLocalDate(post.date_created)}</span>
                   </div>
                   <h1 className="post-title">{post.title}</h1>
                   <div className="post-author">

@@ -39,6 +39,7 @@ const TagBoxes = () => {
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
       <div className="section-divider"></div>
+      <br></br>
       <div className="tag-boxes-grid">
         {loading ? (
           <p>Loading categories...</p>
