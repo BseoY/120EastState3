@@ -5,7 +5,7 @@ import axios from 'axios';
 import Nav from './Nav';
 import Sidebar from './Sidebar';
 import '../styles/PostDetail.css';
-import { BASE_API_URL } from '../utils/constants';
+import BASE_API_URL from '../config';
 import { formatLocalDate, formatLocalDateTime } from '../utils/dateUtils';
 import '../../styles/PostDetail.css'; // Optional, for styling
 

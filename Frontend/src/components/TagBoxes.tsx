@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/TagBoxes.css';
 import axios from 'axios';
-import { BASE_API_URL } from '../utils/constants';
+import BASE_API_URL from '../config';
 
 const TagBoxes = () => {
   // Define Tag interface for proper typing

@@ -5,7 +5,7 @@ import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
 import ArchiveCard from '../components/ArchiveCard';
-import { BASE_API_URL } from '../utils/constants';
+import BASE_API_URL from '../config';
 import { formatLocalDate, toISODateString } from '../utils/dateUtils';
 
 function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {

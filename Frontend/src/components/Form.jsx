@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "../styles/Form.css";
-import { BASE_API_URL } from '../utils/constants';
+import BASE_API_URL from '../config';
 import { FaImage, FaVideo, FaFileAudio, FaFile, FaTimes, FaPlus } from 'react-icons/fa';
 // Import authService if it exists, otherwise create a simple function to get the token
 let getAuthToken = () => localStorage.getItem('authToken') || '';
