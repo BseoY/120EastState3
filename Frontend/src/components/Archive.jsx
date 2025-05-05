@@ -5,6 +5,7 @@ import "../styles/Archive.css";
 import Nav from './Nav';
 import Form from './Form';
 import ArchiveCard from '../components/ArchiveCard';
+import Footer from './Footer';
 import BASE_API_URL from '../config';
 import { formatLocalDate, toISODateString } from '../utils/dateUtils';
 
@@ -179,165 +180,168 @@ function Archive({ user, isAuthenticated, authChecked, handleNewPost, handleLogi
   if (error) return <div className="error">Error loading archive: {error}</div>;
 
   return (
-    <div className="archive-container">
-      {/*<TagCloud />*/}
-      <header>
-        <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      </header>
-      <br></br>
+    <>
+      <div className="archive-container">
+        {/*<TagCloud />*/}
+        <header>
+          <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        </header>
+        <br></br>
 
-      <div className="archive-header">
-        <div>
-          <h1>Digital Archive</h1>
+        <div className="archive-header">
+          <div>
+            <h1>Digital Archive</h1>
+          </div>
+
+          <div className="archive-actions">
+            <a href="/share" className="create-archive-btn">
+              Share Your Story
+            </a>
+          </div>
         </div>
+        
+        {/* Form functionality moved to dedicated Share Your Story page */}
+        
+        <div className="search-container">
+          <h2>Search Archives</h2>
+          <div className="search-filters">
+            <div className="filter-row">
+              <div className="filter-group">
+                <label htmlFor="title-filter">Title</label>
+                <input 
+                  type="text" 
+                  id="title-filter" 
+                  value={titleFilter}
+                  onChange={handleTitleFilterChange}
+                  placeholder="Search by title"
+                />
+              </div>
+              
+              <div className="filter-group">
+                <label htmlFor="user-filter">Contributor</label>
+                <input 
+                  type="text" 
+                  id="user-filter" 
+                  value={userFilter}
+                  onChange={handleUserFilterChange}
+                  placeholder="Search by contributor"
+                />
+              </div>
 
-        <div className="archive-actions">
-          <a href="/share" className="create-archive-btn">
-            Share Your Story
-          </a>
-        </div>
-      </div>
-      
-      {/* Form functionality moved to dedicated Share Your Story page */}
-      
-      <div className="search-container">
-        <h2>Search Archives</h2>
-        <div className="search-filters">
-          <div className="filter-row">
-            <div className="filter-group">
-              <label htmlFor="title-filter">Title</label>
-              <input 
-                type="text" 
-                id="title-filter" 
-                value={titleFilter}
-                onChange={handleTitleFilterChange}
-                placeholder="Search by title"
-              />
-            </div>
-            
-            <div className="filter-group">
-              <label htmlFor="user-filter">Contributor</label>
-              <input 
-                type="text" 
-                id="user-filter" 
-                value={userFilter}
-                onChange={handleUserFilterChange}
-                placeholder="Search by contributor"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="date-filter">Date</label>
-              <input 
-                type="date" 
-                id="date-filter" 
-                value={dateFilter}
-                onChange={handleDateFilterChange}
-              />
-            </div>
-            
-            <div className="filter-group">
-              <label htmlFor="tag-filter">Tag</label>
-              <select
-                id="tag-filter"
-                value={tagFilter}
-                onChange={handleTagFilterChange}
-              >
-                <option value="">All Tags</option>
-                {tags.length > 0 ? (
-                  tags.map(tag => (
-                    <option key={tag.id} value={tag.name}>{tag.name}</option>
-                  ))
-                ) : (
-                  <option disabled>Loading tags...</option>
-                )}
-              </select>
-            </div>
-          </div>
-          
-          <div className="filter-actions">
-            <button className="clear-filters" onClick={clearFilters}>
-              Clear Filters
-            </button>
-          </div>
-
-          <div className="results-info">
-            <p>Found {filteredPosts.length} {filteredPosts.length === 1 ? 'record' : 'records'}</p>
-          </div>
-          </div>
-      </div>
-      
-      <br></br>
-      <div className="archive-grid">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post, index) => (
-            <Link to={`/post/${post.id}`} className="post-link" key={post.id || index}>
-              <div className="archive-item">
-                {/* Media content at the top with fallback to filler image */}
-                <div className="item-image">
-                  {post.media && post.media.length > 0 ? (
-                    // Check what type of media to display
-                    post.media[0].media_type === 'image' ? (
-                      <img 
-                        src={post.media[0].url} 
-                        alt={post.media[0].caption || post.title} 
-                      />
-                    ) : post.media[0].media_type === 'video' ? (
-                      <div className="video-thumbnail">
-                        <video src={post.media[0].url} alt={post.title} />
-                        <div className="video-icon-overlay">▶</div>
-                      </div>
-                    ) : post.media[0].media_type === 'audio' ? (
-                      <div className="audio-thumbnail">
-                        <div className="audio-icon">🎵</div>
-                        <p>{post.media[0].filename || 'Audio file'}</p>
-                      </div>
-                    ) : (
-                      <div className="document-thumbnail">
-                        <div className="document-icon">📄</div>
-                        <p>{post.media[0].filename || 'Document'}</p>
-                      </div>
-                    )
+              <div className="filter-group">
+                <label htmlFor="date-filter">Date</label>
+                <input 
+                  type="date" 
+                  id="date-filter" 
+                  value={dateFilter}
+                  onChange={handleDateFilterChange}
+                />
+              </div>
+              
+              <div className="filter-group">
+                <label htmlFor="tag-filter">Tag</label>
+                <select
+                  id="tag-filter"
+                  value={tagFilter}
+                  onChange={handleTagFilterChange}
+                >
+                  <option value="">All Tags</option>
+                  {tags.length > 0 ? (
+                    tags.map(tag => (
+                      <option key={tag.id} value={tag.name}>{tag.name}</option>
+                    ))
                   ) : (
-                    // Fallback to placeholder image if no media
-                    <img 
-                      src={require('../assets/Image/120es_blue.jpg')} 
-                      alt={post.title} 
-                    />
+                    <option disabled>Loading tags...</option>
                   )}
-                </div>
-                
-                {/* Tag below the image */}
-                {post.tag && (
-                  <div className="item-tags">
-                    <span className="tag">{post.tag}</span>
+                </select>
+              </div>
+            </div>
+            
+            <div className="filter-actions">
+              <button className="clear-filters" onClick={clearFilters}>
+                Clear Filters
+              </button>
+            </div>
+
+            <div className="results-info">
+              <p>Found {filteredPosts.length} {filteredPosts.length === 1 ? 'record' : 'records'}</p>
+            </div>
+            </div>
+        </div>
+        
+        <br></br>
+        <div className="archive-grid">
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map((post, index) => (
+              <Link to={`/post/${post.id}`} className="post-link" key={post.id || index}>
+                <div className="archive-item">
+                  {/* Media content at the top with fallback to filler image */}
+                  <div className="item-image">
+                    {post.media && post.media.length > 0 ? (
+                      // Check what type of media to display
+                      post.media[0].media_type === 'image' ? (
+                        <img 
+                          src={post.media[0].url} 
+                          alt={post.media[0].caption || post.title} 
+                        />
+                      ) : post.media[0].media_type === 'video' ? (
+                        <div className="video-thumbnail">
+                          <video src={post.media[0].url} alt={post.title} />
+                          <div className="video-icon-overlay">▶</div>
+                        </div>
+                      ) : post.media[0].media_type === 'audio' ? (
+                        <div className="audio-thumbnail">
+                          <div className="audio-icon">🎵</div>
+                          <p>{post.media[0].filename || 'Audio file'}</p>
+                        </div>
+                      ) : (
+                        <div className="document-thumbnail">
+                          <div className="document-icon">📄</div>
+                          <p>{post.media[0].filename || 'Document'}</p>
+                        </div>
+                      )
+                    ) : (
+                      // Fallback to placeholder image if no media
+                      <img 
+                        src={require('../assets/Image/120es_blue.jpg')} 
+                        alt={post.title} 
+                      />
+                    )}
                   </div>
-                )}
-                
-                {/* Title below the tag */}
-                <div className="item-header">
-                  <div className="item-metadata">
-                    <h3>{post.title}</h3>
-                    <div className="item-byline">
-                      <span className="contributor-name-subtle">{post.author || 'Unknown contributor'}</span>
-                      <span className="item-date-subtle">
-                        {formatLocalDate(post.date_created)}
-                      </span>
+                  
+                  {/* Tag below the image */}
+                  {post.tag && (
+                    <div className="item-tags">
+                      <span className="tag">{post.tag}</span>
+                    </div>
+                  )}
+                  
+                  {/* Title below the tag */}
+                  <div className="item-header">
+                    <div className="item-metadata">
+                      <h3>{post.title}</h3>
+                      <div className="item-byline">
+                        <span className="contributor-name-subtle">{post.author || 'Unknown contributor'}</span>
+                        <span className="item-date-subtle">
+                          {formatLocalDate(post.date_created)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="no-results">
-            <p>No records found matching your search criteria.</p>
-            <button onClick={clearFilters}>Clear filters and try again</button>
-          </div>
-        )}
+              </Link>
+            ))
+          ) : (
+            <div className="no-results">
+              <p>No records found matching your search criteria.</p>
+              <button onClick={clearFilters}>Clear filters and try again</button>
+            </div>
+          )}
+        </div>
       </div>
-      <br></br>
-    </div>
+      <Footer></Footer>
+    </>
+
   );
 }
 

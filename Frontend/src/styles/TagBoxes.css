@@ -33,10 +33,46 @@
 .tag-content h3 {
   margin: 0;
   font-size: 1.3rem;
-  color: #1F8CB5;
 }
 
 .tag-content p {
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
+}
+
+.tag-box {
+  position: relative;
+  overflow: hidden;
+  width: 250px;
+  height: 250px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tag-box-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  z-index: 0;
+}
+
+.tag-box-fallback {
+  background-color: #f0f0f0;
+}
+
+.tag-content {
+  position: relative;
+  z-index: 1;
+  padding: 15px;
+  height: 100%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

@@ -367,7 +367,7 @@ li {
 }
 
 .mission-section {
-  padding: 20px 20px 60px;
+  padding: 20px 20px 10px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -443,8 +443,12 @@ button:disabled {
   margin-right: auto;         /* Center horizontally within parent */
 }
 .archive-section {
-  background-color: #f3f3f3;
+  background-color: #ffffff;
   text-align: center;
+}
+
+.archive-button-div {
+  height: 75px;
 }
 
 .section-header {

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import BASE_API_URL from '../../config';
+import Footer from '../../components/Footer';
 import Nav from '../../components/Nav';
 import teamPhoto from '../../assets/Image/120ES3_team_photo.png';
 import teamPhotoHover from '../../assets/Image/TeamPhotoReal.png'; // Add your hover image
@@ -183,6 +184,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         </div>
       </div>
 
+    <Footer></Footer>
     </div>
   );
 }

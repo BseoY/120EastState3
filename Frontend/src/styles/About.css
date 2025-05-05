@@ -1,7 +1,6 @@
 .about-container {
   min-height: 100vh;
   background-color: white;
-  padding: 0 0 2rem 0; /* Removed top padding, kept bottom padding */
 }
 
 .about-content {

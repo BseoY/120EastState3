@@ -4,7 +4,8 @@ import Form from "../../components/Form";
 import useAuth from "../../hooks/useAuth";
 import "../../styles/ShareYourStory.css";
 import { Link } from 'react-router-dom';
-import InfoModal from "./InfoModal";
+import InfoModal from "../Reader/InfoModal";
+import Footer from "../../components/Footer";
 
 function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, handleLoginSuccess, handleLogout }) {
   // If the user isn't authenticated, display a message
@@ -58,16 +59,7 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
           </div>
         )}
       </div>
-      <div className="sharestory-footer">
-        <p>
-          Thanks for your interest in sharing your story
-        </p>
-        <p>
-          If you have any concerns, please contact us at our 
-           <Link to="/about" id="about-link"> About Page</Link>
-        </p>
-      </div>
-
+      <Footer />
     </div>
 
   );

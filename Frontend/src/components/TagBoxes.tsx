@@ -39,33 +39,33 @@ const TagBoxes = () => {
     <div className="tag-boxes-container">
       <h2>Browse by Category</h2>
       <div className="section-divider"></div>
-      <br></br>
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
+      <div className="tag-boxes-grid">
         {loading ? (
           <p>Loading categories...</p>
         ) : tags.length === 0 ? (
           <p>No categories found</p>
-        ) : tags.map((tag) => (
-          <Link 
-            key={tag.id} 
-            to={`/archive?tag=${encodeURIComponent(tag.name)}`} 
-            style={{width: '250px', height: '250px', position: 'relative', margin: '0 auto', borderRadius: '8px', overflow: 'hidden', textDecoration: 'none'}}
-            className='tag-box'
-          >
-            {/* Background image or fallback */}
-            {tag.image_url ? (
-              <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${tag.image_url})`, backgroundSize: 'cover', filter: 'grayscale(100%)'}}></div>
-            ) : (
-              <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#f0f0f0'}}></div>
-            )}
-            
-            {/* Content overlay without gray background */}
-            <div style={{position: 'relative', padding: '15px', height: '100%', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
-              <h3>{tag.name}</h3>
-              <p>View all {tag.name} archives</p>
-            </div>
-          </Link>
-        ))}
+        ) : (
+          tags.map((tag) => (
+            <Link
+              key={tag.id}
+              to={`/archive?tag=${encodeURIComponent(tag.name)}`}
+              className="tag-box"
+            >
+              {tag.image_url ? (
+                <div
+                  className="tag-box-background"
+                  style={{ backgroundImage: `url(${tag.image_url})` }}
+                ></div>
+              ) : (
+                <div className="tag-box-background tag-box-fallback"></div>
+              )}
+              <div className="tag-content">
+                <h3>{tag.name}</h3>
+                <p>View all {tag.name} archives</p>
+              </div>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

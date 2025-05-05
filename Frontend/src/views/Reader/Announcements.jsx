@@ -5,6 +5,7 @@ import Nav from '../../components/Nav';
 import '../../styles/Announcements.css';
 import '../../styles/App.css';
 import { formatLocalDate } from '../../utils/dateUtils';
+import Footer from '../../components/Footer';
 
 // Helper to get the auth token for JWT authentication
 const getAuthToken = () => localStorage.getItem('authToken') || '';
@@ -117,6 +118,7 @@ const Announcements = ({ user, isAuthenticated, handleLogout }) => {
           )}
         </div>
       </div>
+      <Footer></Footer>
     </div>
   );
 };

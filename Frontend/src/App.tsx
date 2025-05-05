@@ -12,7 +12,7 @@ import Archive from "./components/Archive";
 import AdminDashboard from "./views/Admin/AdminDashboard";
 import About from "./views/Reader/About";
 import PostDetail from './views/Reader/PostDetail';
-import ShareYourStory from './views/Reader/ShareYourStory';
+import ShareYourStory from './views/Writer/ShareYourStory';
 import PendingPosts from './views/Admin/PendingPosts';
 import NotFound from './components/NotFound'; // 👈 create this component
 import Error from "./views/Admin/Error";
@@ -23,6 +23,7 @@ const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v17444922
 // Change this import (note the exact filename case)
 
 import BASE_API_URL from './config';
+import Footer from './components/Footer';
 
 // Standalone video element removed - using the one in HomePage component
 
@@ -87,12 +88,13 @@ function HomePage({
           </div>
         </div>
       </section>
+      <div className='archive-button-div'><Link to="/about" className='video-btn'>More About Us</Link></div>
+      <section className="archive-section">
 
-        <div className="curve-top-gray"></div>
-        <section className="archive-section">
+        <TagBoxes />
+      </section>
 
-          <TagBoxes />
-        </section>
+      <Footer></Footer>
     </div>
   );
 }
