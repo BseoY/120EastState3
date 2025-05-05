@@ -100,6 +100,25 @@ def require_roles(*roles):
 
 #-----------------------------------------------------------------------
 
+# Helper function to get the current user from the token
+def get_current_user():
+    """
+    Decode the Bearer token and return the User instance,
+    or None if missing/invalid.
+    """
+    auth = request.headers.get("Authorization", None)
+    if not auth or not auth.startswith("Bearer "):
+        return None
+
+    token = auth.split()[1]
+    try:
+        data = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return User.query.filter_by(google_id=data["sub"]).first()
+    except Exception:
+        return None
+
+#-----------------------------------------------------------------------
+
 def get_or_create_user(userinfo):
     """Find or create a user from Google userinfo"""
     user = User.query.filter_by(google_id=userinfo['sub']).first()

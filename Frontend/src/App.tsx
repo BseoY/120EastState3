@@ -155,7 +155,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${BASE_API_URL}/api/handle_message`);
+        const response = await axios.get(`${BASE_API_URL}/api/posts`);
         setPosts(response.data);
       } catch (error: any) {
         console.error("Error fetching posts:", error);

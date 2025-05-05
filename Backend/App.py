@@ -1,18 +1,23 @@
-# Standard library imports
+#-----------------------------------------------------------------------
+# App.py
+# Author: Andrew Cho, Brian Seo, Henry Li
+#-----------------------------------------------------------------------
+
 import os
-import jwt
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Third-party imports
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
-from flask import Flask, jsonify, request, redirect, url_for, g
+from flask import Flask, jsonify, request    
 from flask_cors import CORS
 from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
 from email_functions import send_decision_email, send_contact_form_email
-from auth import auth_bp, jwt_required, require_roles
+from auth import auth_bp, jwt_required, require_roles, get_current_user
+
+#-----------------------------------------------------------------------
 
 # Load environment variables
 load_dotenv()
@@ -20,11 +25,10 @@ load_dotenv()
 # Initialize app
 app = Flask(__name__)
 
-app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
-app.config['JWT_SECRET'] = app.secret_key
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
 
-
-# CORS setup to support both local and deployed frontend
+# CORS setup to support both local and heroku deployment
 allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5001", 
@@ -52,27 +56,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize database
 db.init_app(app)
 
-# Register blueprints
+# Register auth blueprint
 app.register_blueprint(auth_bp)
 
-
-# Using frontend origin function from auth.py
-
-@app.after_request
-def after_request(response):
-    """Add CORS headers to every /api/* response."""
-    origin = request.headers.get('Origin')
-    if origin and origin in allowed_origins:
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
-    return response
-
-
-# OAuth configuration is now handled by auth.py
-
+#=======================================================================
 # API Routes
+#=======================================================================
+
+#-----------------------------------------------------------------------
+# Posts Routes
+#-----------------------------------------------------------------------
 
 @app.route('/api/posts/tag/<string:tag>', methods=['GET'])
 def get_posts_by_tag(tag):
@@ -108,9 +101,7 @@ def get_posts_by_tag(tag):
     except Exception as e:
         return jsonify({'error': f'Error fetching posts by tag: {str(e)}'}), 500
     
-# Authentication using JWT is now imported from auth.py
-
-# Auth routes are now handled by the auth blueprint
+# Error handlers
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "This page doesn't exist"}), 404
@@ -119,69 +110,18 @@ def not_found(e):
 def server_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/tags', methods=['GET'])
-def get_tags():
-    tags = Tag.query.order_by(Tag.display_order).all()
-    return jsonify([{'id': t.id, 'name': t.name, 'display_order': t.display_order, 'image_url': t.image_url} for t in tags])
-
-@app.route('/api/admin/tags', methods=['POST'])
-@require_roles('admin')
-def create_tag():
-    data = request.json
-    new_tag = Tag(
-        name=data.get('name'),
-        display_order=data.get('display_order', 0),
-        image_url=data.get('image_url')
-    )
-    db.session.add(new_tag)
-    db.session.commit()
-    return jsonify({'id': new_tag.id, 'name': new_tag.name, 'display_order': new_tag.display_order, 'image_url': new_tag.image_url}), 201
-
-@app.route('/api/admin/tags/<int:tag_id>', methods=['PUT'])
-@require_roles('admin')
-def update_tag(tag_id):
-    tag = Tag.query.get_or_404(tag_id)
-    data = request.json
-    tag.name = data.get('name', tag.name)
-    tag.display_order = data.get('display_order', tag.display_order)
-    tag.image_url = data.get('image_url', tag.image_url)
-    db.session.commit()
-    return jsonify({'id': tag.id, 'name': tag.name, 'display_order': tag.display_order, 'image_url': tag.image_url})
-
-@app.route('/api/admin/tags/<int:tag_id>', methods=['DELETE'])
-@require_roles('admin')
-def delete_tag(tag_id):
-    tag = Tag.query.get_or_404(tag_id)
-    db.session.delete(tag)
-    db.session.commit()
-    return jsonify({'message': f'Tag {tag_id} deleted'})
-
-
-
 
 # Public route for getting posts - no authentication required
-@app.route('/api/posts', methods=['GET', 'OPTIONS'])
-@app.route('/api/handle_message', methods=['GET', 'OPTIONS'])
+@app.route('/api/posts', methods=['GET'])
 def get_public_posts():
     """Get all approved posts - public route, no authentication required
     
     Methods:
         GET: Retrieve all approved posts
-        OPTIONS: Handle preflight CORS requests
         
     Returns:
         GET: JSON array of all approved posts
-        OPTIONS: Empty response for CORS preflight
     """
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
     
     # Handle GET request - return all approved posts
     try:
@@ -209,187 +149,159 @@ def get_public_posts():
         return jsonify({'error': f'Error fetching posts: {str(e)}'}), 500
 
 # Protected route for creating posts - requires authentication
-@app.route('/api/posts', methods=['POST', 'OPTIONS'])
-@app.route('/api/handle_message', methods=['POST', 'OPTIONS'])
+@app.route('/api/posts', methods=['POST'])
 @jwt_required
 def create_post():
     """Create a new post - protected route, requires authentication
     
     Methods:
         POST: Create a new post with optional media attachments
-        OPTIONS: Handle preflight CORS requests
         
     Returns:
         POST: JSON with new post details and confirmation message
-        OPTIONS: Empty response for CORS preflight
     """
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
     
     # Only handle POST requests in this route
     
-    elif request.method == 'POST':
-        # Create a new post
-        user = g.current_user
-        if not user:
-            return jsonify({'error': 'Authentication required'}), 401
+    # Create a new post
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
 
-        # Process form data
-        try:
-            title = request.form.get('title')
-            content = request.form.get('content')
-            tag = request.form.get('tag')
-            
-            if not title or not content:
-                return jsonify({'error': 'Title and content are required'}), 400
+    # Process form data
+    try:
+        title = request.form.get('title')
+        content = request.form.get('content')
+        tag = request.form.get('tag')
+        
+        if not title or not content:
+            return jsonify({'error': 'Title and content are required'}), 400
 
-            # Create and save the new post
-            new_post = Post(
-                title=title,
-                content=content,
-                tag=tag,
-                user_id=user.id,
-                status='pending'
-            )
-            
-            db.session.add(new_post)
-            db.session.flush()  # Flush to get the new post ID without committing transaction
-            
-            # Process media uploads (up to 5 files)
-            media_files = []
-            media_count = 0
-            max_files = 5  # Maximum allowed files
-            
-            # Process all media files in the request
-            # Look for media files with names in format 'media_0', 'media_1', etc.
-            for i in range(max_files):
-                media_key = f'media_{i}'
-                if media_key in request.files and media_count < max_files:
-                    file = request.files[media_key]
-                    if file and file.filename != '':
-                        try:
-                            filename = file.filename
-                            # Determine resource type based on file extension
-                            file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-                            
-                            # Determine media type and resource type for Cloudinary
-                            if file_ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff']:
-                                media_type = 'image'
-                                resource_type = 'image'
-                                folder = "120EastState3/images"
-                            elif file_ext in ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']:
-                                media_type = 'video'
-                                resource_type = 'video'
-                                folder = "120EastState3/videos"
-                            elif file_ext in ['mp3', 'wav', 'ogg', 'aac', 'flac']:
-                                media_type = 'audio'
-                                resource_type = 'video'  # Cloudinary uses 'video' resource type for audio
-                                folder = "120EastState3/audio"
-                            else:
-                                media_type = 'document'
-                                resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
-                                folder = "120EastState3/documents"
-                            
-                            # Get caption if provided
-                            caption = request.form.get(f"{media_key}_caption", "")
-                            
-                            # Upload to Cloudinary
-                            upload_result = cloudinary.uploader.upload(
-                                file,
-                                folder=folder,
-                                resource_type=resource_type
-                            )
-                            
-                            secure_url = upload_result.get('secure_url')
-                            public_id = upload_result.get('public_id')
-                            
-                            if not secure_url:
-                                continue  # Skip if upload failed
-                            
-                            # Create media record
-                            media = Media(
-                                post_id=new_post.id,
-                                url=secure_url,
-                                media_type=media_type,
-                                public_id=public_id,
-                                filename=filename,
-                                caption=caption
-                            )
-                            db.session.add(media)
-                            
-                            # Add to response data
-                            media_files.append({
-                                'url': secure_url,
-                                'media_type': media_type,
-                                'filename': filename,
-                                'public_id': public_id,
-                                'caption': caption
-                            })
-                            
-                            media_count += 1
-                        except Exception as upload_error:
-                            print(f"Error uploading {file.filename}: {str(upload_error)}")
-            
-            db.session.commit()
-            
-            # Final commit to save all changes
-            db.session.commit()
-            
-            return jsonify({
-                'message': 'Post added successfully! It will be visible after approval.',
-                'post': {
-                    'id': new_post.id,
-                    'title': title,
-                    'content': content,
-                    'tag': tag,
-                    'media': [{
-                        'id': media.id,
-                        'url': media.url,
-                        'media_type': media.media_type,
-                        'public_id': media.public_id,
-                        'filename': media.filename,
-                        'caption': media.caption
-                    } for media in Media.query.filter_by(post_id=new_post.id).all()]
-                }
-            }), 201
-            
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': f'Error creating post: {str(e)}'}), 500
+        # Create and save the new post
+        new_post = Post(
+            title=title,
+            content=content,
+            tag=tag,
+            user_id=user.id,
+            status='pending'
+        )
+        
+        db.session.add(new_post)
+        db.session.flush()  # Flush to get the new post ID without committing transaction
+        
+        # Process media uploads (up to 5 files)
+        media_files = []
+        media_count = 0
+        max_files = 5  # Maximum allowed files
+        
+        # Process all media files in the request
+        # Look for media files with names in format 'media_0', 'media_1', etc.
+        for i in range(max_files):
+            media_key = f'media_{i}'
+            if media_key in request.files and media_count < max_files:
+                file = request.files[media_key]
+                if file and file.filename != '':
+                    try:
+                        filename = file.filename
+                        # Determine resource type based on file extension
+                        file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                        
+                        # Determine media type and resource type for Cloudinary
+                        if file_ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff']:
+                            media_type = 'image'
+                            resource_type = 'image'
+                            folder = "120EastState3/images"
+                        elif file_ext in ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']:
+                            media_type = 'video'
+                            resource_type = 'video'
+                            folder = "120EastState3/videos"
+                        elif file_ext in ['mp3', 'wav', 'ogg', 'aac', 'flac']:
+                            media_type = 'audio'
+                            resource_type = 'video'  # Cloudinary uses 'video' resource type for audio
+                            folder = "120EastState3/audio"
+                        else:
+                            media_type = 'document'
+                            resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
+                            folder = "120EastState3/documents"
+                        
+                        # Get caption if provided
+                        caption = request.form.get(f"{media_key}_caption", "")
+                        
+                        # Upload to Cloudinary
+                        upload_result = cloudinary.uploader.upload(
+                            file,
+                            folder=folder,
+                            resource_type=resource_type
+                        )
+                        
+                        secure_url = upload_result.get('secure_url')
+                        public_id = upload_result.get('public_id')
+                        
+                        if not secure_url:
+                            continue  # Skip if upload failed
+                        
+                        # Create media record
+                        media = Media(
+                            post_id=new_post.id,
+                            url=secure_url,
+                            media_type=media_type,
+                            public_id=public_id,
+                            filename=filename,
+                            caption=caption
+                        )
+                        db.session.add(media)
+                        
+                        # Add to response data
+                        media_files.append({
+                            'url': secure_url,
+                            'media_type': media_type,
+                            'filename': filename,
+                            'public_id': public_id,
+                            'caption': caption
+                        })
+                        
+                        media_count += 1
+                    except Exception as upload_error:
+                        print(f"Error uploading {file.filename}: {str(upload_error)}")
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Post added successfully! It will be visible after approval.',
+            'post': {
+                'id': new_post.id,
+                'title': title,
+                'content': content,
+                'tag': tag,
+                'media': [{
+                    'id': media.id,
+                    'url': media.url,
+                    'media_type': media.media_type,
+                    'public_id': media.public_id,
+                    'filename': media.filename,
+                    'caption': media.caption
+                } for media in Media.query.filter_by(post_id=new_post.id).all()]
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error creating post: {str(e)}'}), 500
 
-@app.route('/api/user/posts', methods=['GET', 'OPTIONS'])
+@app.route('/api/user/posts', methods=['GET'])
 @jwt_required
 def get_user_posts():
     """Get all posts created by the current authenticated user
     
     Methods:
         GET: Retrieve posts for current user
-        OPTIONS: Handle preflight CORS requests
         
     Returns:
         GET: JSON array of all posts created by the user
-        OPTIONS: Response with appropriate CORS headers
     """
-    # Handle OPTIONS request separately (CORS preflight)
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
         
-    # Current user is already verified by @jwt_required and available in g.current_user
-    user = g.current_user
+    # Current user is verified by get_current_user() which checks the JWT token
+    user = get_current_user()
         
     try:
         # Get the user's posts, sorted by most recent first
@@ -417,25 +329,19 @@ def get_user_posts():
             'message': 'An error occurred while fetching your posts'
         }), 500
 
-@app.route('/api/upload', methods=['POST', 'OPTIONS'])
+@app.route('/api/upload', methods=['POST'])
 @jwt_required
 def upload_file():
     """Upload a file (image or video) to Cloudinary
     
     Methods:
         POST: Upload a file and receive a URL
-        OPTIONS: Handle preflight CORS requests
         
     Returns:
         POST: JSON with the URL of the uploaded file
-        OPTIONS: Empty response for CORS preflight
     """
-    # Handle preflight request for CORS
-    if request.method == 'OPTIONS':
-        return '', 204  # Empty response with 204 (No Content) status
-        
-    # Current user is already verified by @jwt_required and available in g.current_user
-    user = g.current_user
+    # Current user is already verified by @jwt_required
+    user = get_current_user()
         
     # Validate file in request
     if 'file' not in request.files:
@@ -542,7 +448,6 @@ def get_denied_posts():
 @app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
 @require_roles('admin')
 def approve_post(post_id):
-    print("hi")
     """Approve a pending post
     
     This endpoint is restricted to users with 'admin' role
@@ -572,16 +477,9 @@ def deny_post(post_id):
     feedback = request.json.get('feedback', None) if request.json else None
     return update_post_status(post_id, 'denied', feedback)
 
-@app.route('/api/admin/posts/<int:post_id>/edit', methods=['PUT', 'OPTIONS'])
+@app.route('/api/admin/posts/<int:post_id>/edit', methods=['PUT'])
 @require_roles('admin')
 def edit_post_admin(post_id):
-    if request.method == 'OPTIONS':
-        # No authentication required for OPTIONS
-        response = jsonify({'message': 'Preflight OK'})
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'PUT, OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
         
     post = db.session.get(Post, post_id)
     if not post:
@@ -626,14 +524,9 @@ def edit_post_admin(post_id):
         db.session.rollback()
         return jsonify({'error': f'Error updating post: {str(e)}'}), 500
     
-@app.route('/api/admin/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
+@app.route('/api/admin/posts/<int:post_id>', methods=['DELETE'])
 @require_roles('admin')
 def delete_post_admin(post_id):
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
-        return response, 200
 
     post = db.session.get(Post, post_id)
     if not post:
@@ -647,16 +540,10 @@ def delete_post_admin(post_id):
         db.session.rollback()
         return jsonify({'error': f'Error deleting post: {str(e)}'}), 500
         
-@app.route('/api/user/posts/<int:post_id>', methods=['DELETE', 'OPTIONS'])
+@app.route('/api/user/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required
 def delete_user_post(post_id):
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
-        return response, 200
-
-    user = g.current_user
+    user = get_current_user()
     if not user:
         return jsonify({'error': 'Authentication required'}), 401
 
@@ -676,31 +563,14 @@ def delete_user_post(post_id):
 def get_post_by_id(post_id):
     try:
         # Check if user is authenticated (has a valid JWT)
-        user = None
-        auth_header = request.headers.get('Authorization')
-        
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split(' ')[1]
-            try:
-                # Decode and verify the token
-                data = jwt.decode(
-                    token,
-                    app.config.get('JWT_SECRET', os.environ.get('JWT_SECRET')),
-                    algorithms=[os.environ.get('JWT_ALGORITHM', 'HS256')]
-                )
-                
-                # Get user if token is valid
-                user = User.query.filter_by(google_id=data["sub"]).first()
-            except:
-                # If token is invalid, just continue as unauthenticated
-                pass
+        user = get_current_user()
                 
         # If admin, allow access to all statuses
         if user and user.role == 'admin':
-            post = Post.query.filter_by(id=post_id).first()
+            post = db.session.get(Post, post_id)
         else:
             # For non-admins and unauthenticated users, only show approved posts
-            post = Post.query.filter_by(id=post_id, status='approved').first()
+            post = db.session.query(Post).filter_by(status='approved', id=post_id).first()
 
         if not post:
             return jsonify({'error': 'Post not found'}), 404
@@ -772,6 +642,54 @@ def update_post_status(post_id, new_status, feedback=None):
         'email_notification': email_status
     })
 
+# -----------------------------------------------------------------------
+# Tags Routes
+# -----------------------------------------------------------------------
+
+@app.route('/api/tags', methods=['GET'])
+def get_tags():
+    tags = Tag.query.order_by(Tag.display_order).all()
+    return jsonify([{'id': t.id, 'name': t.name, 'display_order': t.display_order, 'image_url': t.image_url} for t in tags])
+
+@app.route('/api/admin/tags', methods=['POST'])
+@require_roles('admin')
+def create_tag():
+    data = request.json
+    new_tag = Tag(
+        name=data.get('name'),
+        display_order=data.get('display_order', 0),
+        image_url=data.get('image_url')
+    )
+    db.session.add(new_tag)
+    db.session.commit()
+    return jsonify({'id': new_tag.id, 'name': new_tag.name, 'display_order': new_tag.display_order, 'image_url': new_tag.image_url}), 201
+
+@app.route('/api/admin/tags/<int:tag_id>', methods=['PUT'])
+@require_roles('admin')
+def update_tag(tag_id):
+    tag = db.session.get(Tag, tag_id)
+    if not tag:
+        return jsonify({'error': 'Tag not found'}), 404
+    data = request.json
+    tag.name = data.get('name', tag.name)
+    tag.display_order = data.get('display_order', tag.display_order)
+    tag.image_url = data.get('image_url', tag.image_url)
+    db.session.commit()
+    return jsonify({'id': tag.id, 'name': tag.name, 'display_order': tag.display_order, 'image_url': tag.image_url})
+
+@app.route('/api/admin/tags/<int:tag_id>', methods=['DELETE'])
+@require_roles('admin')
+def delete_tag(tag_id):
+    tag = db.session.get(Tag, tag_id)
+    if not tag:
+        return jsonify({'error': 'Tag not found'}), 404
+    db.session.delete(tag)
+    db.session.commit()
+    return jsonify({'message': f'Tag {tag_id} deleted'})
+
+#-----------------------------------------------------------------------
+# Contact Form Routes
+#-----------------------------------------------------------------------
 
 @app.route('/api/about/contact', methods=['POST'])
 @jwt_required
@@ -785,7 +703,7 @@ def send_message():
         # Send email to organization email
         try:
             # Use cho.s.andy03@gmail.com directly for testing
-            org_email = "cho.s.andy03@gmail.com"  # Hardcoded for testing
+            org_email = "cho.s.andy03@gmail.com"  # Hardcoded for testing. Change to Organizational email when ready.
             print(f"Attempting to send email to: {org_email}")
             
             # Debug environment variables
@@ -801,9 +719,9 @@ def send_message():
             )
             
             if email_sent:
-                print(f"✅ Contact form email sent to {org_email}")
+                print(f"Contact form email sent to {org_email}")
             else:
-                print(f"❌ Failed to send contact form email to {org_email}, but message was saved to database")
+                print(f"Failed to send contact form email to {org_email}, but message was saved to database")
         except Exception as email_error:
             print(f"Failed to send email: {str(email_error)}")
             # We still return success even if email fails since the message was saved to database
@@ -813,6 +731,9 @@ def send_message():
         print(f"Error in contact form: {str(e)}")
         return jsonify({'error': 'Error processing message'}), 500
 
+# -----------------------------------------------------------------------
+# User Routes
+# -----------------------------------------------------------------------
 @app.route('/api/admin/users', methods=['GET'])
 @require_roles('admin')
 def get_all_users():
@@ -836,32 +757,24 @@ def get_all_users():
     except Exception as e:
         return jsonify({'error': f'Error fetching users: {str(e)}'}), 500
 
+# -----------------------------------------------------------------------
+# Announcement Routes
+# -----------------------------------------------------------------------
 # Public route for getting announcements - no authentication required
-@app.route('/api/announcements', methods=['GET', 'OPTIONS'])
+@app.route('/api/announcements', methods=['GET'])
 def get_public_announcements():
     """Get all active announcements - public route, no authentication required
     
     Methods:
         GET: Retrieve all active announcements
-        OPTIONS: Handle preflight CORS requests
         
     Returns:
         GET: JSON array of all active announcements
-        OPTIONS: Empty response for CORS preflight
     """
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
     
     # Get current datetime for filtering expired announcements
     try:
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
         
         # Query for active announcements that are either not expired or don't have an expiration date
         announcements = Announcement.query.filter(
@@ -898,24 +811,12 @@ def create_announcement():
     
     Methods:
         POST: Create a new announcement (admin only)
-        OPTIONS: Handle preflight CORS requests
-        
+    
     Returns:
         POST: JSON with new announcement details
-        OPTIONS: Empty response for CORS preflight
     """
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'Preflight OK'})
-        origin = request.headers.get('Origin')
-        if origin and origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 200
-    
-    # Check if user is admin - g.current_user is set by the @jwt_required decorator
-    current_user = g.current_user
+    # Check if user is admin - get current user from token
+    current_user = get_current_user()
     if not current_user or current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
         
@@ -1117,7 +1018,7 @@ def get_announcement_status(announcement):
     Returns:
         String status: 'scheduled', 'active', 'expired', or 'inactive'
     """
-    current_time = datetime.utcnow()
+    current_time = datetime.now(UTC)
     
     if not announcement.is_active:
         return 'inactive'
