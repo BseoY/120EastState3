@@ -332,8 +332,6 @@
 
 .form-group input[type="text"],
 .form-group input[type="file"] {
-  display: block;
-  width: 100%;
   padding: 0.6rem;
   border: 1px solid #ccc;
   border-radius: 4px;
