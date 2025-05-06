@@ -704,11 +704,10 @@ def delete_tag(tag_id):
     return jsonify({'message': f'Tag {tag_id} deleted'})
 
 #-----------------------------------------------------------------------
-# Contact Form Routes
+# Contact Form Routes (Does not require authentication)
 #-----------------------------------------------------------------------
 
 @app.route('/api/about/contact', methods=['POST'])
-@jwt_required
 def send_message():
     try:
         data = request.json

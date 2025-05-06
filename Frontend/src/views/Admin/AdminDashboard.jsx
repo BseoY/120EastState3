@@ -584,20 +584,20 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             className={`sidebar-button ${activeSection === 'metrics' ? 'active' : ''}`}
             onClick={() => setSection('metrics')}
           >
-            Metrics
+            Metrics 
           </button>
 
           <button
             className={`sidebar-button ${activeSection === 'pending' ? 'active' : ''}`}
             onClick={() => setSection('pending')}
           >
-            Pending Posts
+            Pending Posts [{pendingPosts.length}]
           </button>
           <button
             className={`sidebar-button ${activeSection === 'denied' ? 'active' : ''}`}
             onClick={() => setSection('denied')}
           >
-            Denied Posts
+            Denied Posts [{deniedPosts.length}]
           </button> 
           <button
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
@@ -606,13 +606,13 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               fetchTags(); // Refresh tags when clicking the tab
             }}
           >
-            Tags
+            Tags [{tags.length}]
           </button>
           <button
             className={`sidebar-button ${activeSection === 'announcements' ? 'active' : ''}`}
             onClick={() => setSection('announcements')}
           >
-            Announcements
+            Announcements [{announcements.length}]
           </button>
           <button 
             className={`sidebar-button`}
