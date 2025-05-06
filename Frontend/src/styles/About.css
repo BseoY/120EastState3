@@ -68,16 +68,20 @@
 .mission-section li {
   font-size: 1rem;
 }
-
+#church-statement {
+  text-align: left;
+}
 .church-container {
   padding: 3rem 3rem 0rem 3rem;
 }
-.church-section {
+#church-values {
   text-align: left;
 }
-.church-section h2, h3 {
+
+.church-section h2{
   text-align: left;
 }
+
 .church-section ul {
   display: flex;
   flex-wrap: wrap;

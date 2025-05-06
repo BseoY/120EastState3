@@ -101,14 +101,14 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
       <div className='church-container'>
         <div className="church-section">
           <h2>About 120 East State</h2>
-          <p>120 East State (120ES) was formed in April 2022 to create The Steeple Center in the heart of Trenton. 
+          <p id="church-statement">120 East State (120ES) was formed in April 2022 to create The Steeple Center in the heart of Trenton. 
             120ES’s purpose is to transform the First Presbyterian Church complex in the heart of Trenton into a 
             community-centered performing arts venue, an engine of economic development, and an opportunity for local
             empowerment giving voice, space, and welcome to its neighbors. As the steeple of this historic church has 
             stretched high above the downtown skyline signaling hope and mission, 120ES seeks to redirect the path laid 
             300 years ago and create a symbol of shared vision in the community.</p>
           <br></br>
-          <h3>Values</h3>
+          <h3 id="church-values">Values</h3>
           <ul>
             <li>Continuity</li>
             <li>Community</li>
@@ -199,6 +199,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
           </div>
           <figcaption>Henry Li (COS '27), Andrew Cho (COS '27), Brian Seo (COS '27)</figcaption>
         </figure>
+        <br></br>
         <p>We are a team of computer science students at Princeton University that were excited to help 120 East State build
           a digital platform for preserving and sharing the rich history and culture of 120 East State Street.
         </p>
