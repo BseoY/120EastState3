@@ -10,7 +10,7 @@ export default function InfoModal({ onClose }) {
         <hr></hr>
         <br></br>
         <p>Before you share your story, make sure your post:</p>
-        <ul id='share-story-list' style={{ listStyleType: "none" }}>
+        <ul id='share-story-list'>
           <li>Is respectful</li>
           <li>Is historically, socially, or culturally relevant</li>
           <li>Does not contain sensitive personal information</li>
@@ -18,7 +18,7 @@ export default function InfoModal({ onClose }) {
         <p>After you submit your post, we will review it to ensure it meets our expectations. You will recieve a decision through email.</p>
         <br></br>
         <div id='agreement'>
-          <label style={{ display: "flex", alignItems: "center" }}>
+        I understand and agree to these expectations
             <input
               type="checkbox"
               checked={checked}
@@ -26,8 +26,7 @@ export default function InfoModal({ onClose }) {
               style={{ marginRight: "10px" }}
               id='agreement-button'
             />
-            I understand and agree to these expectations
-          </label>
+
         </div>
         <br></br>
         <button
