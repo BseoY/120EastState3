@@ -68,7 +68,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <div className='main-about'>
         <div className='main-statement'>
-          <h2>The Digital Archive</h2>
+          <h1>The Digital Archive</h1>
           <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
             Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.
           </p>
@@ -76,12 +76,8 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         <img id="church-img" src={churchPhoto} alt="Church" />
       </div>
 
-      <div className="about-content">
-        <div className="about-section">
-          <h2>The Digital Archive</h2>
-          <p>120 East State is a digital platform dedicated to preserving and sharing the rich history and culture of 120 East State Street. 
-            Through our interactive archive and educational resources, we aim to connect people with the stories and memories that make this place unique.</p>
-          <br></br>
+      <div className="mission-container">
+        <div className="mission-section">
           <h3>Mission</h3>
           <ul>
             <li>Preserve historical documents and artifacts</li>
@@ -90,9 +86,21 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             <li>Engage the community in preserving local history</li>
           </ul>
         </div>
+
+        <div className="mission-section">
+          <h3>Values</h3>
+          <ul>
+            <li>Preserve historical documents and artifacts</li>
+            <li>Make historical information accessible to everyone</li>
+            <li>Educate visitors about the significance of 120 East State Street</li>
+            <li>Engage the community in preserving local history</li>
+          </ul>
+        </div>
+      </div>
         
-        <div className="about-section">
-          <h2>120 East State</h2>
+      <div className='church-container'>
+        <div className="church-section">
+          <h2>About 120 East State</h2>
           <p>120 East State (120ES) was formed in April 2022 to create The Steeple Center in the heart of Trenton. 
             120ES’s purpose is to transform the First Presbyterian Church complex in the heart of Trenton into a 
             community-centered performing arts venue, an engine of economic development, and an opportunity for local
@@ -100,100 +108,101 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             stretched high above the downtown skyline signaling hope and mission, 120ES seeks to redirect the path laid 
             300 years ago and create a symbol of shared vision in the community.</p>
           <br></br>
-          <h3>120ES’s Values</h3>
+          <h3>Values</h3>
           <ul>
             <li>Continuity</li>
             <li>Community</li>
             <li>Development</li>
             <li>Inclusion</li>
-            <li>Belief and Hope</li>
+            <li>Belief</li>
+            <li>Hope</li>
           </ul>
-        </div>
-        <div className="about-section">
-          <h2>Contact Us</h2>
-          <p>If you have any questions or inquiries, please contact us at:</p>
-          <br></br>
-          <form id="contact-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Name"
-              required
-              maxLength={maxNameChars}
-            />
-            <div className="character-count">
-              <span className={formData.name.length >= (maxNameChars * 0.8) ? "count-warning" : ""}>
-                {formData.name.length}
-              </span>
-              /{maxNameChars} characters
-            </div>
-
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Your Email"
-              required
-              pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
-              title="Please enter a valid email address"
-              maxLength={maxEmailChars}
-            />
-            {emailError && <p className="email-error">{emailError}</p>}
-            <div className="character-count">
-              <span className={formData.email.length >= (maxEmailChars * 0.8) ? "count-warning" : ""}>
-                {formData.email.length}
-              </span>
-              /{maxEmailChars} characters
-            </div>
-
-            <textarea 
-              id="subject"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Message"
-              required
-              maxLength={maxMessageChars}
-            ></textarea>
-            <div className="character-count">
-              <span className={formData.message.length >= (maxMessageChars * 0.8) ? "count-warning" : ""}>
-                {formData.message.length}
-              </span>
-              /{maxMessageChars} characters
-            </div>
-
-            <input
-              type="submit"
-              name="submit"
-              id="contact-submit"
-            />
-          </form>
-
-          {statusMessage && (
-            <p id="status-message">
-              {statusMessage}
-            </p>
-          )}
-        </div>
-
-        <div className='about-section'>
-          <h2>Developers</h2>
-          <figure>
-            <div className="team-photo-container">
-              <img src={teamPhoto} alt="120 East State Team" className="team-photo" />
-              <img src={teamPhotoHover} alt="120 East State Team Alternate View" className="team-photo-hover" />
-            </div>
-            <figcaption>Henry Li (COS '27), Andrew Cho (COS '27), Brian Seo (COS '27)</figcaption>
-          </figure>
-          <p>We are a team of computer science students at Princeton University that were excited to help 120 East State build
-            a digital platform for preserving and sharing the rich history and culture of 120 East State Street.
-          </p>
         </div>
       </div>
 
+      <div className="contact-section">
+        <h2>Contact Us</h2>
+        <p>If you have any questions or inquiries, please contact us at:</p>
+        <br></br>
+        <form id="contact-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Name"
+            required
+            maxLength={maxNameChars}
+          />
+          <div className="character-count">
+            <span className={formData.name.length >= (maxNameChars * 0.8) ? "count-warning" : ""}>
+              {formData.name.length}
+            </span>
+            /{maxNameChars} characters
+          </div>
+
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Your Email"
+            required
+            pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+            title="Please enter a valid email address"
+            maxLength={maxEmailChars}
+          />
+          {emailError && <p className="email-error">{emailError}</p>}
+          <div className="character-count">
+            <span className={formData.email.length >= (maxEmailChars * 0.8) ? "count-warning" : ""}>
+              {formData.email.length}
+            </span>
+            /{maxEmailChars} characters
+          </div>
+
+          <textarea 
+            id="subject"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="Message"
+            required
+            maxLength={maxMessageChars}
+          ></textarea>
+          <div className="character-count">
+            <span className={formData.message.length >= (maxMessageChars * 0.8) ? "count-warning" : ""}>
+              {formData.message.length}
+            </span>
+            /{maxMessageChars} characters
+          </div>
+
+          <input
+            type="submit"
+            name="submit"
+            id="contact-submit"
+          />
+        </form>
+
+        {statusMessage && (
+          <p id="status-message">
+            {statusMessage}
+          </p>
+        )}
+      </div>
+
+      <div className='contact-section'>
+        <h2>Developers</h2>
+        <figure>
+          <div className="team-photo-container">
+            <img src={teamPhoto} alt="120 East State Team" className="team-photo" />
+            <img src={teamPhotoHover} alt="120 East State Team Alternate View" className="team-photo-hover" />
+          </div>
+          <figcaption>Henry Li (COS '27), Andrew Cho (COS '27), Brian Seo (COS '27)</figcaption>
+        </figure>
+        <p>We are a team of computer science students at Princeton University that were excited to help 120 East State build
+          a digital platform for preserving and sharing the rich history and culture of 120 East State Street.
+        </p>
+      </div>
     <Footer></Footer>
     </div>
   );

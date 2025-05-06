@@ -24,11 +24,12 @@
   text-align: left;
   padding: 3rem;
 }
-.main-statement h2 {
+.main-statement h1 {
   text-align: left;
 }
 .main-statement p {
   font-weight: 350;
+  color: #1F8CB5;
 }
 
 #church-img {
@@ -38,10 +39,85 @@
   mask-image: linear-gradient(to right, transparent, rgb(126, 126, 126) 30%);
   -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
 }
+
+.mission-container {
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.mission-section {
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 2rem 3rem 3rem 3rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+}
+
+.mission-section h3 {
+  text-align: left;
+  font-size: 1.5rem;
+}
+
+.mission-section ul {
+  text-align: left;
+  padding: 0rem 1rem;
+}
+.mission-section li {
+  font-size: 1rem;
+}
+
+.church-container {
+  padding: 3rem 3rem 0rem 3rem;
+}
+.church-section {
+  text-align: left;
+}
+.church-section h2, h3 {
+  text-align: left;
+}
+.church-section ul {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: left;
+  gap: 5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: space-between; /* ensures even spacing when fewer than 3 */
+}
+
+.church-section li {
+  flex: 0 0 calc(33.333% - 4rem); /* fixed width: 1/3 minus gap */
+  box-sizing: border-box;
+  padding: 0rem 0rem 5rem 0rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: left;
+}
+.church-section li::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 80%;
+  background-color: #333;
+  margin-top: 1rem;
+}
+
+.contact-section {
+  padding: 3rem;
+}
+.contact-section h2 {
+  text-align: left;
+}
+.contact-section p {
+  text-align: left;
+}
 .about-section {
   background-color: white;
   border-radius: 8px;
-  padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
