@@ -555,22 +555,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   };
   
   // Reset announcement form
+
   const resetAnnouncementForm = () => {
     setCurrentAnnouncement(null);
     setNewAnnouncementTitle('');
     setNewAnnouncementContent('');
-    
-    // Set default start date to now
-    const now = new Date();
-    setNewAnnouncementStartDate(formatLocalDateTimeForInput(now));
-    
-    const sevenDaysLater = new Date();
-    sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-    setNewAnnouncementEndDate(formatLocalDateTimeForInput(sevenDaysLater));
-    
-    setHasExpirationDate(true);
+    setNewAnnouncementStartDate('');
+    setNewAnnouncementEndDate('');
     setAnnouncementFormVisible(false);
   };
+
   
   // Submit announcement form
   const handleAnnouncementFormSubmit = (e) => {
@@ -664,62 +658,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               <button 
                 className="add-tag-button"
                 onClick={() => setTagFormVisible(true)}
-                style={{padding: '8px 16px', marginBottom: '20px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
               >
                 Add New Tag
               </button>
               <p>Tags shown below are in order of when they were created. Otherwise, tags are sorted alphabetically.</p>
-              
-              {tagFormVisible && (
-                <div className="tag-form-container" style={{border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px'}}>
-                  <h2>{currentTag ? 'Edit Tag' : 'Create New Tag'}</h2>
-                  <form onSubmit={handleTagFormSubmit}>
-                    <div className="form-group" style={{marginBottom: '15px'}}>
-                      <label>Tag Name:</label>
-                      <input 
-                        type="text" 
-                        value={newTagName} 
-                        onChange={(e) => setNewTagName(e.target.value)}
-                        required
-                        style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                      />
-                    </div>
-                    
-                    {/* Removed display order field since we're now sorting alphabetically */}
-                    <div className="form-group" style={{marginBottom: '15px'}}>
-                      <label>Background Image:</label>
-                      <input 
-                        type="file" 
-                        onChange={handleImageChange}
-                        accept="image/*"
-                        style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px'}}
-                      />
-                    </div>
-                    
-                    {newTagImage && (
-                      <div className="image-preview" style={{marginBottom: '15px'}}>
-                        <img 
-                          src={newTagImage} 
-                          alt="Tag background preview" 
-                          style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                        />
-                        <button 
-                          type="button"
-                          onClick={handleRemoveImage}
-                          style={{marginTop: '10px', padding: '5px 10px', backgroundColor: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
-                        >
-                          Remove Image
-                        </button>
-                      </div>
-                    )}
-                    
-                    <div className="form-buttons" style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
-                      <button type="button" onClick={resetTagForm} style={{padding: '8px 16px', backgroundColor: '#ddd', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Cancel</button>
-                      <button type="submit" style={{padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>{currentTag ? 'Update' : 'Create'}</button>
-                    </div>
-                  </form>
-                </div>
-              )}
               
               {tags.length === 0 ? (
                 <p>No tags found</p>
@@ -817,86 +759,55 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 </button>
                 
                 {announcementFormVisible && (
-                  <div style={{border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px'}}>
+                <div className="modal-overlay">
+                  <div className="modal-content">
                     <h2>{currentAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</h2>
                     <form onSubmit={handleAnnouncementFormSubmit}>
-                      <div style={{marginBottom: '15px'}}>
-                        <label>Title:</label>
-                        <input 
-                          type="text" 
-                          value={newAnnouncementTitle} 
-                          onChange={(e) => setNewAnnouncementTitle(e.target.value)}
-                          required
-                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                        />
-                      </div>
-                      
-                      <div style={{marginBottom: '15px'}}>
-                        <label>Content:</label>
-                        <textarea 
-                          value={newAnnouncementContent} 
-                          onChange={(e) => setNewAnnouncementContent(e.target.value)}
-                          required
-                          rows={5}
-                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                        />
-                      </div>
-                      
-                      <div style={{marginBottom: '15px'}}>
-                        <label>Start Date:</label>
-                        <input 
-                          type="datetime-local" 
-                          value={newAnnouncementStartDate} 
-                          onChange={(e) => setNewAnnouncementStartDate(e.target.value)}
-                          required
-                          style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                        />
-                      </div>
-                      
-                      <div style={{marginBottom: '15px'}}>
-                        <label>
-                          <input 
-                            type="checkbox" 
-                            checked={hasExpirationDate} 
-                            onChange={(e) => setHasExpirationDate(e.target.checked)}
-                            style={{marginRight: '8px'}}
-                          />
-                          Has Expiration Date
-                        </label>
-                      </div>
-                      
-                      {hasExpirationDate && (
-                        <div style={{marginBottom: '15px'}}>
-                          <label>End Date:</label>
-                          <input 
-                            type="datetime-local" 
-                            value={newAnnouncementEndDate} 
-                            onChange={(e) => setNewAnnouncementEndDate(e.target.value)}
-                            required={hasExpirationDate}
-                            min={newAnnouncementStartDate}
-                            style={{display: 'block', width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc'}}
-                          />
-                        </div>
-                      )}
-                      
-                      <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
-                        <button 
-                          type="button" 
-                          onClick={resetAnnouncementForm}
-                          style={{padding: '8px 16px', backgroundColor: '#ddd', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
-                        >
-                          Cancel
-                        </button>
-                        <button 
-                          type="submit"
-                          style={{padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
-                        >
+                      <label>Title:</label>
+                      <input 
+                        type="text" 
+                        value={newAnnouncementTitle} 
+                        onChange={(e) => setNewAnnouncementTitle(e.target.value)}
+                        required
+                      />
+
+                      <label>Content:</label>
+                      <textarea 
+                        value={newAnnouncementContent} 
+                        onChange={(e) => setNewAnnouncementContent(e.target.value)}
+                        required
+                        rows={5}
+                      />
+
+                      <label>Start Date:</label>
+                      <input 
+                        type="datetime-local" 
+                        value={newAnnouncementStartDate} 
+                        onChange={(e) => setNewAnnouncementStartDate(e.target.value)}
+                        required
+                      />
+
+                      <label>End Date (optional):</label>
+                      <input 
+                        type="datetime-local" 
+                        value={newAnnouncementEndDate} 
+                        onChange={(e) => setNewAnnouncementEndDate(e.target.value)}
+                        min={newAnnouncementStartDate}
+                      />
+
+                      <div className="modal-buttons">
+                        <button type="submit" className="submit-button">
                           {currentAnnouncement ? 'Update' : 'Create'}
+                        </button>
+                        <button type="button" className="cancel-button" onClick={resetAnnouncementForm}>
+                          Cancel
                         </button>
                       </div>
                     </form>
                   </div>
-                )}
+                </div>
+              )}
+
                 
                 {announcements.length === 0 ? (
                   <p>No announcements found</p>
@@ -984,7 +895,47 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           </div>
         </div>
       )}
-    </>
+      {/* Tag Creation/Edit Modal */}
+      {tagFormVisible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>{currentTag ? 'Edit Tag' : 'Create New Tag'}</h2>
+            <form onSubmit={handleTagFormSubmit}>
+              <label>Tag Name:</label>
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                required
+              />
+
+              <label>Background Image:</label>
+              <input
+                type="file"
+                onChange={handleImageChange}
+                accept="image/*"
+              />
+
+              {newTagImage && (
+                <div className="image-preview">
+                  <img src={newTagImage} alt="Preview" />
+                  <button type="button" onClick={handleRemoveImage}>Remove</button>
+                </div>
+              )}
+
+              <div className="modal-buttons">
+                <button type="submit" className="submit-button">
+                  {currentTag ? 'Update' : 'Create'}
+                </button>
+                <button type="button" className="cancel-button" onClick={resetTagForm}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      </>
   );
 }
 

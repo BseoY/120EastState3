@@ -291,23 +291,10 @@ def create_post():
 @app.route('/api/user/posts', methods=['GET'])
 @jwt_required
 def get_user_posts():
-    """Get all posts created by the current authenticated user
-    
-    Methods:
-        GET: Retrieve posts for current user
-        
-    Returns:
-        GET: JSON array of all posts created by the user
-    """
-        
-    # Current user is verified by get_current_user() which checks the JWT token
     user = get_current_user()
-        
     try:
-        # Get the user's posts, sorted by most recent first
         posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_created.desc()).all()
         
-        # Format the posts for response
         result = []
         for post in posts:
             post_data = {
@@ -315,20 +302,28 @@ def get_user_posts():
                 'title': post.title,
                 'content': post.content,
                 'tag': post.tag,
-                'user_name': user.name,
+                'author': user.name,
                 'profile_pic': user.profile_pic,
                 'status': post.status,
                 'date_created': post.date_created,
+                'media': [{
+                    'id': media.id,
+                    'url': media.url,
+                    'media_type': media.media_type,
+                    'public_id': media.public_id,
+                    'filename': media.filename,
+                    'caption': media.caption
+                } for media in Media.query.filter_by(post_id=post.id).all()]
             }
             result.append(post_data)
-            
+        
         return jsonify(result)
     except Exception as e:
         return jsonify({
             'error': str(e),
             'message': 'An error occurred while fetching your posts'
         }), 500
-
+    
 @app.route('/api/upload', methods=['POST'])
 @jwt_required
 def upload_file():
