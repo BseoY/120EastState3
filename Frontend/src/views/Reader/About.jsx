@@ -77,7 +77,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
       </div>
 
       <div className="mission-container">
-        <div className="mission-section">
+        <div className="mission-box">
           <h3>Mission</h3>
           <ul>
             <li>Preserve historical documents and artifacts</li>
@@ -87,7 +87,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
           </ul>
         </div>
 
-        <div className="mission-section">
+        <div className="mission-box">
           <h3>Values</h3>
           <ul>
             <li>Preserve historical documents and artifacts</li>
