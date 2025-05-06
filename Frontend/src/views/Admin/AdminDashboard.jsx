@@ -359,7 +359,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       // First try to get all announcements from admin endpoint
       // If that fails (possibly due to missing backend implementation), fall back to regular endpoint
       try {
-        const res = await axios.get(`${BASE_API_URL}/api/admin/announcements`, {
+        const res = await axios.get(`${BASE_API_URL}/api/announcements`, {
         headers: {
           'Authorization': `Bearer ${getAuthToken()}`
         }
@@ -506,30 +506,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
   
-  // Toggle announcement active status
-  const toggleAnnouncementStatus = async (announcement) => {
-    try {
-      const newStatus = !announcement.is_active;
-      
-      await axios.put(
-        `${BASE_API_URL}/api/announcements/${announcement.id}`,
-        { is_active: newStatus },
-        {
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      }
-      );
-      
-      // Update announcement in state
-      setAnnouncements(announcements.map(a => 
-        a.id === announcement.id ? {...a, is_active: newStatus} : a
-      ));
-    } catch (err) {
-      console.error('Error toggling announcement status:', err);
-      alert('Failed to update announcement status. Please try again.');
-    }
-  };
+  // Removed toggle functionality - announcements are now only active or expired based on dates
   
   // Handle edit announcement button click
   const handleEditAnnouncement = (announcement) => {
@@ -835,20 +812,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                             <p style={{marginBottom: '15px', fontSize: '0.9rem'}}>{announcement.content}</p>
                             
                             <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
-                              <button 
-                                onClick={() => toggleAnnouncementStatus(announcement)}
-                                style={{
-                                  padding: '6px 12px', 
-                                  backgroundColor: announcement.is_active ? '#f6ffed' : '#f5f5f5',
-                                  color: announcement.is_active ? '#52c41a' : '#666',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  fontSize: '0.875rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                {announcement.is_active ? 'Deactivate' : 'Activate'}
-                              </button>
+                              {/* Activate/Deactivate button removed */}
                               
                               <button 
                                 onClick={() => handleEditAnnouncement(announcement)}
