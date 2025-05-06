@@ -665,12 +665,32 @@ def update_tag(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
         return jsonify({'error': 'Tag not found'}), 404
+    
     data = request.json
-    tag.name = data.get('name', tag.name)
+    old_name = tag.name  # Save old name
+    new_name = data.get('name', tag.name)
+    
+    tag.name = new_name
     tag.display_order = data.get('display_order', tag.display_order)
     tag.image_url = data.get('image_url', tag.image_url)
-    db.session.commit()
-    return jsonify({'id': tag.id, 'name': tag.name, 'display_order': tag.display_order, 'image_url': tag.image_url})
+    
+    try:
+        db.session.commit()
+        
+        # Now update all posts that had the old tag name
+        Post.query.filter_by(tag=old_name).update({Post.tag: new_name})
+        db.session.commit()
+        
+        return jsonify({
+            'id': tag.id,
+            'name': tag.name,
+            'display_order': tag.display_order,
+            'image_url': tag.image_url
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error updating tag and posts: {str(e)}'}), 500
+
 
 @app.route('/api/admin/tags/<int:tag_id>', methods=['DELETE'])
 @require_roles('admin')
@@ -698,7 +718,7 @@ def send_message():
         # Send email to organization email
         try:
             # Use cho.s.andy03@gmail.com directly for testing
-            org_email = "cho.s.andy03@gmail.com"  # Hardcoded for testing. Change to Organizational email when ready.
+            org_email = "120eaststate@gmail.com"  # Hardcoded for testing. Change to Organizational email when ready.
             print(f"Attempting to send email to: {org_email}")
             
             # Debug environment variables
