@@ -31,6 +31,7 @@ export default function Footer() {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/announcements">Announcements</Link></li>
             <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/archive">Archive</Link></li>
             <li><a href="https://120eaststate.org/" target='_blank'>Visit 120EastState Page</a></li>
           </ul>
         </div>

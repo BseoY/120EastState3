@@ -57,6 +57,11 @@
   border-radius: 10px;
 }
 
+@media (width < 768px) {
+  .mission-container {
+    flex-wrap: wrap;
+  }
+}
 .mission-box h3 {
   text-align: left;
   font-size: 1.5rem;

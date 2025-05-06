@@ -627,12 +627,57 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           {activeSection === "metrics" && (
             <div>
               <h1>Metrics</h1>
-              <p>Number of approved posts: {approvedPosts.length}</p>
-              <p>Number of denied posts: {deniedPosts.length}</p>
-              <p>Number of pending posts: {pendingPosts.length}</p>
-              <p>Number of users: {users.length}</p>
-              <p>Number of tags: {tags.length}</p>
-              <p>Number of Administrators: {administrators.length}</p>
+              <div id="metrics-container">
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': approvedPosts.length }}
+                  ></div>
+                  <p>{approvedPosts.length}</p>
+                  <span>Approved Posts</span>
+                </div>
+
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': pendingPosts.length }}
+                  ></div>
+                  <p>{pendingPosts.length}</p>
+                  <span>Pending Posts</span>
+                </div>
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': deniedPosts.length }}
+                  ></div>
+                  <p>{deniedPosts.length}</p>
+                  <span>Denied Posts</span>
+                </div>
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': users.length }}
+                  ></div>
+                  <p>{users.length}</p>
+                  <span>Users</span>
+                </div>
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': tags.length }}
+                  ></div>
+                  <p>{tags.length}</p>
+                  <span>Tags</span>
+                </div>
+                <div className="metrics-box">
+                  <div
+                    className="bar"
+                    style={{ '--value': administrators.length }}
+                  ></div>
+                  <p>{administrators.length}</p>
+                  <span>Admins</span>
+                </div>
+              </div>
             </div>
           )}
           {/* Tags Section */}
