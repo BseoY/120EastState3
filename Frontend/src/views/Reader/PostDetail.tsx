@@ -272,7 +272,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                         <button onClick={() => deletePost(post.id)} className="deny-button">Delete Post</button>
                       </div>
                     )}
-                    <Link to={`/tag/${post.tag}`} className="post-tag">#{post.tag}</Link>
+                    <Link to={`/tag/${post.tag}`} className="post-tag">{post.tag}</Link>
                   </div>
                 </div>
 
