@@ -16,7 +16,15 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [deniedPosts, setDeniedPosts] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("metrics");
+  const [activeSection, setActiveSection] = useState(() => {
+    // Initialize from localStorage or default to "metrics"
+    return localStorage.getItem('adminActiveSection') || "metrics";
+  });
+  const setSection = (section) => {
+    setActiveSection(section);
+    // Save to localStorage whenever section changes
+    localStorage.setItem('adminActiveSection', section);
+  };
   const [showDenyModal, setShowDenyModal] = useState(false);
   const [approvedPosts, setApprovedPosts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -574,28 +582,27 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
           <button
             className={`sidebar-button ${activeSection === 'metrics' ? 'active' : ''}`}
-            onClick={() => setActiveSection("metrics")}
+            onClick={() => setSection('metrics')}
           >
             Metrics
           </button>
 
           <button
             className={`sidebar-button ${activeSection === 'pending' ? 'active' : ''}`}
-            onClick={() => setActiveSection("pending")}
+            onClick={() => setSection('pending')}
           >
             Pending Posts
           </button>
           <button
             className={`sidebar-button ${activeSection === 'denied' ? 'active' : ''}`}
-            onClick={() => setActiveSection('denied')}
+            onClick={() => setSection('denied')}
           >
             Denied Posts
           </button> 
           <button
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
             onClick={() => {
-
-              setActiveSection('tags');
+              setSection('tags');
               fetchTags(); // Refresh tags when clicking the tab
             }}
           >
@@ -603,7 +610,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           </button>
           <button
             className={`sidebar-button ${activeSection === 'announcements' ? 'active' : ''}`}
-            onClick={() => setActiveSection('announcements')}
+            onClick={() => setSection('announcements')}
           >
             Announcements
           </button>

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #-----------------------------------------------------------------------
 # App.py
 # Author: Andrew Cho, Brian Seo, Henry Li
