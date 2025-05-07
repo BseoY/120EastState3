@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Nav from './Nav';
-import Sidebar from './Sidebar';
 import '../styles/PostDetail.css';
 import BASE_API_URL from '../config';
 import { formatLocalDate, formatLocalDateTime } from '../utils/dateUtils';
@@ -124,7 +122,7 @@ function PostDetail({ user, isAuthenticated, handleLogout }) {
           </form>
         ) : (
           <>
-            <h1>{post.title}</h1>
+            <h1 className="post-detail-title">{post.title}</h1>
             <p><strong>Tag:</strong> {post.tag}</p>
             <p><strong>By:</strong> {post.author}</p>
             <p><strong>Date:</strong> {formatLocalDateTime(post.date_created)}</p>

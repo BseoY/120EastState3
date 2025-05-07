@@ -49,8 +49,8 @@ function Form({ onNewPost, user }) {
     const { name, value } = e.target;
     
     // Apply character limits
-    if (name === 'title' && value.length > 100) {
-      return; // Don't update if exceeding 100 char limit for title
+    if (name === 'title' && value.length > 60) {
+      return; // Don't update if exceeding 60 char limit for title
     }
     if (name === 'content' && value.length > 1500) {
       return; // Don't update if exceeding 1500 char limit for content
@@ -350,14 +350,14 @@ function Form({ onNewPost, user }) {
                 onChange={handleChange}
                 required
                 placeholder="Enter post title"
-                maxLength={100}
+                maxLength={60}
               />
               <div className="character-count">
-                {/* Warning near 75 characters out of 100*/}
-                <span className={formData.title.length >= 75 ? "count-warning" : ""}>
+                {/* Warning near 45 characters out of 60*/}
+                <span className={formData.title.length >= 45 ? "count-warning" : ""}>
                   {formData.title.length}
                 </span>
-                /100 characters
+                /60 characters
               </div>
             </div>
 
