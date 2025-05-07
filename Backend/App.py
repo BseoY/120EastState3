@@ -182,8 +182,8 @@ def create_post():
         content = request.form.get('content')
         tag_name = request.form.get('tag')
         
-        if not title or not content:
-            return jsonify({'error': 'Title and content are required'}), 400
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
 
         # Create the new post
         new_post = Post(

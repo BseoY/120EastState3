@@ -560,6 +560,28 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       createAnnouncement();
     }
   };
+  
+  // Character limit handlers
+  const handleAnnouncementTitleChange = (e) => {
+    // Don't update if exceeding 100 char limit
+    if (e.target.value.length <= 100) {
+      setNewAnnouncementTitle(e.target.value);
+    }
+  };
+  
+  const handleAnnouncementContentChange = (e) => {
+    // Don't update if exceeding 500 char limit
+    if (e.target.value.length <= 500) {
+      setNewAnnouncementContent(e.target.value);
+    }
+  };
+  
+  const handleTagNameChange = (e) => {
+    // Don't update if exceeding 30 char limit
+    if (e.target.value.length <= 30) {
+      setNewTagName(e.target.value);
+    }
+  };
 
   useEffect(() => {
     fetchPendingPosts();
@@ -796,17 +818,31 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       <input 
                         type="text" 
                         value={newAnnouncementTitle} 
-                        onChange={(e) => setNewAnnouncementTitle(e.target.value)}
+                        onChange={handleAnnouncementTitleChange}
                         required
+                        maxLength={100}
                       />
+                      <div className="character-count">
+                        <span className={newAnnouncementTitle.length >= 75 ? "count-warning" : ""}>
+                          {newAnnouncementTitle.length}
+                        </span>
+                        /100 characters
+                      </div>
 
                       <label>Content:</label>
                       <textarea 
                         value={newAnnouncementContent} 
-                        onChange={(e) => setNewAnnouncementContent(e.target.value)}
+                        onChange={handleAnnouncementContentChange}
                         required
                         rows={5}
+                        maxLength={500}
                       />
+                      <div className="character-count">
+                        <span className={newAnnouncementContent.length >= 400 ? "count-warning" : ""}>
+                          {newAnnouncementContent.length}
+                        </span>
+                        /500 characters
+                      </div>
 
                       <label>Start Date:</label>
                       <input 
@@ -921,9 +957,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               <input
                 type="text"
                 value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
+                onChange={handleTagNameChange}
                 required
+                maxLength={30}
               />
+              <div className="character-count">
+                <span className={newTagName.length >= 25 ? "count-warning" : ""}>
+                  {newTagName.length}
+                </span>
+                /30 characters
+              </div>
 
               <label>Background Image:</label>
               <input

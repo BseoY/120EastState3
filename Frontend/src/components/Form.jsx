@@ -136,6 +136,9 @@ function Form({ onNewPost, user }) {
   
   // Update media caption
   const handleCaptionChange = (index, caption) => {
+    // Don't update if exceeding 50 char limit for caption
+    if (caption.length > 50) return;
+    
     setMediaFiles(prev => {
       const newFiles = [...prev];
       newFiles[index].caption = caption;
@@ -164,9 +167,9 @@ function Form({ onNewPost, user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError("Title and content are required");
+    // Basic validation - only title is required, content is optional
+    if (!formData.title.trim()) {
+      setError("Title is required");
       return;
     }
   
@@ -179,18 +182,14 @@ function Form({ onNewPost, user }) {
       formPayload.append('content', formData.content);
       if (formData.tag) formPayload.append('tag', formData.tag);
       
-      // Append all media files to the form data
       mediaFiles.forEach((media, index) => {
-        // Use a unique field name for each file
         formPayload.append(`media_${index}`, media.file);
         
-        // If there's a caption, add it with a matching field name
         if (media.caption) {
           formPayload.append(`media_${index}_caption`, media.caption);
         }
       });
   
-      // Get the authentication token
       const token = getAuthToken();
       
       const response = await axios.post(
@@ -228,7 +227,7 @@ function Form({ onNewPost, user }) {
           <div className="media-upload-container">
             <div className="media-upload-header">
               <h3>Upload Media</h3>
-              <p className="media-upload-info">Upload up to 5 files (images, videos, audio, documents)</p>
+              <p className="media-upload-info">Upload up to 5 files (images, videos, audio, documents). Captions are limited to 50 characters.</p>
             </div>
             
             {/* Media Upload Button */}
@@ -307,13 +306,22 @@ function Form({ onNewPost, user }) {
                     )}
                     
                     {/* Caption input */}
-                    <input
-                      type="text"
-                      placeholder="Add a caption"
-                      value={media.caption}
-                      onChange={(e) => handleCaptionChange(index, e.target.value)}
-                      className="media-caption-input"
-                    />
+                    <div className="caption-wrapper">
+                      <input
+                        type="text"
+                        placeholder="Add a caption"
+                        value={media.caption}
+                        onChange={(e) => handleCaptionChange(index, e.target.value)}
+                        className="media-caption-input"
+                        maxLength={50}
+                      />
+                      <div className="character-count caption-count">
+                        <span className={media.caption.length >= 40 ? "count-warning" : ""}>
+                          {media.caption.length}
+                        </span>
+                        /50
+                      </div>
+                    </div>
                     
                     {/* Remove button */}
                     <button 
@@ -361,8 +369,7 @@ function Form({ onNewPost, user }) {
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                required
-                placeholder="Enter content"
+                placeholder="Enter content (optional)"
                 maxLength={1500}
               />
               <div className="character-count">

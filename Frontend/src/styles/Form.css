@@ -341,6 +341,19 @@ textarea {
   padding-right: 10%;
 }
 
+.caption-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.caption-count {
+  position: absolute;
+  right: 0;
+  bottom: -18px;
+  font-size: 0.7rem;
+  padding-right: 5px;
+}
+
 .count-warning {
   color: #e53935;
   font-weight: bold;
