@@ -26,6 +26,13 @@ interface Post {
   profile_pic: string | null;
 }
 
+interface Tag {
+  id: number;
+  name: string;
+  display_order: number;
+  image_url?: string | null;
+}
+
 interface PostDetailProps {
   user: any;
   isAuthenticated: boolean;
@@ -53,6 +60,31 @@ const PostDetail: React.FC<PostDetailProps> = ({
   const [editedPost, setEditedPost] = useState<Partial<Post> | null>(null);
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  
+  // Tags for dropdown
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tagsLoading, setTagsLoading] = useState<boolean>(false);
+
+  // Fetch tags for dropdown
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        setTagsLoading(true);
+        const response = await axios.get(`${BASE_API_URL}/api/tags`);
+        // Sort tags alphabetically by name
+        const sortedTags = response.data.sort((a: Tag, b: Tag) => 
+          a.name.localeCompare(b.name)
+        );
+        setTags(sortedTags);
+        setTagsLoading(false);
+      } catch (err) {
+        console.error('Error fetching tags:', err);
+        setTagsLoading(false);
+      }
+    };
+    
+    fetchTags();
+  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -98,7 +130,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
   };
 
   // Handle edit form changes
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEditedPost(prev => {
       if (!prev) return null;
@@ -298,15 +330,20 @@ const PostDetail: React.FC<PostDetailProps> = ({
                   
                   <div className="form-group">
                     <label htmlFor="tag">Tag</label>
-                    <input 
-                      type="text"
+                    <select
                       id="tag"
                       name="tag"
                       value={editedPost?.tag || ''}
                       onChange={handleEditChange}
                       required
-                      className="form-control"
-                    />
+                      className="form-control tag-dropdown"
+                      disabled={tagsLoading}
+                    >
+                      <option value="">{tagsLoading ? "Loading tags..." : "Select a tag"}</option>
+                      {!tagsLoading && tags.map(tag => (
+                        <option key={tag.id} value={tag.name}>{tag.name}</option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div className="form-group">

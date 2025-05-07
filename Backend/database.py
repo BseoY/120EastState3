@@ -13,10 +13,11 @@ db = SQLAlchemy()
 # Post Table
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    # Tag field (string) for posts
-    tag = db.Column(db.String(100), nullable=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False) # char count handled by frontend
+    # Foreign key reference to Tag model
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), nullable=True)
+    tag = db.relationship('Tag', backref=db.backref('posts', lazy=True))
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Allow null for backward compatibility
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
@@ -45,7 +46,7 @@ class Media(db.Model):
     media_type = db.Column(db.String(50), nullable=False)  # 'image', 'video', 'audio', 'document'
     public_id = db.Column(db.String(200), nullable=True)  # Cloudinary public ID
     filename = db.Column(db.String(200), nullable=True)  # Original filename
-    caption = db.Column(db.String(500), nullable=True)
+    caption = db.Column(db.String(100), nullable=True)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     post = db.relationship('Post', backref=db.backref('media_files', lazy=True, cascade='all, delete-orphan'))
     
@@ -56,7 +57,7 @@ class Media(db.Model):
 class Announcement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
+    title = db.Column(db.String(100), nullable=False) 
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     date_start = db.Column(db.DateTime, nullable=False)

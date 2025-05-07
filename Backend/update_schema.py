@@ -1,5 +1,5 @@
 from flask import Flask
-from database import db, Announcement
+from database import db, Announcement, Post, Tag
 import os
 import dotenv
 from datetime import datetime
@@ -345,12 +345,54 @@ with app.app_context():
         print("role column already exists in User table.")
         
 
+    # Add tag_id column to Post table if it doesn't exist
+    if 'tag_id' not in columns:
+        print("\n=== ADDING TAG_ID TO POST TABLE ===\n")
+        print("Adding tag_id column to Post table...")
+        success = execute_ddl_safely(db.engine.connect(),
+            'ALTER TABLE post ADD COLUMN tag_id INTEGER REFERENCES tag(id)')
+        if success:
+            print("✅ tag_id column added successfully!")
+            
+            # Migrate existing tag strings to tag_id references
+            print("\n=== MIGRATING EXISTING TAGS ===\n")
+            print("Migrating from tag strings to tag_id references...")
+            # Get all posts with tag values
+            posts_with_tags = db.session.query(Post).filter(Post.tag != None).all()
+            print(f"Found {len(posts_with_tags)} posts with tags to migrate")
+            
+            # Process each post
+            for post in posts_with_tags:
+                if post.tag:
+                    # Find or create the tag
+                    tag = db.session.query(Tag).filter_by(name=post.tag).first()
+                    if not tag:
+                        # Create the tag if it doesn't exist
+                        tag = Tag(name=post.tag)
+                        db.session.add(tag)
+                        db.session.flush()  # To get the ID
+                        print(f"Created new tag: {tag.name} (ID: {tag.id})")
+                    
+                    # Update the post's tag_id
+                    post.tag_id = tag.id
+                    print(f"Updated post ID {post.id} to use tag_id {tag.id} ('{tag.name}')")
+            
+            # Commit all changes
+            db.session.commit()
+            print("Migration completed successfully!")
+        else:
+            print("❌ Failed to add tag_id column to Post table.")
+    else:
+        print("tag_id column already exists in Post table.")
+
     # Don't create test data automatically - this can be done manually if needed
     # More important to get the schema right first
 
     print("\n=== DATABASE UPDATE SUMMARY ===\n")
     print("✅ Schema update attempts completed.")
     print("✅ Announcement table structure should now match the model definition.")
+    print("✅ Post-Tag relationship structure updated.")
+    
     print("\nNext steps:")
     print("1. Restart your Flask application")
     print("2. Try accessing the announcements endpoints again")

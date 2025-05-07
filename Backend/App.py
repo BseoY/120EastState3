@@ -69,23 +69,29 @@ app.register_blueprint(auth_bp)
 # Posts Routes
 #-----------------------------------------------------------------------
 
-@app.route('/api/posts/tag/<string:tag>', methods=['GET'])
-def get_posts_by_tag(tag):
+@app.route('/api/posts/tag/<string:tag_name>', methods=['GET'])
+def get_posts_by_tag(tag_name):
     """Get all approved posts with a specific tag
     
     Args:
-        tag: The tag to filter posts by
+        tag_name: The tag name to filter posts by
         
     Returns:
         JSON array of posts with the specified tag
     """
     try:
-        posts = Post.query.filter_by(status='approved', tag=tag).order_by(Post.date_created.desc()).all()
+        # Find the tag by name
+        tag = Tag.query.filter_by(name=tag_name).first()
+        if not tag:
+            return jsonify({'error': 'Tag not found'}), 404
+            
+        # Get posts with this tag
+        posts = Post.query.filter_by(status='approved', tag_id=tag.id).order_by(Post.date_created.desc()).all()
         return jsonify([{
             'id': post.id,
             'title': post.title,
             'content': post.content,
-            'tag': post.tag,
+            'tag': post.tag.name if post.tag else None,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
@@ -132,7 +138,7 @@ def get_public_posts():
             'id': post.id,
             'title': post.title,
             'content': post.content,
-            'tag': post.tag,
+            'tag': post.tag.name if post.tag else None,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
@@ -174,19 +180,24 @@ def create_post():
     try:
         title = request.form.get('title')
         content = request.form.get('content')
-        tag = request.form.get('tag')
+        tag_name = request.form.get('tag')
         
         if not title or not content:
             return jsonify({'error': 'Title and content are required'}), 400
 
-        # Create and save the new post
+        # Create the new post
         new_post = Post(
             title=title,
             content=content,
-            tag=tag,
             user_id=user.id,
             status='pending'
         )
+        
+        # Find or create the tag if provided
+        if tag_name:
+            tag = Tag.query.filter_by(name=tag_name).first()
+            if tag:
+                new_post.tag_id = tag.id
         
         db.session.add(new_post)
         db.session.flush()  # Flush to get the new post ID without committing transaction
@@ -274,7 +285,7 @@ def create_post():
                 'id': new_post.id,
                 'title': title,
                 'content': content,
-                'tag': tag,
+                'tag': tag_name,
                 'media': [{
                     'id': media.id,
                     'url': media.url,
@@ -303,7 +314,7 @@ def get_user_posts():
                 'id': post.id,
                 'title': post.title,
                 'content': post.content,
-                'tag': post.tag,
+                'tag': post.tag.name if post.tag else None,
                 'author': user.name,
                 'profile_pic': user.profile_pic,
                 'status': post.status,
@@ -394,7 +405,7 @@ def get_pending_posts():
         'id': post.id,
         'title': post.title,
         'content': post.content,
-        'tag': post.tag,
+        'tag': post.tag.name if post.tag else None,
         'date_created': post.date_created,
         'user_id': post.user_id,
         'author': post.user.name if post.user else 'Anonymous',
@@ -425,7 +436,7 @@ def get_denied_posts():
         'id': post.id,
         'title': post.title,
         'content': post.content,
-        'tag': post.tag,
+        'tag': post.tag.name if post.tag else None,
         'date_created': post.date_created,
         'user_id': post.user_id,
         'author': post.user.name if post.user else 'Anonymous',
@@ -491,7 +502,18 @@ def edit_post_admin(post_id):
         if 'content' in data:
             post.content = data['content']
         if 'tag' in data:
-            post.tag = data['tag']
+            tag_name = data['tag']
+            if tag_name:
+                # Find or create tag
+                tag = Tag.query.filter_by(name=tag_name).first()
+                if not tag:
+                    # Create tag if it doesn't exist
+                    tag = Tag(name=tag_name)
+                    db.session.add(tag)
+                    db.session.flush()
+                post.tag_id = tag.id
+            else:
+                post.tag_id = None
             
         # Save changes
         db.session.commit()
@@ -501,7 +523,7 @@ def edit_post_admin(post_id):
             'id': post.id,
             'title': post.title,
             'content': post.content,
-            'tag': post.tag,
+            'tag': post.tag.name if post.tag else None,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
@@ -575,7 +597,7 @@ def get_post_by_id(post_id):
             'id': post.id,
             'title': post.title,
             'content': post.content,
-            'tag': post.tag,
+            'tag': post.tag.name if post.tag else None,
             'date_created': post.date_created,
             'user_id': post.user_id,
             'author': post.user.name if post.user else 'Anonymous',
@@ -678,9 +700,9 @@ def update_tag(tag_id):
     try:
         db.session.commit()
         
-        # Now update all posts that had the old tag name
-        Post.query.filter_by(tag=old_name).update({Post.tag: new_name})
-        db.session.commit()
+        # We don't need to update posts since we're using a relationship
+        # All posts that reference this tag will automatically use the updated name
+        # through the relationship
         
         return jsonify({
             'id': tag.id,
