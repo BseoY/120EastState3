@@ -399,4 +399,5 @@ with app.app_context():
     print("3. If still getting errors, check the Flask logs for specific error messages")
     print("\nIf you want to manually verify the database structure, run:")
     print("\tpsql <your-connection-string>")
-    print("\t\SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = 'announcement';")
+    print(r"\t\SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = 'announcement';")
+    # Using a raw string (r prefix) prevents Python from interpreting backslashes as escape characters
