@@ -17,7 +17,6 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   
   // Maximum character limits (kept simple)
   const maxNameChars = 50;
-  const maxEmailChars = 100;
   const maxMessageChars = 500;
   
   const [statusMessage, setStatusMessage] = useState('');
@@ -34,7 +33,6 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
   };
   
   // Character count displays
-  const emailCount = `${formData.email.length}/${maxEmailChars}`;
   const nameCount = `${formData.name.length}/${maxNameChars}`;
   const messageCount = `${formData.message.length}/${maxMessageChars}`;
 
@@ -150,15 +148,8 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
             required
             pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
             title="Please enter a valid email address"
-            maxLength={maxEmailChars}
           />
           {emailError && <p className="email-error">{emailError}</p>}
-          <div className="character-count">
-            <span className={formData.email.length >= (maxEmailChars * 0.8) ? "count-warning" : ""}>
-              {formData.email.length}
-            </span>
-            /{maxEmailChars} characters
-          </div>
 
           <textarea 
             id="subject"
