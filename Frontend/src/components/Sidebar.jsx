@@ -20,9 +20,10 @@ export default function Sidebar({ isAdmin }) {
       <ul className='list'>
         <a className='menu-option' href='/archive'>Archive</a>
         <a className='menu-option' href='/share'>Share Your Story</a>
-        <a className='menu-option' href='/about'>About</a>
         <a className='menu-option' href='/announcements'>Announcements</a>
+        <a className='menu-option' href='/about'>About</a>
         {isAdmin && <a className='menu-option' href='/admin'>Admin</a>}
+        
       </ul>
       
       <p id="signature">120EastState</p>

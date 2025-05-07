@@ -116,13 +116,13 @@ function Nav({ user, isAuthenticated, onLogout }) {
           <div className='nav-links'>
             <a href="/share" className='nav-link'>Share Your Story</a>
             <a href="/archive" className='nav-link'>Archive</a>
-            <a href="/about" className='nav-link'>About</a>
             <a href="/announcements" className='nav-link'>
               Announcements
               {unreadAnnouncementsCount > 0 && (
                 <span className="notification-badge">{unreadAnnouncementsCount}</span>
               )}
             </a>
+            <a href="/about" className='nav-link'>About</a>
             {isAdmin && <a href="/admin" className='nav-link'>Admin</a>}
           </div>
         )}
