@@ -167,7 +167,8 @@ def login():
             authorization_endpoint,
             redirect_uri=url_for('auth.callback', _external=True),
             scope=['openid', 'email', 'profile'],
-            state=return_to
+            state=return_to,
+            prompt='select_account'
         )
 
         # Since the frontend is now directly redirecting to this endpoint,

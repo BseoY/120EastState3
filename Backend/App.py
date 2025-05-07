@@ -382,7 +382,6 @@ def upload_file():
 @app.route('/api/admin/pending-posts', methods=['GET'])
 @require_roles('admin')
 def get_pending_posts():
-    print("alkfsdjlafsd")
     """Get all pending posts that need admin approval
     
     This endpoint is restricted to users with 'admin' role
