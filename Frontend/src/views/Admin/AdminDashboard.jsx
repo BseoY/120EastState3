@@ -717,25 +717,25 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               {tags.length === 0 ? (
                 <p>No tags found</p>
               ) : (
-                <div className='tag-container' style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
+                <div className='tag-container'>
                   {tags.map((tag) => (
-                    <div key={tag.id} className='tag-item' style={{width: '250px', height: '250px', position: 'relative', margin: '0 auto 20px auto', borderRadius: '8px', overflow: 'hidden'}}>
+                    <div key={tag.id} className='tag-item'>
                       {/* Background image or defaultPic fallback */}
                       {tag.image_url ? (
-                        <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${tag.image_url})`, backgroundSize: 'cover', filter: 'grayscale(100%)'}}></div>
+                        <div className='tag-image' style={{backgroundImage: `url(${tag.image_url})`}}></div>
                       ) : (
-                        <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${defaultPic})`, backgroundSize: 'cover', filter: 'grayscale(100%)'}}></div>
+                        <div className='tag-image' style={{backgroundImage: `url(${defaultPic})`}}></div>
                       )}
                       
                       {/* Content overlay */}
-                      <div style={{position: 'relative', padding: '15px', height: '100%', color: 'white', display: 'flex', flexDirection: 'column'}}>
+                      <div className='tag-content-overlay'>
                         <h3>{tag.name}</h3>
                         {/* Removed display order display */}
                         
                         {/* Actions */}
-                        <div style={{marginTop: 'auto', display: 'flex', gap: '10px'}}>
-                          <button onClick={() => handleEditTag(tag)} style={{flex: 1, padding: '8px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Edit</button>
-                          <button onClick={() => deleteTag(tag.id)} style={{flex: 1, padding: '8px', backgroundColor: '#cc3300', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Delete</button>
+                        <div className='tag-actions'>
+                          <button onClick={() => handleEditTag(tag)} className='tag-edit-button'>Edit</button>
+                          <button onClick={() => deleteTag(tag.id)} className='tag-delete-button'>Delete</button>
                         </div>
                       </div>
                     </div>
@@ -777,7 +777,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 ) : (
                   <div className="archive-grid">
                     {deniedPosts.map((post) => (
-                      <div key={post.id} style={{ position: 'relative' }}>
+                      <div key={post.id} className="archive-post-container">
                         <ArchiveCard post={post} />
                         <div className="admin-actions-overlay">
                           <button onClick={() => reApprovePost(post.id)} className="approve-button">Re-Approve</button>
@@ -804,7 +804,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                     setHasExpirationDate(true);
                     setAnnouncementFormVisible(true);
                   }}
-                  style={{padding: '8px 16px', marginBottom: '20px', backgroundColor: '#1F8CB5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  className="add-announcement-button"
                 >
                   Add New Announcement
                 </button>
@@ -877,18 +877,18 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 {announcements.length === 0 ? (
                   <p>No announcements found</p>
                 ) : (
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
+                  <div className="announcements-container">
                     {announcements.map((announcement) => (
-                      <div key={announcement.id} style={{border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden'}}>
-                        <div style={{position: 'relative'}}>
-                          <div style={{position: 'absolute', top: 0, right: 0, padding: '4px 8px', borderRadius: '0 0 0 4px', fontSize: '0.8rem', fontWeight: '500'}} className={`status-badge-${announcement.status}`}>
+                      <div key={announcement.id} className="announcement-card">
+                        <div className="announcement-header">
+                          <div className={`announcement-status-badge status-badge-${announcement.status}`}>
                             {announcement.status}
                           </div>
                           
-                          <div style={{padding: '15px'}}>
-                            <h3 style={{margin: '0 0 10px 0'}}>{announcement.title}</h3>
+                          <div className="announcement-content">
+                            <h3 className="announcement-title">{announcement.title}</h3>
                             
-                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.8rem', color: '#666'}}>
+                            <div className="announcement-dates">
                               <span>Start: {formatLocalDate(announcement.date_start)}</span>
                               {announcement.date_end ? (
                                 <span>End: {formatLocalDate(announcement.date_end)}</span>
@@ -897,21 +897,21 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                               )}
                             </div>
                             
-                            <p style={{marginBottom: '15px', fontSize: '0.9rem'}}>{announcement.content}</p>
+                            <p className="announcement-text">{announcement.content}</p>
                             
-                            <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
+                            <div className="announcement-actions">
                               {/* Activate/Deactivate button removed */}
                               
                               <button 
                                 onClick={() => handleEditAnnouncement(announcement)}
-                                style={{padding: '6px 12px', backgroundColor: '#e6f7ff', color: '#0066cc', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer'}}
+                                className="announcement-edit-button"
                               >
                                 Edit
                               </button>
                               
                               <button 
                                 onClick={() => deleteAnnouncement(announcement.id)}
-                                style={{padding: '6px 12px', backgroundColor: '#fff1f0', color: '#f5222d', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer'}}
+                                className="announcement-delete-button"
                               >
                                 Delete
                               </button>
