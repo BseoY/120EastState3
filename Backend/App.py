@@ -15,8 +15,12 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
-from email_functions import send_decision_email, send_contact_form_email
+from email_functions import send_decision_email, send_contact_form_email, send_email
 from auth import auth_bp, jwt_required, require_roles, get_current_user
+import logging
+from logging.handlers import RotatingFileHandler
+from sqlalchemy import text  # Add this with your other imports
+
 
 #-----------------------------------------------------------------------
 
@@ -25,6 +29,19 @@ load_dotenv()
 
 # Initialize app
 app = Flask(__name__)
+
+
+# ADD LOGGING CONFIGURATION RIGHT HERE
+if not app.debug:
+    # Production logging - rotate logs and keep last 5 files of 10MB each
+    file_handler = RotatingFileHandler('backend.log', maxBytes=1024*1024*10, backupCount=5)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('120 East State backend startup')
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
@@ -170,6 +187,8 @@ def create_post():
     """
     
     # Only handle POST requests in this route
+    if 'test' in request.form.get('title', '').lower():
+        return jsonify({'error': 'Test posts not allowed in production'}), 400
     
     # Create a new post
     user = get_current_user()
@@ -859,6 +878,8 @@ def create_announcement():
         
     try:
         data = request.json
+        if 'test' in data.get('title', '').lower():
+            return jsonify({'error': 'Test announcements not allowed in production'}), 400  
         
         # Required fields
         title = data.get('title')
@@ -1000,6 +1021,193 @@ def handle_single_announcement(announcement_id):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': f'Error deleting announcement: {str(e)}'}), 500
+
+
+# =======================================================================
+# TESTING ROUTES
+# =======================================================================
+
+@app.route('/api/test/database', methods=['GET'])
+def test_database_connection():
+    """Test database connection and basic operations"""
+    try:
+        # Test connection
+        db.session.execute(text('SELECT 1'))
+        
+        # Test model operations
+        test_tag = Tag(name='test_tag', display_order=999)
+        db.session.add(test_tag)
+        db.session.flush()
+        
+        test_post = Post(
+            title='Test Post',
+            content='This is a test post',
+            status='approved',
+            tag_id=test_tag.id
+        )
+        db.session.add(test_post)
+        db.session.flush()
+        
+        # Clean up
+        db.session.rollback()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Database connection and basic operations working'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Database test failed'
+        }), 500
+
+@app.route('/api/test/cloudinary', methods=['GET'])
+def test_cloudinary():
+    """Test Cloudinary connection"""
+    try:
+        # Try to get Cloudinary config
+        config = cloudinary.config()
+        return jsonify({
+            'success': True,
+            'cloud_name': config.cloud_name,
+            'api_key': config.api_key[:4] + '...',  # Don't expose full key
+            'message': 'Cloudinary configured correctly'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Cloudinary test failed'
+        }), 500
+
+@app.route('/api/test/email', methods=['GET'])
+@require_roles('admin')
+def test_email():
+    """Test email sending functionality (admin only)"""
+    try:
+        test_email = "120eaststate@gmail.com"  # Change to your test email
+        subject = "120 East State - Test Email"
+        content = "<h1>Test Email</h1><p>This is a test email from the 120 East State backend system.</p>"
+        
+        success = send_email(test_email, subject, content)
+        return jsonify({
+            'success': success,
+            'message': 'Email test attempted - check your inbox',
+            'test_email': test_email
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Email test failed'
+        }), 500
+
+@app.route('/api/test/fixtures', methods=['POST'])
+@require_roles('admin')
+def create_test_fixtures():
+    """Create test data in the database (admin only)"""
+    try:
+        # Create test user
+        test_user = User(
+            google_id='test_user_123',
+            email='testuser@120eaststate.org',
+            name='Test User',
+            profile_pic='https://example.com/test.jpg',
+            role='user'
+        )
+        db.session.add(test_user)
+        
+        # Create test tags
+        test_tags = []
+        for i in range(1, 4):
+            tag = Tag(
+                name=f'Test Tag {i}',
+                display_order=900 + i,
+                image_url=f'https://example.com/tag_{i}.jpg'
+            )
+            db.session.add(tag)
+            test_tags.append(tag)
+        
+        db.session.flush()
+        
+        # Create test posts
+        for i in range(1, 6):
+            post = Post(
+                title=f'Test Post {i}',
+                content=f'This is test post content #{i}',
+                user_id=test_user.id,
+                tag_id=test_tags[i % 3].id,
+                status='approved' if i % 2 == 0 else 'pending'
+            )
+            db.session.add(post)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Test fixtures created successfully',
+            'user_id': test_user.id,
+            'tag_ids': [t.id for t in test_tags]
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to create test fixtures'
+        }), 500
+
+@app.route('/api/test/cleanup', methods=['DELETE'])
+@require_roles('admin')
+def cleanup_test_data():
+    """Clean up test data (admin only)"""
+    try:
+        # Delete test posts
+        db.session.query(Post).filter(Post.title.like('Test Post %')).delete()
+        
+        # Delete test tags
+        db.session.query(Tag).filter(Tag.name.like('Test Tag %')).delete()
+        
+        # Delete test user
+        db.session.query(User).filter(User.email == 'testuser@120eaststate.org').delete()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Test data cleaned up successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to clean up test data'
+        }), 500
+    
+# =======================================================================
+# TESTING ROUTES - REMOVE BEFORE PRODUCTION
+# =======================================================================
+
+@app.route('/api/test/log', methods=['GET'])
+def test_logging():
+    """Test logging functionality"""
+    app.logger.debug('This is a DEBUG test message')
+    app.logger.info('This is an INFO test message')
+    app.logger.warning('This is a WARNING test message')
+    app.logger.error('This is an ERROR test message')
+    app.logger.critical('This is a CRITICAL test message')
+    
+    return jsonify({
+        'success': True,
+        'message': 'Test log messages written'
+    })
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "This page doesn't exist"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
