@@ -18,6 +18,7 @@ export default function InfoModal({ onClose }) {
         </ul>
         
         <p>Once submitted, your post will be reviewed by our team. You'll receive an approval or denial email once a decision has been made.</p>
+        <p>The 120 East State team reserves the right to approve, deny, edit, and delete posts at any time.</p>
         
         <div id='agreement'>
           By continuing, you confirm that you've read and agree to these expectations.
