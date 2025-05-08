@@ -31,18 +31,27 @@ const AnnouncementBanner = ({ announcement }) => {
           Posted: {formatDate(announcement.date_created)}
         </div>
       </div>
+      
+      {/* User information */}
+      {announcement.user && (
+        <div className="announcement-user-info">
+          <div className="user-profile">
+            <img 
+              src={announcement.user.profile_pic || '/default-avatar.png'} 
+              alt={announcement.user.name} 
+              className="user-profile-pic"
+            />
+            <span className="user-name">{announcement.user.name}</span>
+          </div>
+        </div>
+      )}
+      
       <div className="announcement-content">
         {announcement.content}
       </div>
+      
       <div className="announcement-footer">
-        <div className="announcement-dates">
-          <span>Active from: {formatDate(announcement.date_start)}</span>
-          {announcement.date_end && (
-            <span className="announcement-end-date">
-              Until: {formatDate(announcement.date_end)}
-            </span>
-          )}
-        </div>
+        {/* The end date is still in the backend but not displayed here */}
       </div>
     </div>
   );

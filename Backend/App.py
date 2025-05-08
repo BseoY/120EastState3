@@ -813,10 +813,10 @@ def get_public_announcements():
     try:
         current_time = datetime.now(UTC)
         
-        # Query for active announcements that are either not expired or don't have an expiration date
+        # Query for active announcements that are not expired or don't have an expiration date
         announcements = Announcement.query.filter(
             Announcement.is_active == True,
-            Announcement.date_start <= current_time,
+            # We use date_created instead of date_start now
             # Either no expiration date (date_end is None) or expiration date is in the future
             (Announcement.date_end.is_(None) | (Announcement.date_end >= current_time))
         ).order_by(Announcement.date_created.desc()).all()
@@ -826,7 +826,7 @@ def get_public_announcements():
             'title': announcement.title,
             'content': announcement.content,
             'date_created': announcement.date_created,
-            'date_start': announcement.date_start,
+            # date_end is kept for backend use but not displayed in frontend
             'date_end': announcement.date_end,
             'is_active': announcement.is_active,
             'user': {
@@ -863,17 +863,15 @@ def create_announcement():
         # Required fields
         title = data.get('title')
         content = data.get('content')
-        date_start = data.get('date_start')
         
         # Optional fields
         date_end = data.get('date_end')  # Can be null for no expiration
         
-        if not title or not content or not date_start:
+        if not title or not content:
             return jsonify({'error': 'Missing required fields'}), 400
         
-        # Convert string dates to datetime objects
+        # Convert string dates to datetime objects for end date
         try:
-            date_start = datetime.fromisoformat(date_start.replace('Z', '+00:00'))
             if date_end:
                 date_end = datetime.fromisoformat(date_end.replace('Z', '+00:00'))
             else:
@@ -881,12 +879,11 @@ def create_announcement():
         except ValueError:
             return jsonify({'error': 'Invalid date format'}), 400
         
-        # Create new announcement
+        # Create new announcement (date_created is auto-generated)
         new_announcement = Announcement(
             user_id=current_user.id,
             title=title,
             content=content,
-            date_start=date_start,
             date_end=date_end,
             is_active=True
         )
@@ -901,7 +898,6 @@ def create_announcement():
                 'title': new_announcement.title,
                 'content': new_announcement.content,
                 'date_created': new_announcement.date_created,
-                'date_start': new_announcement.date_start,
                 'date_end': new_announcement.date_end,
                 'is_active': new_announcement.is_active
             }
@@ -939,7 +935,6 @@ def handle_single_announcement(announcement_id):
             'title': announcement.title,
             'content': announcement.content,
             'date_created': announcement.date_created,
-            'date_start': announcement.date_start,
             'date_end': announcement.date_end,
             'is_active': announcement.is_active,
             'user': {
@@ -963,11 +958,6 @@ def handle_single_announcement(announcement_id):
                 announcement.title = data['title']
             if 'content' in data:
                 announcement.content = data['content']
-            if 'date_start' in data:
-                try:
-                    announcement.date_start = datetime.fromisoformat(data['date_start'].replace('Z', '+00:00'))
-                except ValueError:
-                    return jsonify({'error': 'Invalid date_start format'}), 400
             if 'date_end' in data:
                 if data['date_end']:
                     try:
@@ -988,7 +978,6 @@ def handle_single_announcement(announcement_id):
                     'title': announcement.title,
                     'content': announcement.content,
                     'date_created': announcement.date_created,
-                    'date_start': announcement.date_start,
                     'date_end': announcement.date_end,
                     'is_active': announcement.is_active
                 }

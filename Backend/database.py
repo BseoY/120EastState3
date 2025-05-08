@@ -59,9 +59,8 @@ class Announcement(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False) 
     content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    date_start = db.Column(db.DateTime, nullable=False)
-    date_end = db.Column(db.DateTime, nullable=True)  # Changed to nullable to allow no expiration date
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)  # Start date of announcements, as well as date posted
+    date_end = db.Column(db.DateTime, nullable=True)  # End date for backend use, not shown in frontend
     is_active = db.Column(db.Boolean, default=True)  # Flag to manually enable/disable announcements
 
     user = db.relationship('User', backref=db.backref('announcements', lazy=True))

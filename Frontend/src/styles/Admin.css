@@ -537,6 +537,30 @@
   padding: 15px;
 }
 
+/* User Profile Styles in Announcements */
+.announcement-user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #eaeaea;
+}
+
+.user-profile-pic {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1F8CB5;
+  margin-right: 10px;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
 .announcement-title {
   margin: 0 0 10px 0;
 }
