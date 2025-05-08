@@ -372,6 +372,12 @@
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s;
+}
+
+.deny-button:hover {
+  transform: translate(0, -3px);
+  background-color: #bf4541;
 }
 
 /* Tag Management Styles */

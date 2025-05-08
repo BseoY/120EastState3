@@ -212,7 +212,7 @@
   border: none;
   background-color: #ccc; /* Default gray color */
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 400;
   border-radius: 8px;
   color: #333;
 }
@@ -220,16 +220,43 @@
 .tab:hover {
   background-color: #bbb;
 }
+.tab:first-child::before {
+  content: '\f00c'; /* Font Awesome check icon (✓) */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900; /* Required for solid icons */
+  margin-right: 0.5rem;
+}
+
+.tab:last-child::before {
+  content: '\f00d'; /* Font Awesome X icon (✕) */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900; /* Required for solid icons */
+  margin-right: 0.5rem;
+}
 
 .tab.active-approved {
   background-color: rgb(92, 184, 92); /* Green for approved */
   color: white;
 }
+.tab.active-approved::before {
+  content: '\f00c'; /* Font Awesome check icon (✓) */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900; /* Required for solid icons */
+}
+
 
 .tab.active-denied {
   background-color: rgb(217, 83, 79); /* Red for denied */
   color: white;
+  
 }
+.tab.active-denied::before {
+  content: '\f00d'; /* Font Awesome X icon (✕) */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900; /* Required for solid icons */
+
+}
+
 
   .post-actions {
     margin-top: 0.5rem;
@@ -245,11 +272,16 @@
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 6px 12px;
+    padding: 0.5rem 1rem;
     font-size: 0.85rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: background-color 0.2s ease;
+  }
+  .delete-btn::before {
+    content: '\f2ed';
+    font-family: 'Font Awesome 5 Free';
+    margin-right: 0.5rem;
   }
   
   .delete-btn:hover {

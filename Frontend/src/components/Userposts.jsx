@@ -126,7 +126,7 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
                   <div className="admin-actions-overlay">
                     <button 
                       onClick={() => handleDelete(post.id)} 
-                      className="deny-button"
+                      className="delete-btn"
                     >
                       Delete
                     </button>
