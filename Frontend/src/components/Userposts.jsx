@@ -100,13 +100,13 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
 
         <div className="post-tabs" style={{ marginBottom: '1rem' }}>
           <button 
-            className={`tab ${selectedTab === 'approved' ? 'active' : ''}`}
+            className={`tab ${selectedTab === 'approved' ? 'active-approved' : ''}`}
             onClick={() => setSelectedTab('approved')}
           >
             Approved
           </button>
           <button 
-            className={`tab ${selectedTab === 'denied' ? 'active' : ''}`}
+            className={`tab ${selectedTab === 'denied' ? 'active-denied' : ''}`}
             onClick={() => setSelectedTab('denied')}
           >
             Denied
