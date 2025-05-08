@@ -14,7 +14,7 @@ export default function Sidebar({ isAdmin }) {
 
     <div className={`sidebar ${open ? "open" : ""}`}>
       <button className='menu-btn' onClick={() => setOpen(false)}>
-        &#9776;
+        &times;
       </button>
 
       <ul className='list'>

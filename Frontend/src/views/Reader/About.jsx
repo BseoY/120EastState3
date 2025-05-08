@@ -110,29 +110,33 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
           <ul>
             <li>
             <h4>Continuity</h4>
-            <p>First Presbyterian Church, in the heart of Trenton, has served the community for 300 years. We envision a renovated multipurpose complex to continue and broaden the legacy of service to our current neighbors and to those we will meet at the Steeple Center in the years to come.</p>
+            <p>For 300 years, First Presbyterian Church has served Trenton. The renovated Steeple Center will carry that legacy forward for future generations.</p>
             </li>
             
             <li>
             <h4>Community</h4>
-            <p>The heart of Trenton is unique – a government center, but the home to thousands of people who seek a place to be safe and heard. The Steeple Center is a resource and a place that can welcome, serve, and enrich our community and in turn  be broadened and enriched by our community.</p>
+            <p>Trenton is home to thousands seeking safety and belonging. The Steeple Center will be a welcoming space that serves and grows with the community.</p>
             </li>
 
             <li>
             <h4>Development</h4>
-            <p>The Steeple Center will use its unique location and footprint to provide a home for non-profit and for-profit enterprises that will invest and be woven into the fabric of the community. Together, the Steeple Center and these enterprises will serve as vehicles to create economic opportunities for their neighbors and inspire new investment in downtown Trenton.</p>
+            <p>The Steeple Center will host mission-driven businesses that create economic opportunities and inspire new investment in downtown Trenton.</p>
             </li>
 
             <li>
             <h4>Inclusion</h4>
-            <p>The community surrounding the Steeple Center has evolved over three centuries. The Steeple Center will be a place where all members of that evolving community are welcomed and empowered to build a relationship with us and a more vibrant and just city. There is much to do, and we welcome all voices, vision and partnership.</p>
+            <p>The Steeple Center will be a place where everyone is welcomed, heard, and empowered to help build a more vibrant and just city.</p>
             </li>
 
             <li>
-            <h4>Belief and Hope</h4>
-            <p>The Steeple Center is based on the belief that challenges should never stop us from imagining a better tomorrow, the “infinite hope” of which Dr. King spoke. From belief and hope come action and from action comes a transformed present and future. The steps we take today will change the arc of our community and, alongside our partners, we will challenge – and change – long-held perceptions of Trenton and what is possible by creating educational, economic, and artistic opportunities.</p>
+            <h4>Belief</h4>
+            <p>We believe challenges shouldn’t stop us from imagining and working toward a better future for Trenton.</p>
             </li>
 
+            <li>
+            <h4>Hope</h4>
+            <p>Hope inspires action. Through collective effort, we will transform perceptions and possibilities—bringing new opportunities to life.</p>
+            </li>
 
           </ul>
         </div>

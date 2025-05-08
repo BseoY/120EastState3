@@ -4,6 +4,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
+  font-size: 1rem;
 }
 .menu-option:hover {
   transform: translate(0, -2px);
@@ -28,6 +29,7 @@ a:hover::after {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 10px;
 }
 .close-btn {
   width: 40px;

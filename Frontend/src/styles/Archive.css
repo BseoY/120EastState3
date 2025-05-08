@@ -301,6 +301,7 @@
   font-size: 18pt;
   color: #11161A;
   text-align: left;
+  word-wrap: break-word;
 }
 
 .item-contributor {

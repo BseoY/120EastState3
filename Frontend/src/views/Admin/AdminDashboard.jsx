@@ -655,43 +655,23 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
               <h1>Admin Dashboard</h1>
               <div id="metrics-container">
                 <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': approvedPosts.length }}
-                  ></div>
                   <p>{approvedPosts.length}</p>
                   <span>Approved Posts</span>
                 </div>
 
                 <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': pendingPosts.length }}
-                  ></div>
                   <p>{pendingPosts.length}</p>
                   <span>Pending Posts</span>
                 </div>
                 <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': deniedPosts.length }}
-                  ></div>
                   <p>{deniedPosts.length}</p>
                   <span>Denied Posts</span>
                 </div>
                 <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': tags.length }}
-                  ></div>
                   <p>{tags.length}</p>
                   <span>Tags</span>
                 </div>
                 <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': administrators.length }}
-                  ></div>
                   <p>{administrators.length}</p>
                   <span>Admins</span>
                 </div>
