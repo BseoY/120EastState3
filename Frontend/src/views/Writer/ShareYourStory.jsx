@@ -33,7 +33,9 @@ function ShareYourStory({ user, isAuthenticated, authChecked, handleNewPost, han
           <h1>Share Your Story</h1>
           <p>
             Contribute to our archive by sharing your memories, photos, and stories about Trenton
-            and its rich history. Your experiences help preserve the past for future generations.
+            and its rich history. Your experiences help preserve the past for future generations. 
+            Contact us <a href="/about">here</a> if you have helpful information about a certain topic/person or recommendations of institutions or other sites (online and on land)
+            that will further the work on 120ES historical interpretation.
           </p>
           <br></br>
         </div>

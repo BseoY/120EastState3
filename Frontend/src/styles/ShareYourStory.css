@@ -35,6 +35,11 @@
   margin: 0 auto;
 }
 
+.share-story-header a {
+  color: #1F8CB5;
+  text-decoration: none;
+}
+
 .share-story-form-container {
   background-color: #fff;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
