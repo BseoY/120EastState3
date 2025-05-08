@@ -108,12 +108,32 @@
   color: white;
 }
 
+/* Modal Textarea Styling */
+.modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100px;
+  margin-bottom: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content textarea:focus {
+  outline: none;
+  border-color: #1F8CB5;
+  box-shadow: 0 0 0 2px rgba(31, 140, 181, 0.2);
+}
+
 .admin-container {
   display: flex;
   height: 100vh;
   background-color: #f5f7fa;
   color: #333;
-  font-family: 'DM Sans', sans-serif;
   overflow: hidden; /* Prevent scrollbars from misaligned elements */
 }
 
