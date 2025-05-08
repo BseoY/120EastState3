@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import BASE_API_URL from '../../config';
 import { QRCodeSVG } from 'qrcode.react';
@@ -50,6 +50,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
 }) => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +122,12 @@ const PostDetail: React.FC<PostDetailProps> = ({
         await axios.delete(`${BASE_API_URL}/api/admin/posts/${postId}`, {
           withCredentials: true, // This should be in the config object
         });
-        navigate('/archive'); // Redirect after successful deletion
+        
+        // Get the referring path from the location state
+        const fromPath = location.state?.from || '/archive';
+        
+        // Navigate back to where the user came from
+        navigate(fromPath);
       } catch (err) {
         console.error("Failed to delete post:", err);
         alert("Failed to delete post. Please try again.");

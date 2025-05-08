@@ -116,6 +116,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
       setPendingPosts((prev) => prev.filter((post) => post.id !== postId));
       
+      // If a post is denied, refresh the denied posts list
+      if (action === 'deny') {
+        fetchDeniedPosts();
+      }
+      
       // Reset feedback state if provided
       if (feedback) {
         setFeedbackText('');
@@ -664,6 +669,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 <div className="metrics-box">
                   <p>{administrators.length}</p>
                   <span>Admins</span>
+                </div>
+                <div className="metrics-box">
+                  <p>{users.length}</p>
+                  <span>Total Users</span>
                 </div>
               </div>
             </div>
