@@ -1,12 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import defaultPic from '../assets/Image/120es_blue.jpg';
 import '../styles/ArchiveCard.css';
 import { formatLocalDate } from '../utils/dateUtils';
 
 function ArchiveCard({ post }) {
+  const location = useLocation();
+  
   return (
-    <Link to={`/post/${post.id}`} className="post-link">
+    <Link 
+      to={`/post/${post.id}`} 
+      className="post-link" 
+      state={{ from: location.pathname }}>
       <div className="archive-item">
         <div className="item-image">
           {post.media && post.media.length > 0 ? (
