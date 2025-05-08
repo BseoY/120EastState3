@@ -112,7 +112,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     
     try {
       // Make a second confirmation to prevent accidents
-      if (!window.confirm('WARNING: This will permanently delete all denied posts. Continue?')) return;
+      if (!window.confirm('WARNING: This will permanently delete all denied posts. Would you like to continue?')) return;
       
       // Delete each denied post one by one (using existing delete endpoint)
       const deletePromises = deniedPosts.map(post => 
@@ -130,7 +130,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       setDeniedPosts([]);
       
       // Show confirmation
-      alert('All denied posts have been permanently deleted.');
+      alert('All denied posts have been permanently deleted!');
     } catch (err) {
       console.error('Error deleting all denied posts:', err);
       alert(`Error deleting all denied posts: ${err.message || 'Unknown error'}`);
