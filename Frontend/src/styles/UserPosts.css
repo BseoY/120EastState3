@@ -207,19 +207,29 @@
   }
 }
   
-  .tab {
-    padding: 0.5rem 1rem;
-    border: none;
-    background-color: #eee;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 8px;
-  }
-  
-  .tab.active {
-    background-color: #007bff;
-    color: white;
-  }
+.tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #ccc; /* Default gray color */
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 8px;
+  color: #333;
+}
+
+.tab:hover {
+  background-color: #bbb;
+}
+
+.tab.active-approved {
+  background-color: rgb(92, 184, 92); /* Green for approved */
+  color: white;
+}
+
+.tab.active-denied {
+  background-color: rgb(217, 83, 79); /* Red for denied */
+  color: white;
+}
 
   .post-actions {
     margin-top: 0.5rem;
