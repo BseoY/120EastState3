@@ -106,6 +106,10 @@
 .deny-button {
   background-color: #f44336;
   color: white;
+  transition: background-color 0.2s;
+}
+.deny-button:hover {
+  background-color: #d2372c;
 }
 
 /* Modal Textarea Styling */
@@ -487,12 +491,12 @@
 .tag-delete-button::before { content: '\f2ed'; } /* Trash icon */
 
 .tag-edit-button {
-  background-color: #1F8CB5;
-  color: white;
+  background-color: #F1BA55;
+  color: #333 !important
 }
 
 .tag-edit-button:hover {
-  background-color: #1a7a9e;
+  background-color: #f6d89f;
   transform: translateY(-2px);
 }
 
