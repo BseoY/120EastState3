@@ -334,12 +334,17 @@
 }
 
 .modal-submit-button {
-  background-color: #d9534f; /* Same as deny button */
+  background-color: #dc3545; /* Same as deny button */
   color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-submit-button:hover {
+  background-color: #cc3300;
 }
 
 .modal-respond-button {
@@ -366,7 +371,7 @@
 }
 
 .deny-button {
-  background-color: #d9534f;
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -377,8 +382,44 @@
 
 .deny-button:hover {
   transform: translate(0, -3px);
-  background-color: #bf4541;
+  background-color: #cc3300;
 }
+
+/* Denied Post Styles */
+.denied-button-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.denied-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.denied-delete-button:hover {
+  background-color: #cc3300;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.denied-delete-button::before {
+  content: '\f2ed'; /* trash can icon */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+}
+
 
 /* Tag Management Styles */
 .tag-container {
@@ -468,6 +509,11 @@
 }
 
 .tag-delete-button {
+  background-color: #dc3545;
+  transition: background-color 0.3s ease;
+}
+
+.tag-delete-button:hover {
   background-color: #cc3300;
 }
 
@@ -616,6 +662,11 @@
 }
 
 .announcement-delete-button {
+  background-color: #dc3545;
+  transition: background-color 0.3s ease;
+}
+
+.announcement-delete-button:hover {
   background-color: #cc3300;
 }
 
@@ -705,6 +756,33 @@
   max-width: 100%;
   height: auto;
   margin-top: 10px;
+}
+
+/* Styled file input container */
+.file-input-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 10px 0 20px 0;
+  background-color: #f9f9f9;
+}
+
+.file-input-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.file-input-container input[type="file"] {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.image-preview {
+  margin-top: 15px;
+  border-top: 1px dashed #ddd;
+  padding-top: 15px;
 }
 
 .modal-buttons {

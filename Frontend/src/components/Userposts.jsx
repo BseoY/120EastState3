@@ -93,12 +93,10 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
     <div className="user-posts-page">
       <Nav user={user} isAuthenticated={isAuthenticated} onLogout={onLogout} />
 
-      <div className="user-posts-container" style={{ padding: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#003366' }}>
-          Your Posts
-        </h1>
+      <div className="user-posts-container">
+        <h1>Your Posts</h1>
 
-        <div className="post-tabs" style={{ marginBottom: '1rem' }}>
+        <div className="post-tabs">
           <button 
             className={`tab ${selectedTab === 'approved' ? 'active-approved' : ''}`}
             onClick={() => setSelectedTab('approved')}
@@ -120,7 +118,7 @@ function UserPosts({ user, isAuthenticated, onLogout }) {
         ) : (
           <div className="archive-grid">
             {filteredPosts.map(post => (
-              <div key={post.id} style={{ position: 'relative' }}>
+              <div key={post.id}>
                 <ArchiveCard post={post} />
                 {post.status === 'approved' && (
                   <div className="admin-actions-overlay">

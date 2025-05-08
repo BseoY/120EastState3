@@ -11,6 +11,12 @@
     padding: 2rem;
     padding-top: 1rem;
   }
+
+  .user-posts-container h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
   
   .auth-required, 
   .loading-container,
@@ -172,6 +178,10 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
+}
+
+.archive-grid > div {
+  position: relative;
 }
 
 .admin-actions-overlay {

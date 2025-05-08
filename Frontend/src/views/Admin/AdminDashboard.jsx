@@ -96,10 +96,46 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       );
 
       setDeniedPosts((prev) => prev.filter((post) => post.id !== postId));
+      
+      // Show confirmation alert for re-approval
+      alert('Post has been re-approved successfully!');
     } catch (err) {
       console.error('Error reapproving post:', err);
+      alert(`Error re-approving post: ${err.message || 'Unknown error'}`);
     };
   }
+
+  // Delete all denied posts
+  const deleteAllDeniedPosts = async () => {
+    // Confirm deletion with user
+    if (!window.confirm('Are you sure you want to permanently delete ALL denied posts? This action cannot be undone.')) return;
+    
+    try {
+      // Make a second confirmation to prevent accidents
+      if (!window.confirm('WARNING: This will permanently delete all denied posts. Continue?')) return;
+      
+      // Delete each denied post one by one (using existing delete endpoint)
+      const deletePromises = deniedPosts.map(post => 
+        axios.delete(`${BASE_API_URL}/api/admin/posts/${post.id}`, {
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          }
+        })
+      );
+      
+      // Wait for all deletion operations to complete
+      await Promise.all(deletePromises);
+      
+      // Clear the denied posts list
+      setDeniedPosts([]);
+      
+      // Show confirmation
+      alert('All denied posts have been permanently deleted.');
+    } catch (err) {
+      console.error('Error deleting all denied posts:', err);
+      alert(`Error deleting all denied posts: ${err.message || 'Unknown error'}`);
+    }
+  };
 
   const updateStatus = async (postId, action, feedback = '') => {
     try {
@@ -119,6 +155,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       // If a post is denied, refresh the denied posts list
       if (action === 'deny') {
         fetchDeniedPosts();
+        // Show confirmation alert for denial
+        alert('Post has been denied successfully and feedback has been sent to the contributor.');
+      } else if (action === 'approve') {
+        // Show confirmation alert for approval
+        alert('Post has been approved successfully!');
       }
       
       // Reset feedback state if provided
@@ -128,6 +169,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       }
     } catch (err) {
       console.error(`Error ${action}ing post:`, err);
+      alert(`Error ${action}ing post: ${err.message || 'Unknown error'}`);
     }
   };
   
@@ -137,8 +179,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   };
   
   const handleSubmitFeedback = () => {
-    if (selectedPostId) {
+    // Only proceed if there is a selected post and non-empty feedback
+    if (selectedPostId && feedbackText.trim() !== '') {
       updateStatus(selectedPostId, 'deny', feedbackText);
+    } else if (feedbackText.trim() === '') {
+      alert('Please provide feedback before denying the post.');
     }
   };
   
@@ -204,6 +249,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       // Update UI
       setTags([...tags, res.data]);
       resetTagForm();
+      
+      // Show success message
+      alert(`New tag "${newTagName}" has been created successfully!`);
     } catch (err) {
       console.error('Error creating tag:', err);
       alert('Failed to create tag: ' + (err.message || 'Unknown error'));
@@ -253,6 +301,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       // Update UI
       setTags(tags.map(tag => tag.id === currentTag.id ? res.data : tag));
       resetTagForm();
+      
+      // Show success message
+      alert(`Tag has been updated successfully!`);
     } catch (err) {
       console.error('Error updating tag:', err);
       alert('Failed to update tag: ' + (err.message || 'Unknown error'));
@@ -275,6 +326,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       
       // Remove tag from state
       setTags(tags.filter(tag => tag.id !== tagId));
+      
     } catch (err) {
       console.error('Error deleting tag:', err);
     }
@@ -681,16 +733,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           {activeSection === "tags" && (
             <div>
               <h1>Tag Management</h1>
+              <p>Sorted from oldest to newest. Publically sorted alphabetically. </p>
+              <br></br>
               <button 
                 className="add-tag-button"
                 onClick={() => setTagFormVisible(true)}
               >
                 Add New Tag
-              </button>
-              <p>Tags shown below are in order of when they were created. Otherwise, tags are sorted alphabetically.</p>
-              
+              </button>              
               {tags.length === 0 ? (
-                <p>No tags found</p>
+                <i>No tags found</i>
               ) : (
                 <div className='tag-container'>
                   {tags.map((tag) => (
@@ -726,8 +778,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           {activeSection === "pending" && (
             <div>
               <h1>Pending Posts</h1>
+              <p>Sorted from oldest to newest. </p>
+              <br></br>
               {pendingPosts.length === 0 ? (
-                <p>No pending posts</p>
+                <i>No pending posts</i>
               ) : (
                 <div className="archive-grid">
                   {pendingPosts.map((post) => (
@@ -747,8 +801,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             {activeSection === "denied" && (
               <div>
                 <h1>Denied Posts</h1>
+                <p>Sorted from newest to oldest. </p>
+                <br></br>
+                <div className='denied-button-container'>
+                  {deniedPosts.length > 0 && (
+                    <button onClick={deleteAllDeniedPosts} className='denied-delete-button'>Delete All Denied Posts</button>
+                  )}
+                </div>
+      
                 {deniedPosts.length === 0 ? (
-                  <p>No denied posts</p>
+                  <i>No denied posts</i>
                 ) : (
                   <div className="archive-grid">
                     {deniedPosts.map((post) => (
@@ -768,6 +830,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             {activeSection === "announcements" && (
               <div>
                 <h1>Announcements</h1>
+                <p>Sorted from newest to oldest. </p>
+                <br></br>
                 <button 
                   onClick={() => {
                     // Set a default end date 7 days in the future
@@ -818,7 +882,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                         /500 characters
                       </div>
 
-                      <label>End Date (optional):</label>
+                      <label>Optional End Date:</label>
                       <p className="help-text">Announcements become active when created. End date is optional.</p>
                       <input 
                         type="datetime-local" 
@@ -841,7 +905,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
                 
                 {announcements.length === 0 ? (
-                  <p>No announcements found</p>
+                  <i>No announcements found</i>
                 ) : (
                   <div className="announcements-container">
                     {announcements.map((announcement) => (
@@ -910,16 +974,31 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           <div className="modal-content">
             <h2>Provide Feedback for Denial</h2>
             <p>This feedback will be sent to the user in the automatic email notification.</p>
+            <p><strong>Note:</strong> Feedback is mandatory and limited to 500 characters.</p>
             <textarea
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value)}
               placeholder="Please provide specific feedback about why this post was denied..."
               rows={5}
               className="feedback-textarea"
+              required
+              maxLength={500}
             />
+            <div className="character-count">
+              <span className={feedbackText.length >= 400 ? "count-warning" : ""}>
+                {feedbackText.length}
+              </span>
+              /500 characters
+            </div>
             <div className="modal-buttons">
               <button onClick={handleCancelFeedback} className="modal-cancel-button">Cancel</button>
-              <button onClick={handleSubmitFeedback} className="modal-submit-button">Submit & Deny</button>
+              <button 
+                onClick={handleSubmitFeedback} 
+                className="modal-submit-button"
+                disabled={feedbackText.trim().length === 0}
+              >
+                Submit & Deny
+              </button>
             </div>
           </div>
         </div>
@@ -945,19 +1024,22 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 /30 characters
               </div>
 
-              <label>Background Image:</label>
-              <input
-                type="file"
-                onChange={handleImageChange}
-                accept="image/*"
-              />
+              <div className="file-input-container">
+                <label>Background Image:</label>
+                <p className="help-text">Upload an image to use as the tag background. If none is provided, a default image will be used.</p>
+                <input
+                  type="file"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                />
 
-              {newTagImage && (
-                <div className="image-preview">
-                  <img src={newTagImage} alt="Preview" />
-                  <button type="button" onClick={handleRemoveImage}>Remove</button>
-                </div>
-              )}
+                {newTagImage && (
+                  <div className="image-preview">
+                    <img src={newTagImage} alt="Preview" />
+                    <button type="button" onClick={handleRemoveImage}>Remove</button>
+                  </div>
+                )}
+              </div>
 
               <div className="modal-buttons">
                 <button type="submit" className="submit-button">
