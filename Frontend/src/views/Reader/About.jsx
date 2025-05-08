@@ -55,9 +55,17 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
       setStatusMessage('Your message has been sent. Thanks for reaching out!');
       setFormData({ name: '', email: '', message: '' });
       setEmailError('');
+      
+      setTimeout(() => {
+        setStatusMessage('');
+      }, 5000);
     } catch (error) {
       console.error(error);
       setStatusMessage('Something went wrong. Please try again.');
+      
+      setTimeout(() => {
+        setStatusMessage('');
+      }, 5000);
     }
   };
 
