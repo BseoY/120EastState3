@@ -72,7 +72,8 @@
   line-height: 1.6;
   color: #444;
   min-height: 100px;
-  white-space: pre-line; /* Preserves line breaks from the content */
+  white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .announcement-footer {
