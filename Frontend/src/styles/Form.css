@@ -381,6 +381,14 @@ textarea {
   margin-top: 1rem;
 }
 
+/* Countdown text styling */
+.countdown-text {
+  font-size: 0.9em;
+  opacity: 0.8;
+  margin-top: 5px;
+  display: block;
+}
+
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 768px) {
   .form-container {

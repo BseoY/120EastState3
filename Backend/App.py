@@ -232,7 +232,7 @@ def create_post():
                             media_type = 'audio'
                             resource_type = 'video'  # Cloudinary uses 'video' resource type for audio
                             folder = "120EastState3/audio"
-                        else:
+                        elif file_ext in ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']:
                             media_type = 'document'
                             resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
                             folder = "120EastState3/documents"

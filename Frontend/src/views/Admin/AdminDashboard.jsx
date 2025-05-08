@@ -596,46 +596,52 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
   return (
     <>
-      <Nav user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-
-      <div className='admin-container'>
-        <div className='admin-sidebar'>
-          <h1 id="admin-header">Dashboard</h1>
-
+      <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} handleLogout={handleLogout} />
+      <div className="admin-container">
+        <div className="admin-sidebar">
+          <div className="admin-logo">
+            <h2>Admin Panel</h2>
+          </div>
           <button
             className={`sidebar-button ${activeSection === 'metrics' ? 'active' : ''}`}
             onClick={() => setSection('metrics')}
+            data-section="metrics"
           >
-            Metrics 
+            Dashboard
           </button>
-
           <button
             className={`sidebar-button ${activeSection === 'pending' ? 'active' : ''}`}
             onClick={() => setSection('pending')}
+            data-section="pending"
           >
             Pending Posts [{pendingPosts.length}]
           </button>
+          {/* Approved Posts button removed as requested */}
           <button
             className={`sidebar-button ${activeSection === 'denied' ? 'active' : ''}`}
             onClick={() => setSection('denied')}
+            data-section="denied"
           >
             Denied Posts [{deniedPosts.length}]
-          </button> 
+          </button>
           <button
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
             onClick={() => {
               setSection('tags');
               fetchTags(); // Refresh tags when clicking the tab
             }}
+            data-section="tags"
           >
             Tags [{tags.length}]
           </button>
           <button
             className={`sidebar-button ${activeSection === 'announcements' ? 'active' : ''}`}
             onClick={() => setSection('announcements')}
+            data-section="announcements"
           >
             Announcements [{announcements.length}]
           </button>
+          {/* Users button removed as requested */}
           <button 
             className={`sidebar-button`}
             onClick={() => navigate("/archive")}
@@ -643,12 +649,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             Public Archive
           </button>
         </div>
-
-        <div className='admin-main-content'>
-          {/* Metrics Section */}
+        <div className="admin-main-content">
           {activeSection === "metrics" && (
             <div>
-              <h1>Metrics</h1>
+              <h1>Admin Dashboard</h1>
               <div id="metrics-container">
                 <div className="metrics-box">
                   <div
@@ -674,14 +678,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                   ></div>
                   <p>{deniedPosts.length}</p>
                   <span>Denied Posts</span>
-                </div>
-                <div className="metrics-box">
-                  <div
-                    className="bar"
-                    style={{ '--value': users.length }}
-                  ></div>
-                  <p>{users.length}</p>
-                  <span>Users</span>
                 </div>
                 <div className="metrics-box">
                   <div
@@ -924,7 +920,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 )}
               </div>
             )}
-
         </div>
       </div>
       {/* Deny Post Modal */}

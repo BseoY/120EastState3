@@ -56,6 +56,11 @@ function Form({ onNewPost, user }) {
       return; // Don't update if exceeding 1500 char limit for content
     }
     
+    // Clear success message when user starts typing in a new form
+    if (success) {
+      setSuccess(false);
+    }
+    
     setFormData({
       ...formData,
       [name]: value,
@@ -66,13 +71,55 @@ function Form({ onNewPost, user }) {
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
     
+    // Clear success message when user starts adding media to a new form
+    if (success) {
+      setSuccess(false);
+    }
+    
     // Check if adding these files would exceed the limit
     if (mediaFiles.length + files.length > 5) {
       setError("You can only upload up to 5 files");
       return;
     }
     
-    // Process each selected file
+    // Check each file for Cloudinary's free tier size limits
+    for (const file of files) {
+      const fileExt = file.name.split('.').pop().toLowerCase();
+      
+      // Determine file type and set size limit
+      let maxSizeMB = 10; // Default size limit (10MB for most file types)
+      let fileType = "file";
+      
+      // Check file type and adjust max size if needed
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'].includes(fileExt)) {
+        fileType = "image";
+        // 10MB for images
+      } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExt)) {
+        fileType = "video";
+        maxSizeMB = 100; // 100MB for videos
+      } else if (['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExt)) {
+        fileType = "audio";
+        // 10MB for audio
+      } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExt)) {
+        fileType = "document";
+        // 10MB for documents
+      } else {
+        alert("Unsupported file type");
+        return;
+      }
+      
+      // Convert MB to bytes for comparison (1MB = 1024*1024 bytes)
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+      
+      // Check file size
+      if (file.size > maxSizeBytes) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        setError(`${file.name} (${fileSizeMB} MB) exceeds the ${maxSizeMB} MB limit for ${fileType} files.`);
+        return;
+      }
+    }
+    
+    // Process each selected file (after validation passed)
     const newMediaPromises = files.map(file => {
       return new Promise((resolve) => {
         // Determine file type
@@ -136,6 +183,11 @@ function Form({ onNewPost, user }) {
   
   // Update media caption
   const handleCaptionChange = (index, caption) => {
+    // Clear success message when user starts modifying captions
+    if (success) {
+      setSuccess(false);
+    }
+    
     // Don't update if exceeding 50 char limit for caption
     if (caption.length > 50) return;
     
@@ -213,6 +265,11 @@ function Form({ onNewPost, user }) {
       setSuccess(true);
       resetForm();
       
+      // Automatically clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccess(false);
+      }, 5000);
+      
     } catch (error) {
       console.error('Error:', error);
       setError(error.response?.data?.error || 'Failed to submit post');
@@ -227,7 +284,7 @@ function Form({ onNewPost, user }) {
           <div className="media-upload-container">
             <div className="media-upload-header">
               <h3>Upload Media</h3>
-              <p className="media-upload-info">Upload up to 5 files (images, videos, audio, documents). Captions are limited to 50 characters.</p>
+              <p className="media-upload-info">Upload up to 5 files: Images, Documents, Audio (10MB max) and Videos (100MB max). Captions are limited to 50 characters.</p>
             </div>
             
             {/* Media Upload Button */}
@@ -410,7 +467,16 @@ function Form({ onNewPost, user }) {
         </form>
         
         {error && <div className="form-status error">{error}</div>}
-        {success && <div className="form-status success">Your story has been sent for review! You will recieve an email regarding the status of your submission.</div>}
+        {success && (
+          <div className="form-status success">
+            <div>
+              Your story has been sent for review! You will receive an email regarding the status of your submission.
+            </div>
+            <span className="countdown-text">
+              (This success message will disappear in a few seconds)
+            </span>
+          </div>
+        )}
       </div>
     </>
     
