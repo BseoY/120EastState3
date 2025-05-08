@@ -42,9 +42,9 @@ const TagBoxes = () => {
       <br></br>
       <div className="tag-boxes-grid">
         {loading ? (
-          <p>Loading categories...</p>
+          <i>Loading categories...</i>
         ) : tags.length === 0 ? (
-          <p>No categories found</p>
+          <i>No categories found</i>
         ) : (
           tags.map((tag) => (
             <Link
@@ -68,6 +68,7 @@ const TagBoxes = () => {
           ))
         )}
       </div>
+      <br></br> {/* space from bottom of Tag grid to footer */}
     </div>
   );
 };
