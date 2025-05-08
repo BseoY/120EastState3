@@ -50,7 +50,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const [newAnnouncementTitle, setNewAnnouncementTitle] = useState('');
   const [newAnnouncementContent, setNewAnnouncementContent] = useState('');
-  const [newAnnouncementStartDate, setNewAnnouncementStartDate] = useState('');
+  // Only need end date now, date_created is automatic
   const [newAnnouncementEndDate, setNewAnnouncementEndDate] = useState('');
   const [hasExpirationDate, setHasExpirationDate] = useState(true);
 
@@ -392,8 +392,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Create a new announcement
   const createAnnouncement = async () => {
     try {
-      // Make sure dates are in ISO format for the backend
-      const startDate = new Date(newAnnouncementStartDate).toISOString();
+      // Only need end date now, date_created is automatic
       let endDate = null;
       if (hasExpirationDate && newAnnouncementEndDate) {
         endDate = new Date(newAnnouncementEndDate).toISOString();
@@ -402,7 +401,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       const formData = {
         title: newAnnouncementTitle,
         content: newAnnouncementContent,
-        date_start: startDate,
         date_end: endDate
       };
       
@@ -442,8 +440,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     if (!currentAnnouncement) return;
     
     try {
-      // Make sure dates are in ISO format for the backend
-      const startDate = new Date(newAnnouncementStartDate).toISOString();
+      // Only need end date now, date_created is automatic
       let endDate = null;
       if (hasExpirationDate && newAnnouncementEndDate) {
         endDate = new Date(newAnnouncementEndDate).toISOString();
@@ -452,7 +449,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       const formData = {
         title: newAnnouncementTitle,
         content: newAnnouncementContent,
-        date_start: startDate,
         date_end: endDate
       };
       
@@ -522,18 +518,13 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     setNewAnnouncementTitle(announcement.title);
     setNewAnnouncementContent(announcement.content);
     
-    // Format dates for datetime-local input
-    if (announcement.date_start) {
-      setNewAnnouncementStartDate(formatLocalDateTimeForInput(new Date(announcement.date_start)));
-      
-      // Handle end date if it exists
-      if (announcement.date_end) {
-        setNewAnnouncementEndDate(formatLocalDateTimeForInput(new Date(announcement.date_end)));
-        setHasExpirationDate(true);
-      } else {
-        setHasExpirationDate(false);
-        setNewAnnouncementEndDate('');
-      }
+    // Handle end date if it exists
+    if (announcement.date_end) {
+      setNewAnnouncementEndDate(formatLocalDateTimeForInput(new Date(announcement.date_end)));
+      setHasExpirationDate(true);
+    } else {
+      setHasExpirationDate(false);
+      setNewAnnouncementEndDate('');
     }
     
     setAnnouncementFormVisible(true);
@@ -545,7 +536,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     setCurrentAnnouncement(null);
     setNewAnnouncementTitle('');
     setNewAnnouncementContent('');
-    setNewAnnouncementStartDate('');
     setNewAnnouncementEndDate('');
     setAnnouncementFormVisible(false);
   };
@@ -791,11 +781,10 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                 <h1>Announcements</h1>
                 <button 
                   onClick={() => {
-                    const now = new Date();
+                    // Set a default end date 7 days in the future
                     const sevenDaysLater = new Date();
                     sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
                     
-                    setNewAnnouncementStartDate(formatLocalDateTimeForInput(now));
                     setNewAnnouncementEndDate(formatLocalDateTimeForInput(sevenDaysLater));
                     setHasExpirationDate(true);
                     setAnnouncementFormVisible(true);
@@ -840,20 +829,12 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                         /500 characters
                       </div>
 
-                      <label>Start Date:</label>
-                      <input 
-                        type="datetime-local" 
-                        value={newAnnouncementStartDate} 
-                        onChange={(e) => setNewAnnouncementStartDate(e.target.value)}
-                        required
-                      />
-
                       <label>End Date (optional):</label>
+                      <p className="help-text">Announcements become active when created. End date is optional.</p>
                       <input 
                         type="datetime-local" 
                         value={newAnnouncementEndDate} 
                         onChange={(e) => setNewAnnouncementEndDate(e.target.value)}
-                        min={newAnnouncementStartDate}
                       />
 
                       <div className="modal-buttons">
@@ -882,10 +863,22 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                           </div>
                           
                           <div className="announcement-content">
+                            {/* User info with profile pic and name */}
+                            {announcement.user && (
+                              <div className="announcement-user-info">
+                                <img 
+                                  src={announcement.user.profile_pic || defaultPic} 
+                                  alt={announcement.user.name} 
+                                  className="user-profile-pic"
+                                />
+                                <span className="user-name">{announcement.user.name}</span>
+                              </div>
+                            )}
+                            
                             <h3 className="announcement-title">{announcement.title}</h3>
                             
                             <div className="announcement-dates">
-                              <span>Start: {formatLocalDate(announcement.date_start)}</span>
+                              <span>Posted: {formatLocalDate(announcement.date_created)}</span>
                               {announcement.date_end ? (
                                 <span>End: {formatLocalDate(announcement.date_end)}</span>
                               ) : (

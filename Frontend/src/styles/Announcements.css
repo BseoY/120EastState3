@@ -66,6 +66,34 @@
   align-items: center;
 }
 
+/* User Info Styles */
+.announcement-user-info {
+  padding: 10px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1F8CB5;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
+}
+
 .announcement-content {
   padding: 20px;
   font-size: 1.1rem;
