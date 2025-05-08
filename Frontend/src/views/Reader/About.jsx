@@ -88,10 +88,10 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         <div className="mission-box">
           <h3>Values</h3>
           <ul>
-            <li>Preserve historical documents and artifacts</li>
-            <li>Make historical information accessible to everyone</li>
-            <li>Educate visitors about the significance of 120 East State Street</li>
-            <li>Engage the community in preserving local history</li>
+            <li>Representation</li>
+            <li>Accuracy</li>
+            <li>Accessibility</li>
+            <li>Knowledge</li>
           </ul>
         </div>
       </div>

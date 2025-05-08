@@ -1,195 +1,59 @@
-/* Announcements Page Styles */
-.announcements-section {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  min-height: 80vh; /* Makes the section take up at least 80% of the viewport height */
+.announcement-wrapper {
+  display: grid;
+  padding: 0rem 4rem 4rem 4rem;
+  word-wrap: break-word; /* breaks long words */
+  overflow-wrap: break-word; /* safer for all browsers */
 }
 
-/* This is now handled by the section-header from App.css */
-/* Keeping this for backward compatibility */
-
-
-.announcements-loading,
-.announcements-error,
-.announcements-empty {
-  text-align: center;
-  padding: 40px;
-  font-size: 1.2rem;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  color: #666;
-  min-height: 300px; /* Ensure minimum height for these states */
-  display: flex;
+.announcement-data,
+.announcement-banner {
+  display: grid;
+  grid-template-columns: 0.5fr 0.75fr 5fr 1fr; /* adjust based on space needs */
   align-items: center;
   justify-content: center;
+  text-align: left;
+  gap: 1rem;
+  padding: 1rem;
+  word-wrap: break-word; /* breaks long words */
+  overflow-wrap: break-word; /* safer for all browsers */
 }
 
-.announcements-error {
-  color: #e74c3c;
-  background-color: #fdf3f2;
+.announcement-data {
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ccc;
 }
 
-/* Announcement Banner Styles */
+.announcement-data div {
+  font-weight: 400;
+}
 .announcement-banner {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-}
-
-.announcement-banner:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.announcement-header {
-  padding: 20px 20px 10px;
-  border-bottom: 1px solid #f0f0f0;
-  position: relative;
-}
-
-.announcement-title {
-  font-size: 1.8rem;
-  color: #333;
-  margin: 0 0 10px 0;
-}
-
-.announcement-date {
-  font-size: 0.9rem;
-  color: #888;
-  display: flex;
-  align-items: center;
-}
-
-/* User Info Styles */
-.announcement-user-info {
-  padding: 10px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
 }
 
 .user-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-profile-pic {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #1F8CB5;
+  display: flex;
 }
 
-.user-name {
-  font-size: 0.9rem;
-  color: #555;
-  font-weight: 500;
+.announcement-title-pub {
+  font-weight: 450;
+  font-size: 1rem;
+  max-width: 100%;
 }
-
-.announcement-content {
-  padding: 20px;
+.announcement-content-pub {
+  font-weight: 300;
   font-size: 1.1rem;
-  line-height: 1.6;
-  color: #444;
-  min-height: 100px;
-  white-space: pre-line;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal; 
+  max-width: 100%;
 }
-
-.announcement-footer {
-  padding: 10px 20px 20px;
-  border-top: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.announcement-dates {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.announcement-end-date {
-  color: #1F8CB5;
-}
-
-/* Status Badges for Admin View */
-.status-badge-active {
-  background-color: #e6f7ff;
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.status-badge-scheduled {
-  background-color: #f6ffed;
-  color: #52c41a;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.status-badge-expired {
-  background-color: #fff2e8;
-  color: #fa8c16;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.status-badge-inactive {
-  background-color: #f5f5f5;
-  color: #666;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .announcements-heading {
-    font-size: 2rem;
-  }
-  
-  .announcement-title {
-    font-size: 1.5rem;
-  }
-  
-  .announcement-content {
-    font-size: 1rem;
-    padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .announcements-page {
-    padding: 10px;
-  }
-  
-  .announcements-heading {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-  }
-  
-  .announcement-title {
-    font-size: 1.3rem;
-  }
-  
-  .announcement-header,
-  .announcement-content,
-  .announcement-footer {
-    padding: 15px 10px;
-  }
+.announcement-date-pub {
+  font-weight: 350;
+  font-size: 1.1rem;
 }
