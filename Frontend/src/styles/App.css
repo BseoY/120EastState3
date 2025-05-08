@@ -537,3 +537,34 @@ button:disabled {
   margin-bottom: 2rem;
   color: #333;
 }
+
+/* Ensuring the whole viewport height is occupied */
+body, html, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1; /* Allows the content to take available space */
+  padding: 1rem;
+  margin-bottom: 2rem; /* Space between posts and footer */
+}
+
+.footer {
+  margin-top: auto;
+  background-color: #1F8CB5;
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%; /* Full width */
+}
+
+.footer-section {
+  padding: 0.5rem 0;
+}

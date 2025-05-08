@@ -1,5 +1,6 @@
 .archive-container {
   color: #11161A;
+  margin-bottom: 50px;
 }
 
 .archive-container > *:not(header) {

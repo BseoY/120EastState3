@@ -57,3 +57,80 @@
   font-weight: 350;
   font-size: 1.1rem;
 }
+
+/* Responsive design for announcements */
+@media (max-width: 768px) {
+  .announcement-wrapper {
+    padding: 1rem; /* Reduced padding for mobile */
+  }
+
+  .announcement-data,
+  .announcement-banner {
+    display: flex; /* Use flex instead of grid for better stacking */
+    flex-direction: column; /* Stack items vertically */
+    gap: 0.5rem;
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  .announcement-data {
+    font-size: 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .announcement-data div {
+    font-size: 0.9rem; /* Adjusted font size for mobile */
+  }
+
+  .announcement-title-pub {
+    font-weight: 450;
+    font-size: 1rem;
+    max-width: 100%; /* Ensures it doesn’t overflow */
+    word-break: break-word; /* Break long words */
+  }
+
+  .announcement-content-pub {
+    font-weight: 300;
+    font-size: 0.9rem;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 100%; /* Full width on mobile */
+  }
+
+  .announcement-date-pub {
+    font-weight: 350;
+    font-size: 0.9rem;
+  }
+
+  .user-profile {
+    width: 30px; /* Smaller profile picture */
+    height: 30px;
+  }
+
+  /* Adjusting the layout of grid columns on mobile */
+  .announcement-data,
+  .announcement-banner {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+
+  .announcement-data div,
+  .announcement-banner div {
+    text-align: left; /* Ensure text is aligned properly */
+  }
+
+  .announcement-banner {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Softer shadow */
+  }
+}
+
+/* Desktop View (Default) */
+.announcement-data,
+.announcement-banner {
+  display: grid;
+  grid-template-columns: 0.5fr 0.75fr 5fr 1fr;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}

@@ -1,12 +1,14 @@
 /* Only keeping specific layout styles not covered by global CSS */
 .share-story-container {
+  margin-bottom: 50px;
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .share-story-container > *:not(header) {
-  margin: 0 auto;
+  margin: auto;
   box-sizing: border-box;
 }
 
