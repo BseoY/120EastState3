@@ -53,7 +53,7 @@ allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5001", 
     "https://one20es-backend-bd090d21d298.herokuapp.com",
-    "https://one20es-archive-b05baf7b3364.herokuapp.com/"
+    "https://one20es-archive-b05baf7b3364.herokuapp.com"
 ]
 
 CORS(app, resources={
