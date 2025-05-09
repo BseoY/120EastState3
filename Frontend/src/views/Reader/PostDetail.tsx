@@ -213,7 +213,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                 <header>
                   <div className="post-meta">
                     <Link to="/archive" className="back-button">
-                      ← Back to Archive
+                      ← Back
                     </Link>
                     <span className="post-date">{formatLocalDate(post.date_created)}</span>
                   </div>
