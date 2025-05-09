@@ -523,7 +523,6 @@ textarea.form-control {
 }
 
 .back-button {
-  margin-top: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: #1F8CB5;
   color: white;
@@ -531,8 +530,11 @@ textarea.form-control {
   border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
+  transition: background-color 0.3s;
 }
 
 .back-button:hover {
-  background-color: #1565c0;
+  background-color: #176d8c;
+  color: white;
+  text-decoration: none;
 }

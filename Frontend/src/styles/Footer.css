@@ -98,3 +98,15 @@ body, html {
   font-weight: 300;
   font-size: 16px;
 }
+
+#contact-link {
+  text-decoration: none;
+  color: white;
+  font-weight: 300;
+  font-size: 14pt;
+  transition: color 0.3s;
+}
+
+#contact-link:hover {
+  color: #15576f;;
+}

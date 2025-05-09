@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import logo from '../assets/Image/120ESWhite.png';
+import { HashLink } from 'react-router-hash-link';
 
 export default function Footer() {
   return (
@@ -41,6 +42,13 @@ export default function Footer() {
           <h3>Get In Touch</h3>
           <p>Email: hello@120eaststate.org</p>
           <p>Phone: 609-222-4246</p>
+          <HashLink
+            id="contact-link"
+            to="/about#contact-section"
+            scroll={el => el.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+          >
+            Contact Us
+          </HashLink>
         </div>
       </footer>
     </>
