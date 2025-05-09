@@ -6,7 +6,7 @@
 
 ## 🌐 Live Site
 
-> [Visit the Archive](https://your-live-site-url.com)
+> [Visit the Archive](https://one20es-archive-b05baf7b3364.herokuapp.com/)
 
 ---
 
@@ -23,11 +23,11 @@
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React, Tailwind CSS, React Router
+- **Frontend**: React, CSS, React Router
 - **Backend**: Flask (Python), SQLAlchemy
 - **Database**: PostgreSQL
-- **Auth & Roles**: Admins, Writers, and Readers with custom permissions
-- **Deployment**: (Add info here — Netlify, Vercel, Heroku, Render, etc.)
+- **Auth & Roles**: Admins, Writers, and Readers using Google Auth
+- **Deployment**: Heroku
 
 ---
 

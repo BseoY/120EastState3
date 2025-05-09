@@ -116,7 +116,7 @@ const Announcements = ({ user, isAuthenticated, handleLogout }) => {
                     <div>Admin</div>
                     <div>Title</div>
                     <div>Announcement</div>
-                    <div>Date Created</div>
+                    <div>Posted On</div>
                   </div>
                   {announcements.map(announcement => (
                     <AnnouncementBanner key={announcement.id} announcement={announcement} />

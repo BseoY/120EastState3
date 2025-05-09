@@ -20,6 +20,7 @@
   left: 0;
   z-index: 10;
   border-bottom: none;
+  position: static;
 }
 
 .nav-logo {
