@@ -212,9 +212,6 @@
 #middle-actions {
   display: flex;
   gap: 5px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   justify-content: center;
 }
 
@@ -465,6 +462,9 @@ textarea.form-control {
   font-size: 0.8rem;
 }
 
+.delete-button:hover {
+  background-color: #bc2a38;
+}
 .delete-button::before {
   content: '\f2ed';
   font-family: 'Font Awesome 5 Free';
@@ -497,6 +497,7 @@ textarea.form-control {
     justify-content: space-around;
     flex-direction: column;
     align-items: center;
+    gap: auto;
   }
 
   .share-qr-button,
