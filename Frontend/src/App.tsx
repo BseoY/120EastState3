@@ -15,19 +15,10 @@ import PostDetail from './views/Reader/PostDetail';
 import ShareYourStory from './views/Writer/ShareYourStory';
 import PendingPosts from './views/Admin/PendingPosts';
 import NotFound from './components/NotFound';
-
 import Announcements from './views/Reader/Announcements';
-
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4";
-
-
-
 import BASE_API_URL from './config';
 import Footer from './components/Footer';
-
-
-
-
 
 interface HomePageProps {
   posts: any[];
