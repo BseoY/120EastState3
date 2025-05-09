@@ -34,7 +34,6 @@ app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
 allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5001", 
-    "https://one20es-frontend-ea37035e8ebf.herokuapp.com",
     "https://one20es-backend-bd090d21d298.herokuapp.com",
     "https://one20es-archive-b05baf7b3364.herokuapp.com"
 ]
@@ -75,14 +74,7 @@ with app.app_context():
 
 @app.route('/api/posts/tag/<string:tag_name>', methods=['GET'])
 def get_posts_by_tag(tag_name):
-    """Get all approved posts with a specific tag
-    
-    Args:
-        tag_name: The tag name to filter posts by
-        
-    Returns:
-        JSON array of posts with the specified tag
-    """
+    """Get all approved posts with a specific tag. Public route, no authentication required."""
     try:
         # Find the tag by name
         tag = Tag.query.filter_by(name=tag_name).first()
@@ -126,14 +118,7 @@ def server_error(e):
 # Public route for getting posts - no authentication required
 @app.route('/api/posts', methods=['GET'])
 def get_public_posts():
-    """Get all approved posts - public route, no authentication required
-    
-    Methods:
-        GET: Retrieve all approved posts
-        
-    Returns:
-        GET: JSON array of all approved posts
-    """
+    """Get all approved posts - public route, no authentication required."""
     
     # Handle GET request - return all approved posts
     try:
@@ -181,18 +166,7 @@ def promote_user(user_id):
 @app.route('/api/posts', methods=['POST'])
 @jwt_required
 def create_post():
-    """Create a new post - protected route, requires authentication
-    
-    Methods:
-        POST: Create a new post with optional media attachments
-        
-    Returns:
-        POST: JSON with new post details and confirmation message
-    """
-    
-    # Only handle POST requests in this route
-    if not app.testing and 'test' in request.form.get('title','').lower():
-       return jsonify({'error':'Test posts not allowed in production'}), 400
+    """Create a new post. Protected route, requires authentication."""
     
     # Create a new post
     user = get_current_user()
@@ -231,7 +205,6 @@ def create_post():
         max_files = 5  # Maximum allowed files
         
         # Process all media files in the request
-        # Look for media files with names in format 'media_0', 'media_1', etc.
         for i in range(max_files):
             media_key = f'media_{i}'
             if media_key in request.files and media_count < max_files:
@@ -410,13 +383,7 @@ def upload_file():
 @app.route('/api/admin/pending-posts', methods=['GET'])
 @require_roles('admin')
 def get_pending_posts():
-    """Get all pending posts that need admin approval
-    
-    This endpoint is restricted to users with 'admin' role
-    
-    Returns:
-        JSON array of all pending posts
-    """
+    """Get all pending posts. Admin route only."""
     pending_posts = Post.query.filter_by(status='pending').all()
     return jsonify([{
         'id': post.id,
@@ -472,31 +439,13 @@ def get_denied_posts():
 @app.route('/api/admin/posts/<int:post_id>/approve', methods=['POST'])
 @require_roles('admin')
 def approve_post(post_id):
-    """Approve a pending post
-    
-    This endpoint is restricted to users with 'admin' role
-    
-    Args:
-        post_id: The ID of the post to approve
-        
-    Returns:
-        JSON confirmation message
-    """
+    """Approve a pending post. Admin route only."""
     return update_post_status(post_id, 'approved')
 
 @app.route('/api/admin/posts/<int:post_id>/deny', methods=['POST'])
 @require_roles('admin')
 def deny_post(post_id):
-    """Deny a pending post
-    
-    This endpoint is restricted to users with 'admin' role
-    
-    Args:
-        post_id: The ID of the post to deny
-        
-    Returns:
-        JSON confirmation message
-    """
+    """Deny a pending post. Admin route only."""
     # Get the feedback from the request body if available
     feedback = request.json.get('feedback', None) if request.json else None
     return update_post_status(post_id, 'denied', feedback)
@@ -504,7 +453,7 @@ def deny_post(post_id):
 @app.route('/api/admin/posts/<int:post_id>/edit', methods=['PUT'])
 @require_roles('admin')
 def edit_post_admin(post_id):
-        
+    """Edit a post. Admin route only."""
     post = db.session.get(Post, post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
@@ -562,7 +511,7 @@ def edit_post_admin(post_id):
 @app.route('/api/admin/posts/<int:post_id>', methods=['DELETE'])
 @require_roles('admin')
 def delete_post_admin(post_id):
-
+    """Delete a post. Admin route only."""
     post = db.session.get(Post, post_id)
     if not post:
         return jsonify({'message': 'Post deleted successfully by admin'}), 200
@@ -633,18 +582,7 @@ def get_post_by_id(post_id):
 
 @require_roles('admin')
 def update_post_status(post_id, new_status, feedback=None):
-    """Update the status of a post
-    
-    This is a helper function for approve_post and deny_post
-    
-    Args:
-        post_id: The ID of the post to update
-        new_status: The new status ('approved' or 'denied')
-        feedback: Optional feedback text for denied posts
-        
-    Returns:
-        JSON response with success message or error
-    """
+    """Update the status of a post. Adm in route only."""
     post = db.session.get(Post, post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
@@ -853,14 +791,7 @@ def get_public_announcements():
 @jwt_required
 @require_roles('admin')
 def create_announcement():
-    """Create a new announcement - protected route, requires admin authentication
-    
-    Methods:
-        POST: Create a new announcement (admin only)
-    
-    Returns:
-        POST: JSON with new announcement details
-    """
+    """Create a new announcement. Admin route only."""
     # Check if user is admin - get current user from token
     current_user = get_current_user()
     if not current_user or current_user.role != 'admin':
@@ -868,8 +799,6 @@ def create_announcement():
         
     try:
         data = request.json
-        if not app.testing and 'test' in data.get('title','').lower():
-           return jsonify({'error':'Test announcements not allowed in production'}), 400
         
         # Required fields
         title = data.get('title')
@@ -920,21 +849,7 @@ def create_announcement():
 
 @app.route('/api/announcements/<int:announcement_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_single_announcement(announcement_id):
-    """Handle operations on a single announcement
-    
-    Methods:
-        GET: Retrieve a specific announcement
-        PUT: Update an announcement (admin only)
-        DELETE: Delete an announcement (admin only)
-    
-    Args:
-        announcement_id: The ID of the announcement to operate on
-    
-    Returns:
-        GET: JSON with announcement details
-        PUT: JSON with updated announcement details
-        DELETE: JSON confirmation message
-    """
+    """Handle operations on a single announcement. Admin route only."""
     # Get the announcement
     announcement = db.session.get(Announcement, announcement_id)
     if not announcement:
