@@ -14,21 +14,21 @@ import About from "./views/Reader/About";
 import PostDetail from './views/Reader/PostDetail';
 import ShareYourStory from './views/Writer/ShareYourStory';
 import PendingPosts from './views/Admin/PendingPosts';
-import NotFound from './components/NotFound'; // 👈 create this component
+import NotFound from './components/NotFound';
 
-import Announcements from './views/Reader/Announcements'; // Import the Announcements component
-// Define Cloudinary video URL
-const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
+import Announcements from './views/Reader/Announcements';
 
-// Change this import (note the exact filename case)
+const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4";
+
+
 
 import BASE_API_URL from './config';
 import Footer from './components/Footer';
 
-// Standalone video element removed - using the one in HomePage component
 
 
-// Define prop types for HomePage
+
+
 interface HomePageProps {
   posts: any[];
   loading: boolean;
@@ -41,7 +41,7 @@ interface HomePageProps {
   handleLogout: () => void;
 }
 
-// HomePage component
+
 function HomePage({
   posts,
   loading,
@@ -99,9 +99,9 @@ function HomePage({
   );
 }
 
-// App component
+
 function App() {
-  // Define a type for posts to fix the TypeScript error
+
 type PostType = any;
 const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -110,15 +110,14 @@ const [posts, setPosts] = useState<PostType[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
 
-  // Initialize auth (check for token in URL)
+
   useEffect(() => {
-    // Initialize the auth service and check for token in URL
     const tokenReceived = authService.initAuth();
     if (tokenReceived) {
       console.log('Token received from URL and stored');
     }
     
-    // Check authentication status
+  
     const checkAuth = async () => {
       try {
         console.log('Checking authentication status...');
@@ -173,13 +172,13 @@ const [posts, setPosts] = useState<PostType[]>([]);
   };
 
   const handleLoginSuccess = (userData: any) => {
-    // With JWT authentication, this will be called after the token is received
+
     setUser(userData);
     setIsAuthenticated(true);
   };
 
   const handleLogout = async () => {
-    // With JWT authentication, we just need to remove the token
+
     await authService.logout();
     setUser(null);
     setIsAuthenticated(false);
@@ -216,7 +215,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
             user={user}
             authChecked={authChecked}
             isAuthenticated={isAuthenticated}
-            allowedRoles={['admin']} // You can allow other roles too if needed
+            allowedRoles={['admin']}
           >
           <AdminDashboard 
             user={user}
@@ -243,7 +242,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
-        {/* Redirect tag routes to archive with filter */}
+
         <Route path="/tag/:tag" element={
           <Navigate to="/archive" replace />
         } />

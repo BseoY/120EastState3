@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------
 # email_functions.py
 # Author: Andrew Cho, Brian Seo, Henry Li
-#   
+#   With help from https://www.mailslurp.com/guides/smtp/python-send-email-smtp/
 #-----------------------------------------------------------------------
 
 import os
@@ -115,5 +115,5 @@ def send_contact_form_email(to_email, name, email, message):
     </body>
     </html>"""
     
-    # Use the base send_email function with reply-to set to the sender's email
+    # reply-to set to the sender's email
     return send_email(to_email, subject, content, reply_to=email)
