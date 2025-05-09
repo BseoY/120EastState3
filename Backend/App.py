@@ -1263,7 +1263,5 @@ def test_logging():
 def not_found(e):
     return jsonify({"error": "This page doesn't exist"}), 404
 
-
-
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
