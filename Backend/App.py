@@ -714,10 +714,6 @@ def update_tag(tag_id):
     try:
         db.session.commit()
         
-        # We don't need to update posts since we're using a relationship
-        # All posts that reference this tag will automatically use the updated name
-        # through the relationship
-        
         return jsonify({
             'id': tag.id,
             'name': tag.name,
@@ -753,8 +749,7 @@ def send_message():
         
         # Send email to organization email
         try:
-            # Use cho.s.andy03@gmail.com directly for testing
-            org_email = "120eaststate@gmail.com"  # Hardcoded for testing. Change to Organizational email when ready.
+            org_email = "120eaststate@gmail.com"  # Placeholder 120 East State
             print(f"Attempting to send email to: {org_email}")
             
             # Debug environment variables
@@ -775,7 +770,6 @@ def send_message():
                 print(f"Failed to send contact form email to {org_email}, but message was saved to database")
         except Exception as email_error:
             print(f"Failed to send email: {str(email_error)}")
-            # We still return success even if email fails since the message was saved to database
         
         return jsonify({'message': 'Message submitted successfully'}), 201
     except Exception as e:
