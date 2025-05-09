@@ -918,11 +918,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                       <div>Actions</div>
                     </div>
                     {announcements.map((announcement) => (
-                      <div className="announcement-banner-admin">
+                      <div key={`announcement-${announcement.id}`} className="announcement-banner-admin">
                         <div className="user-profile">
                           <img 
-                            src={announcement.user.profile_pic || '/default-avatar.png'} 
-                            alt={announcement.user.name} 
+                            src={announcement.user?.profile_pic || '/default-avatar.png'} 
+                            alt={announcement.user?.name || 'User'} 
                             className="user-profile-pic"
                           />
                         </div>
