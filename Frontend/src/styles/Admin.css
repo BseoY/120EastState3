@@ -180,10 +180,12 @@
     position: absolute;
     z-index: 1001;
     left: 50%;
-    top: 5px;
+    top: 80px;
     transform: translate(-50%, 50%);
-    background-color: #1F8CB5;
-    padding: 0.5rem 1rem;
+    background-color: #f5f7fa;
+    color: #1F8CB5;
+    font-weight: 500;
+    padding: 0.2rem;
   }
   .announcement-data-admin {
     display: none !important;

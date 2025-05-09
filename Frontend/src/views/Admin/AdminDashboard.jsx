@@ -600,7 +600,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     <>
       <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
       <button onClick={() => setSidebarOpen(!sidebarOpen)} className="sidebar-toggle-button">
-            {sidebarOpen ? 'v' : '^'}
+        {sidebarOpen ? '▲' : '▼'}
       </button>
       <div className="admin-container">
       <div className={`admin-sidebar ${!sidebarOpen ? 'closed' : ''}`}>
