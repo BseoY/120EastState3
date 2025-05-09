@@ -10,24 +10,12 @@ import smtplib
 from email.message import EmailMessage
 import dotenv
 
-def send_email(to_email, subject, content, reply_to=None, *args, **kwargs):
-    """Base function to send emails
-    
-    Args:
-        to_email: Email address of the recipient
-        subject: Email subject
-        content: HTML content of the email
-        reply_to: Optional reply-to email address
-        
-    Returns:
-        bool: True if email was sent successfully, False otherwise
-    """
-    # Load environment variables
+def send_email(to_email, subject, content, reply_to=None):
     dotenv.load_dotenv()
     
     msg = EmailMessage()
     msg['Subject'] = subject
-    msg['From'] = os.getenv("ORG_EMAIL_USER", 'noreply@120eaststate.org')
+    msg['From'] = os.getenv("ORG_EMAIL_USER")
     msg['To'] = to_email
     
     if reply_to:
@@ -60,18 +48,7 @@ def send_email(to_email, subject, content, reply_to=None, *args, **kwargs):
         return False
 
 
-def send_decision_email(to_email, decision, post_title=None, feedback=None, *args, **kwargs):
-    """Send an email notification about a post approval or denial decision
-    
-    Args:
-        to_email: Email address of the recipient
-        decision: Decision status ('approved' or 'denied')
-        post_title: The title of the post (optional)
-        feedback: Feedback message (optional, used for denials)
-        
-    Returns:
-        bool: True if email was sent successfully, False otherwise
-    """
+def send_decision_email(to_email, decision, post_title=None, feedback=None):
     subject = f'Your 120 East State Submission Was {decision.capitalize()}'
     
     # Create content based on decision
@@ -82,7 +59,7 @@ def send_decision_email(to_email, decision, post_title=None, feedback=None, *arg
             <p>Your submission to 120 East State has been <strong>approved</strong>.</p>
             {f'<p>Your post titled "<strong>{post_title}</strong>" is now visible on the site.</p>' if post_title else ''}
             <p>Thank you for contributing to our community!</p>
-            <p>Visit <a href="https://one20es-frontend-ea37035e8ebf.herokuapp.com">our website</a> to see your post.</p>
+            <p>Visit <a href="https://one20es-archive-b05baf7b3364.herokuapp.com/">our website</a> to see your post.</p>
             <p>—<br>The 120 East State Team</p>
         </body>
         </html>"""
@@ -121,18 +98,7 @@ def send_decision_email(to_email, decision, post_title=None, feedback=None, *arg
     return send_email(to_email, subject, content)
 
 
-def send_contact_form_email(to_email, name, email, message, *args, **kwargs):
-    """Send an email from the contact form
-    
-    Args:
-        to_email: Email address of the recipient (organization email)
-        name: Name of the person submitting the contact form
-        email: Email address of the sender
-        message: Content of the message
-    
-    Returns:
-        bool: True if email was sent successfully, False otherwise
-    """
+def send_contact_form_email(to_email, name, email, message):
     subject = f'120 East State Contact Form: Message from {name}'
     
     # Create HTML content for better formatting
