@@ -24,6 +24,7 @@ interface Post {
   date_created: string;
   author: string;
   profile_pic: string | null;
+  status: 'approved' | 'pending' | 'denied';
 }
 
 interface Tag {
@@ -117,7 +118,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
   // Using the shared date formatting utility instead of local implementation
 
   const deletePost = async (postId: number) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
+    if (window.confirm("Are you sure you want to permanently delete this post?\n\nThis action cannot be undone and all associated media will be removed.")) {
       try {
         await axios.delete(`${BASE_API_URL}/api/admin/posts/${postId}`, {
           withCredentials: true, // This should be in the config object
@@ -212,9 +213,12 @@ const PostDetail: React.FC<PostDetailProps> = ({
               <>
                 <header>
                   <div className="post-meta">
-                    <Link to="/archive" className="back-button">
-                      ← Back to Archive
-                    </Link>
+                    <Link 
+                    to={location.state?.from || "/archive"} 
+                    className="back-button"
+                  >
+                    ← Back to Archive
+                  </Link>
                     <span className="post-date">{formatLocalDate(post.date_created)}</span>
                   </div>
                   <h1 className="post-title">{post.title}</h1>
@@ -298,19 +302,21 @@ const PostDetail: React.FC<PostDetailProps> = ({
                 
                 <div className="post-footer">
                   <div className="post-actions">
-                    <button 
-                      className="share-qr-button" 
-                      onClick={() => setShowQRCode(true)}
-                    >
-                      Share with QR Code
-                    </button>
+                    {post.status === 'approved' && (
+                      <button 
+                        className="share-qr-button" 
+                        onClick={() => setShowQRCode(true)}
+                      >
+                        Share with QR Code
+                      </button>
+                    )}
                     {isAuthenticated && user?.role === 'admin' && (
                       <div id="middle-actions">
                         <button onClick={() => setIsEditing(true)} className="edit-button">Edit Post</button>
                         <button onClick={() => deletePost(post.id)} className="deny-button">Delete Post</button>
                       </div>
                     )}
-                    <Link to={`/tag/${post.tag}`} className="post-tag">{post.tag}</Link>
+                    <Link to={`/archive?tag=${encodeURIComponent(post.tag)}`} className="post-tag">{post.tag}</Link>
                   </div>
                 </div>
 

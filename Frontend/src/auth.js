@@ -104,14 +104,25 @@ const authService = {
    * Logout the user
    */
   logout() {
+    // Clear the auth token immediately
     localStorage.removeItem('authToken');
     
     // Call the backend to clear any session data
-    axios.post('/api/auth/logout')
-      .catch(error => console.error('Logout error:', error));
+    axios.post(`${BASE_API_URL}/api/auth/logout`, {}, {
+      withCredentials: true
+    })
+      .catch(error => {
+        console.error('Logout error:', error);
+      });
     
-    // Redirect to home
-    window.location.href = '/';
+    // Instead of redirecting immediately, return a promise that resolves when ready
+    return new Promise((resolve) => {
+      // Give the component a chance to clean up
+      setTimeout(() => {
+        window.location.href = '/';
+        resolve();
+      }, 100); // Small delay to prevent white flash
+    });
   },
 
   /**

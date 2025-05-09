@@ -108,7 +108,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Delete all denied posts
   const deleteAllDeniedPosts = async () => {
     // Confirm deletion with user
-    if (!window.confirm('Are you sure you want to permanently delete ALL denied posts? This action cannot be undone.')) return;
+    if (!window.confirm('Are you sure you want to permanently delete ALL denied posts?\n\nThis action cannot be undone and will remove all denied posts from the system.')) return;
     
     try {
       // Make a second confirmation to prevent accidents
@@ -181,7 +181,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const handleSubmitFeedback = () => {
     // Only proceed if there is a selected post and non-empty feedback
     if (selectedPostId && feedbackText.trim() !== '') {
-      updateStatus(selectedPostId, 'deny', feedbackText);
+      if (window.confirm(`Are you sure you want to deny this post?\n\nThis action will mark the post as denied and notify the contributor.`)) {
+        updateStatus(selectedPostId, 'deny', feedbackText);
+      }
     } else if (feedbackText.trim() === '') {
       alert('Please provide feedback before denying the post.');
     }
@@ -312,7 +314,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
   // Delete a tag
   const deleteTag = async (tagId) => {
-    if (!window.confirm('Are you sure you want to delete this tag?')) return;
+    if (!window.confirm('Are you sure you want to permanently delete this tag?')) return;
     
     try {
       await axios.delete(
@@ -546,7 +548,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   
   // Delete an announcement
   const deleteAnnouncement = async (announcementId) => {
-    if (!window.confirm('Are you sure you want to delete this announcement?')) return;
+    if (!window.confirm('Are you sure you want to permanently delete this announcement?')) return;
     
     try {
       await axios.delete(
@@ -643,7 +645,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
   return (
     <>
-      <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} handleLogout={handleLogout} />
+      <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
       <div className="admin-container">
         <div className="admin-sidebar">
           <div className="admin-logo">

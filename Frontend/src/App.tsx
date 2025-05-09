@@ -15,7 +15,7 @@ import PostDetail from './views/Reader/PostDetail';
 import ShareYourStory from './views/Writer/ShareYourStory';
 import PendingPosts from './views/Admin/PendingPosts';
 import NotFound from './components/NotFound'; // 👈 create this component
-import Error from "./views/Admin/Error";
+
 import Announcements from './views/Reader/Announcements'; // Import the Announcements component
 // Define Cloudinary video URL
 const videoSource = "https://res.cloudinary.com/djxgotyg7/video/upload/v1744492203/d7g6opgxja7baqep1x3y.mp4"; // Replace with your actual Cloudinary URL
@@ -178,9 +178,9 @@ const [posts, setPosts] = useState<PostType[]>([]);
     setIsAuthenticated(true);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // With JWT authentication, we just need to remove the token
-    authService.logout();
+    await authService.logout();
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -278,7 +278,7 @@ const [posts, setPosts] = useState<PostType[]>([]);
             handleLogout={handleLogout}
           />
         } />
-        <Route path="/error" element={<Error />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
