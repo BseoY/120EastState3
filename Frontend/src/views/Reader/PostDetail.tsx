@@ -4,7 +4,7 @@ import axios from 'axios';
 import BASE_API_URL from '../../config';
 import { QRCodeSVG } from 'qrcode.react';
 import Nav from '../../components/Nav';
-import '../../styles/PostDetail.css';
+import '../../styles/PDetails.css';
 import { formatLocalDate } from '../../utils/dateUtils';
 
 interface Media {

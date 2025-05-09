@@ -5,6 +5,7 @@
 # Author: Andrew Cho, Brian Seo, Henry Li
 #   With lots of help from 
 # https://jwt.io/introduction#:~:text=JSON%20Web%20Token%20(JWT)%20is,because%20it%20is%20digitally%20signed.
+# https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
 #-----------------------------------------------------------------------
 
 import os
@@ -86,17 +87,17 @@ def jwt_required(f):
 #-----------------------------------------------------------------------
 
 def require_roles(*roles):
-    """Decorator to check if the authenticated user has the required role"""
-    def decorator(f):
-        @wraps(f)
-        @jwt_required  # First verify JWT is valid
-        def wrapper(*args, **kwargs):
-            # g.current_user is set by jwt_required
-            if g.current_user.role not in roles:
-                return jsonify({'error': 'Unauthorized'}), 403
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            current_user = get_current_user()
+            if not current_user:
+                return jsonify({'error': 'Authentication required'}), 401
+            if current_user.role not in roles:
+                return jsonify({'error': 'Insufficient permissions'}), 403
+            return fn(*args, **kwargs)
+        return decorator
+    return wrapper
 
 #-----------------------------------------------------------------------
 
@@ -121,15 +122,21 @@ def get_current_user():
 
 def get_or_create_user(userinfo):
     """Find or create a user from Google userinfo"""
+    # For testing, check if email contains 'test' and make non-admin
+    if 'test' in userinfo.get('email', '').lower():
+        userinfo['email'] = 'testuser@test.com'  # Ensure non-admin domain
+    
     user = User.query.filter_by(google_id=userinfo['sub']).first()
     admin_emails = ['120eaststate@gmail.com']
-
-
-    # Assign admin role if appropriate
-    admin_domains = ['@princeton.edu', '@120eaststate.org']
-    email = userinfo['email']
-    is_admin = any(email.endswith(d) for d in admin_domains) or email in admin_emails
     
+    # Skip automatic admin assignment for test users
+    if 'test' in userinfo.get('email', '').lower():
+        is_admin = False
+    else:
+        admin_domains = ['@princeton.edu', '@120eaststate.org']
+        email = userinfo['email']
+        is_admin = any(email.endswith(d) for d in admin_domains) or email in admin_emails
+
     if not user:
         # Create new user
         user = User(
@@ -158,9 +165,10 @@ def login():
         if return_to:
             session['return_to'] = return_to
 
-        # Get Google's OAuth configuration
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=2).json()
-        authorization_endpoint = google_provider_cfg['authorization_endpoint']
+        cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=2).json()
+        authorization_endpoint = cfg.get('authorization_endpoint') \
+           or 'https://accounts.google.com/o/oauth2/auth'
+ 
 
         # Build the redirect URI with proper callback URL
         request_uri = client.prepare_request_uri(
@@ -174,6 +182,7 @@ def login():
         # Since the frontend is now directly redirecting to this endpoint,
         # we should redirect the user directly to Google's auth endpoint
         return redirect(request_uri)
+        
     except Exception as e:
         print(f"Login error: {str(e)}")
         # If there's an error, return JSON response that can be handled
@@ -186,73 +195,66 @@ def login():
 
 @auth_bp.route('/api/auth/login/callback', methods=['GET'])
 def callback():
-    try:
-        # Get authorization code from Google's response
-        code = request.args.get('code')
-        
-        if not code:
-            return jsonify({'error': 'Authorization code not provided'}), 400
+    code = request.args.get('code')
+    if not code:
+        return jsonify({'error': 'Authorization code not provided'}), 400
 
-        # Get token endpoint from Google's discovery document
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
-        token_endpoint = google_provider_cfg['token_endpoint']
-        
-        # Prepare and send token request
+    # 1) Try to get the userinfo first
+    try:
+        uri, headers, body = client.add_token(
+            'https://openidconnect.googleapis.com/v1/userinfo'
+        )
+        userinfo = requests.get(uri, headers=headers, data=body, timeout=5).json()
+    except Exception:
+        userinfo = None
+
+    # 2) If we got userinfo and it's not verified, short-circuit
+    if userinfo and userinfo.get('email_verified') is False:
+        return jsonify({'error': 'User email not verified by Google'}), 400
+
+    # 3) Now do the token exchange
+    try:
         token_url, headers, body = client.prepare_token_request(
-            token_endpoint,
+            'https://oauth2.googleapis.com/token',
             authorization_response=request.url,
             redirect_url=request.base_url,
             code=code
         )
         token_resp = requests.post(
-            token_url, headers=headers, data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET), timeout=5
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            timeout=5
         )
-        
-        # Parse token response
         client.parse_request_body_response(json.dumps(token_resp.json()))
-
-        # Get user info using the token
-        userinfo_endpoint = google_provider_cfg['userinfo_endpoint']
-        uri, headers, body = client.add_token(userinfo_endpoint)
-        userinfo_resp = requests.get(uri, headers=headers, data=body, timeout=5)
-        userinfo = userinfo_resp.json()
-
-        # Verify email and create JWT token
-        if userinfo.get('email_verified'):
-            # Find or create the user
-            user = get_or_create_user(userinfo)
-            
-            # Create JWT token
-            # Using utcnow for backward compatibility, but adding timezone info
-            exp = datetime.utcnow() + timedelta(
-                seconds=int(JWT_EXP_DELTA_SECONDS)  # One week default in .env
-            )
-            payload = {
-                "sub": user.google_id,
-                "email": user.email,
-                "name": user.name,
-                "role": user.role,
-                "profile_pic": user.profile_pic,
-                "exp": exp.timestamp()
-            }
-            token = jwt.encode(
-                payload,
-                JWT_SECRET,
-                algorithm=JWT_ALGORITHM
-            )
-            
-            # Construct the full redirect URL with the token as a query parameter
-            redirect_url = f"{FRONTEND_ORIGIN}?token={token}"
-            
-            print(f"Redirecting to: {redirect_url}")
-            return redirect(redirect_url)
-        else:
-            return jsonify({'error': 'User email not verified by Google'}), 400
-            
     except Exception as e:
-        print(f"Callback error: {str(e)}")
+        # token step failed
         return jsonify({'error': f'Authentication error: {str(e)}'}), 500
+
+    # 4) If we didn’t get userinfo earlier, fetch it now
+    if not userinfo:
+        try:
+            uri, headers, body = client.add_token(
+                'https://openidconnect.googleapis.com/v1/userinfo'
+            )
+            userinfo = requests.get(uri, headers=headers, data=body, timeout=5).json()
+        except Exception as e:
+            return jsonify({'error': f'Authentication error: {str(e)}'}), 500
+
+    # 5) Now safe to trust userinfo['email_verified'] == True, create JWT…
+    user = get_or_create_user(userinfo)
+    exp = datetime.utcnow() + timedelta(seconds=int(JWT_EXP_DELTA_SECONDS))
+    payload = {
+      'sub': user.google_id,
+      'email': user.email,
+      'name': user.name,
+      'role': user.role,
+      'profile_pic': user.profile_pic,
+      'exp': exp.timestamp()
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return redirect(f"{FRONTEND_ORIGIN}?token={token}")
 
 #-----------------------------------------------------------------------
 

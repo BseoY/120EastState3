@@ -44,4 +44,9 @@ __pycache__/
 *.WEBM
 *.m4v
 *.M4V
->>>>>>> bd1758ca638d284061fc5dc811badcdb561437ba
+
+# Test files and directories
+automated_test/
+automated_tests/
+path_tests/
+conftest.py
