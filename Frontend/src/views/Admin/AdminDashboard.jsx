@@ -12,6 +12,7 @@ import { formatLocalDateTimeForInput, formatLocalDate, toISODateString } from '.
 
 function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess, handleLogout }) {
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [pendingPosts, setPendingPosts] = useState([]);
   const [deniedPosts, setDeniedPosts] = useState([]);
 
@@ -646,8 +647,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   return (
     <>
       <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
+      <button onClick={() => setSidebarOpen(!sidebarOpen)} className="sidebar-toggle-button">
+            {sidebarOpen ? 'v' : '^'}
+      </button>
       <div className="admin-container">
-        <div className="admin-sidebar">
+      <div className={`admin-sidebar ${!sidebarOpen ? 'closed' : ''}`}>
           <div className="admin-logo">
             <h2>Admin Panel</h2>
           </div>
