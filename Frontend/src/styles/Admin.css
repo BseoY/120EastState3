@@ -616,7 +616,6 @@
   display: grid;
   grid-template-columns: 0.5fr 1fr 4fr 2fr 1fr;
   align-items: center;
-  justify-content: center;
   text-align: left;
   gap: 1rem;
   padding: 1rem;
@@ -645,6 +644,7 @@
 .announcement-actions {
   display: flex;
   justify-content: flex-end;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -659,13 +659,25 @@
 }
 
 .announcement-edit-button {
-  background-color: #1F8CB5;
+  background-color: #F1BA55;
+}
+
+.announcement-edit-button::before {
+  content: "\270E";
+  margin-right: 0.5rem;
+  color: #333;
 }
 
 .announcement-delete-button {
   background-color: #dc3545;
   transition: background-color 0.3s ease;
 }
+.announcement-delete-button::before {
+  content: '\f2ed';
+  font-family: 'Font Awesome 5 Free';
+  margin-right: 0.5rem;
+}
+
 
 .announcement-delete-button:hover {
   background-color: #cc3300;

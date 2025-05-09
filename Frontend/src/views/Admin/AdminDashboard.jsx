@@ -933,7 +933,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                           {announcement.content}
                         </div>
                         <div className="announcement-date-pub">
-                          {formatLocalDate(announcement.date_created)} / {formatLocalDate(announcement.date_end)} 
+                          <p>{formatLocalDate(announcement.date_created)} </p>
+                          <p>{formatLocalDate(announcement.date_end)} </p>
                         </div>
 
                         <div className="announcement-actions">
