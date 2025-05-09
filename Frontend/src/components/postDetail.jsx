@@ -5,14 +5,14 @@ import Nav from './Nav';
 import '../styles/PostDetail.css';
 import BASE_API_URL from '../config';
 import { formatLocalDate, formatLocalDateTime } from '../utils/dateUtils';
-import '../../styles/PostDetail.css'; // Optional, for styling
+import '../../styles/PostDetail.css';
 
 function PostDetail({ user, isAuthenticated, handleLogout }) {
   const { postId } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);  // State for toggling edit mode
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     tag: '',
@@ -69,8 +69,8 @@ function PostDetail({ user, isAuthenticated, handleLogout }) {
       const res = await axios.put(`${BASE_API_URL}/api/admin/posts/${post.id}`, formData, {
         withCredentials: true,
       });
-      setPost(res.data);  // Update the post state with the updated data
-      setIsEditing(false); // Exit edit mode
+      setPost(res.data);
+      setIsEditing(false); 
       alert("Post updated successfully!");
     } catch (err) {
       console.error("Error updating post:", err);

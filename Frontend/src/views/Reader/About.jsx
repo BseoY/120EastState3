@@ -15,7 +15,6 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     message: ''
   });
   
-  // Maximum character limits (kept simple)
   const maxNameChars = 50;
   const maxMessageChars = 500;
   
