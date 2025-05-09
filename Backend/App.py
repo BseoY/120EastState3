@@ -364,20 +364,6 @@ def get_user_posts():
 @app.route('/api/upload', methods=['POST'])
 @jwt_required
 def upload_file():
-    if app.testing:
-        # return dummy URLs so tests pass
-        file = request.files.get('file')
-        if not file:
-            return jsonify({'error': 'No file part'}), 400
-        if file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
-        ext = file.filename.rsplit('.',1)[-1].lower()
-        if ext in ['mp4','mov','avi','webm','mkv']:
-            return jsonify({'success': True, 'video_url': f'https://testserver/{file.filename}'})
-        elif ext in ['jpg','jpeg','png','gif','webp','bmp','tiff']:
-            return jsonify({'success': True, 'image_url': f'https://testserver/{file.filename}'})
-        else:
-            return jsonify({'error': 'Invalid file type'}), 400
     # Current user is already verified by @jwt_required
     user = get_current_user()
         
