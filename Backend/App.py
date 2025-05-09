@@ -20,7 +20,6 @@ from auth import auth_bp, jwt_required, require_roles, get_current_user
 import logging
 from logging.handlers import RotatingFileHandler
 from sqlalchemy import text  # Add this with your other imports
-from flask_jwt_extended import JWTManager
 
 #-----------------------------------------------------------------------
 
@@ -30,23 +29,9 @@ load_dotenv()
 # Initialize app
 app = Flask(__name__)
 
-
-# ADD LOGGING CONFIGURATION RIGHT HERE
-if not app.debug:
-    # Production logging - rotate logs and keep last 5 files of 10MB each
-    file_handler = RotatingFileHandler('backend.log', maxBytes=1024*1024*10, backupCount=5)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.DEBUG)
-    app.logger.info('120 East State backend startup')
-
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
 app.config['JWT_ALGORITHM']  = os.getenv('JWT_ALGORITHM')
-jwt_manager = JWTManager(app)
 
 # CORS setup to support both local and heroku deployment
 allowed_origins = [
