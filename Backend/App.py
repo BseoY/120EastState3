@@ -878,9 +878,7 @@ def create_announcement():
         
     try:
         data = request.json
-        if 'test' in data.get('title', '').lower():
-            return jsonify({'error': 'Test announcements not allowed in production'}), 400  
-        
+
         # Required fields
         title = data.get('title')
         content = data.get('content')
