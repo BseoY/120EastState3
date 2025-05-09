@@ -196,6 +196,11 @@ const PostDetail: React.FC<PostDetailProps> = ({
     setUpdateError(null);
   };
 
+  // Handle going back to previous page
+  const handleGoBack = () => {
+    navigate(-1); // This navigates to the previous page in browser history
+  };
+
   return (
     <div className="post-detail-page">
       <Nav 
@@ -210,8 +215,8 @@ const PostDetail: React.FC<PostDetailProps> = ({
       ) : error ? (
         <div className="error-message">
           <p>{error}</p>
-          <button onClick={() => navigate('/archive')} className="back-button">
-            ← Back to Archive
+          <button onClick={handleGoBack} className="back-button">
+            ← Back
           </button>
         </div>
       ) : post ? (
@@ -221,9 +226,9 @@ const PostDetail: React.FC<PostDetailProps> = ({
               <>
                 <header>
                   <div className="post-meta">
-                    <Link to="/archive" className="back-button">
+                    <button onClick={handleGoBack} className="back-button">
                       ← Back
-                    </Link>
+                    </button>
                     <span className="post-date">{formatLocalDate(post.date_created)}</span>
                   </div>
                   <h1 className="post-title">{post.title}</h1>
@@ -319,7 +324,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                         <button onClick={() => deletePost(post.id)} className="delete-button">Delete Post</button>
                       </div>
                     )}
-                    <Link to={`/tag/${post.tag}`} className="post-tag">{post.tag}</Link>
+                    <Link to={`/archive?tag=${encodeURIComponent(post.tag)}`} className="post-tag">{post.tag}</Link>
                   </div>
                 </div>
 
@@ -425,8 +430,8 @@ const PostDetail: React.FC<PostDetailProps> = ({
           ) : (
             <div className="not-found">
               Post not found.
-              <button onClick={() => navigate('/archive')} className="back-button">
-                ← Back to Archive
+              <button onClick={handleGoBack} className="back-button">
+                ← Back
               </button>
             </div>
           )}
