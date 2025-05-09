@@ -122,20 +122,12 @@ def get_current_user():
 
 def get_or_create_user(userinfo):
     """Find or create a user from Google userinfo"""
-    # For testing, check if email contains 'test' and make non-admin
-    if 'test' in userinfo.get('email', '').lower():
-        userinfo['email'] = 'testuser@test.com'  # Ensure non-admin domain
-    
     user = User.query.filter_by(google_id=userinfo['sub']).first()
     admin_emails = ['120eaststate@gmail.com']
     
-    # Skip automatic admin assignment for test users
-    if 'test' in userinfo.get('email', '').lower():
-        is_admin = False
-    else:
-        admin_domains = ['@princeton.edu', '@120eaststate.org']
-        email = userinfo['email']
-        is_admin = any(email.endswith(d) for d in admin_domains) or email in admin_emails
+    admin_domains = ['@princeton.edu', '@120eaststate.org']
+    email = userinfo['email']
+    is_admin = any(email.endswith(d) for d in admin_domains) or email in admin_emails
 
     if not user:
         # Create new user

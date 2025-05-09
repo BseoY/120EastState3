@@ -15,12 +15,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
-from email_functions import send_decision_email, send_contact_form_email, send_email
+from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, jwt_required, require_roles, get_current_user
-import logging
-from logging.handlers import RotatingFileHandler
-from sqlalchemy import text  # Add this with your other imports
-from flask_jwt_extended import JWTManager
+from sqlalchemy import text  
 
 #-----------------------------------------------------------------------
 
@@ -30,23 +27,8 @@ load_dotenv()
 # Initialize app
 app = Flask(__name__)
 
-
-# ADD LOGGING CONFIGURATION RIGHT HERE
-if not app.debug:
-    # Production logging - rotate logs and keep last 5 files of 10MB each
-    file_handler = RotatingFileHandler('backend.log', maxBytes=1024*1024*10, backupCount=5)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.DEBUG)
-    app.logger.info('120 East State backend startup')
-
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
-app.config['JWT_ALGORITHM']  = os.getenv('JWT_ALGORITHM')
-jwt_manager = JWTManager(app)
 
 # CORS setup to support both local and heroku deployment
 allowed_origins = [
@@ -278,36 +260,10 @@ def create_post():
                             resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
                             folder = "120EastState3/documents"
                         
+                        
                         # Get caption if provided
                         caption = request.form.get(f"{media_key}_caption", "")
-                        if app.testing:
-                            # 1) build the same “shape”
-                            media_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')) else 'image'
-                            secure_url = f'https://testserver/{filename}'
-                            public_id = f'test_{i}'
-                
-                            # 2) persist into the DB so your final JSON comes back non‐empty
-                            stub_media = Media(
-                                post_id=new_post.id,
-                                url=secure_url,
-                                media_type=media_type,
-                                public_id=public_id,
-                                filename=filename,
-                                caption=caption
-                            )
-                            db.session.add(stub_media)
-                
-                            # 3) track it locally if you like
-                            media_files.append({
-                                'id': None,  # we’ll re-query by post_id, so ID isn’t critical here
-                                'url': secure_url,
-                                'media_type': media_type,
-                                'public_id': public_id,
-                                'filename': filename,
-                                'caption': caption
-                            })
-                            media_count += 1
-                            continue
+                        
                         # Upload to Cloudinary
                         upload_result = cloudinary.uploader.upload(
                             file,
@@ -408,20 +364,6 @@ def get_user_posts():
 @app.route('/api/upload', methods=['POST'])
 @jwt_required
 def upload_file():
-    if app.testing:
-        # return dummy URLs so tests pass
-        file = request.files.get('file')
-        if not file:
-            return jsonify({'error': 'No file part'}), 400
-        if file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
-        ext = file.filename.rsplit('.',1)[-1].lower()
-        if ext in ['mp4','mov','avi','webm','mkv']:
-            return jsonify({'success': True, 'video_url': f'https://testserver/{file.filename}'})
-        elif ext in ['jpg','jpeg','png','gif','webp','bmp','tiff']:
-            return jsonify({'success': True, 'image_url': f'https://testserver/{file.filename}'})
-        else:
-            return jsonify({'error': 'Invalid file type'}), 400
     # Current user is already verified by @jwt_required
     user = get_current_user()
         
@@ -763,7 +705,6 @@ def update_tag(tag_id):
         return jsonify({'error': 'Tag not found'}), 404
     
     data = request.json
-    old_name = tag.name  # Save old name
     new_name = data.get('name', tag.name)
     
     tag.name = new_name
@@ -871,7 +812,6 @@ def get_all_users():
 # -----------------------------------------------------------------------
 # Announcement Routes
 # -----------------------------------------------------------------------
-# Public route for getting announcements - no authentication required
 @app.route('/api/announcements', methods=['GET'])
 def get_public_announcements():
     """Get all active announcements - public route, no authentication required
