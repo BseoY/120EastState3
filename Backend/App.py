@@ -15,11 +15,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import db, Post, User, Tag, Media, Announcement
 from cloudinary_config import configure_cloudinary
-from email_functions import send_decision_email, send_contact_form_email, send_email
+from email_functions import send_decision_email, send_contact_form_email
 from auth import auth_bp, jwt_required, require_roles, get_current_user
-import logging
-from logging.handlers import RotatingFileHandler
-from sqlalchemy import text  # Add this with your other imports
+from sqlalchemy import text  
 
 #-----------------------------------------------------------------------
 
@@ -31,12 +29,12 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['JWT_SECRET'] = os.getenv('JWT_SECRET')
-app.config['JWT_ALGORITHM']  = os.getenv('JWT_ALGORITHM')
 
 # CORS setup to support both local and heroku deployment
 allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5001", 
+    "https://one20es-frontend-ea37035e8ebf.herokuapp.com",
     "https://one20es-backend-bd090d21d298.herokuapp.com",
     "https://one20es-archive-b05baf7b3364.herokuapp.com"
 ]
@@ -262,36 +260,10 @@ def create_post():
                             resource_type = 'raw'  # Use 'raw' for documents instead of 'auto'
                             folder = "120EastState3/documents"
                         
+                        
                         # Get caption if provided
                         caption = request.form.get(f"{media_key}_caption", "")
-                        if app.testing:
-                            # 1) build the same “shape”
-                            media_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')) else 'image'
-                            secure_url = f'https://testserver/{filename}'
-                            public_id = f'test_{i}'
-                
-                            # 2) persist into the DB so your final JSON comes back non‐empty
-                            stub_media = Media(
-                                post_id=new_post.id,
-                                url=secure_url,
-                                media_type=media_type,
-                                public_id=public_id,
-                                filename=filename,
-                                caption=caption
-                            )
-                            db.session.add(stub_media)
-                
-                            # 3) track it locally if you like
-                            media_files.append({
-                                'id': None,  # we’ll re-query by post_id, so ID isn’t critical here
-                                'url': secure_url,
-                                'media_type': media_type,
-                                'public_id': public_id,
-                                'filename': filename,
-                                'caption': caption
-                            })
-                            media_count += 1
-                            continue
+                        
                         # Upload to Cloudinary
                         upload_result = cloudinary.uploader.upload(
                             file,
@@ -747,7 +719,6 @@ def update_tag(tag_id):
         return jsonify({'error': 'Tag not found'}), 404
     
     data = request.json
-    old_name = tag.name  # Save old name
     new_name = data.get('name', tag.name)
     
     tag.name = new_name
@@ -855,7 +826,6 @@ def get_all_users():
 # -----------------------------------------------------------------------
 # Announcement Routes
 # -----------------------------------------------------------------------
-# Public route for getting announcements - no authentication required
 @app.route('/api/announcements', methods=['GET'])
 def get_public_announcements():
     """Get all active announcements - public route, no authentication required
