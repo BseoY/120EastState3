@@ -5,6 +5,7 @@
 # Author: Andrew Cho, Brian Seo, Henry Li
 #   With lots of help from 
 # https://jwt.io/introduction#:~:text=JSON%20Web%20Token%20(JWT)%20is,because%20it%20is%20digitally%20signed.
+# https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
 #-----------------------------------------------------------------------
 
 import os

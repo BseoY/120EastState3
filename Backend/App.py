@@ -22,8 +22,6 @@ from logging.handlers import RotatingFileHandler
 from sqlalchemy import text  # Add this with your other imports
 from flask_jwt_extended import JWTManager
 
-
-
 #-----------------------------------------------------------------------
 
 # Load environment variables
