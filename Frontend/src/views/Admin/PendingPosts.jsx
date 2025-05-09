@@ -3,7 +3,7 @@ import axios from 'axios';
 import BASE_API_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
-import '../../styles/Archive.css'; // reuse archive styles
+import '../../styles/Archive.css'; 
 import { formatLocalDate } from '../../utils/dateUtils';
 
 function PendingPosts({ user, isAuthenticated, handleLogout }) {

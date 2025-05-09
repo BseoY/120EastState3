@@ -41,7 +41,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [tagFormVisible, setTagFormVisible] = useState(false);
   const [currentTag, setCurrentTag] = useState(null);
   const [newTagName, setNewTagName] = useState('');
-  // Removed newTagOrder state as we're now sorting alphabetically
   const [newTagImage, setNewTagImage] = useState('');
   const [imageFile, setImageFile] = useState(null);
   
@@ -51,7 +50,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const [newAnnouncementTitle, setNewAnnouncementTitle] = useState('');
   const [newAnnouncementContent, setNewAnnouncementContent] = useState('');
-  // Only need end date now, date_created is automatic
+  // end date
   const [newAnnouncementEndDate, setNewAnnouncementEndDate] = useState('');
   const [hasExpirationDate, setHasExpirationDate] = useState(true);
 
@@ -106,16 +105,12 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     };
   }
 
-  // Delete all denied posts
   const deleteAllDeniedPosts = async () => {
-    // Confirm deletion with user
     if (!window.confirm('Are you sure you want to permanently delete ALL denied posts?\n\nThis action cannot be undone and will remove all denied posts from the system.')) return;
     
     try {
-      // Make a second confirmation to prevent accidents
       if (!window.confirm('WARNING: This will permanently delete all denied posts. Would you like to continue?')) return;
       
-      // Delete each denied post one by one (using existing delete endpoint)
       const deletePromises = deniedPosts.map(post => 
         axios.delete(`${BASE_API_URL}/api/admin/posts/${post.id}`, {
           headers: {
@@ -124,13 +119,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         })
       );
       
-      // Wait for all deletion operations to complete
-      await Promise.all(deletePromises);
-      
-      // Clear the denied posts list
+      await Promise.all(deletePromises); 
       setDeniedPosts([]);
       
-      // Show confirmation
       alert('All denied posts have been permanently deleted!');
     } catch (err) {
       console.error('Error deleting all denied posts:', err);
@@ -153,17 +144,13 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
 
       setPendingPosts((prev) => prev.filter((post) => post.id !== postId));
       
-      // If a post is denied, refresh the denied posts list
       if (action === 'deny') {
         fetchDeniedPosts();
-        // Show confirmation alert for denial
         alert('Post has been denied successfully and feedback has been sent to the contributor.');
       } else if (action === 'approve') {
-        // Show confirmation alert for approval
         alert('Post has been approved successfully!');
       }
       
-      // Reset feedback state if provided
       if (feedback) {
         setFeedbackText('');
         setShowDenyModal(false);
@@ -180,7 +167,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   };
   
   const handleSubmitFeedback = () => {
-    // Only proceed if there is a selected post and non-empty feedback
     if (selectedPostId && feedbackText.trim() !== '') {
       if (window.confirm(`Are you sure you want to deny this post?\n\nThis action will mark the post as denied and notify the contributor.`)) {
         updateStatus(selectedPostId, 'deny', feedbackText);
@@ -213,13 +199,12 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Create a new tag
   const createTag = async () => {
     try {
-      // First upload image if there is one
-      let imageUrl = defaultPic; // Set default image URL
+      let imageUrl = defaultPic;
       if (imageFile) {
         const formData = new FormData();
         formData.append('file', imageFile);
         
-        // Upload to Cloudinary via backend
+        // Upload to Cloudinary
         const uploadRes = await axios.post(
           `${BASE_API_URL}/api/upload`,
           formData,
@@ -229,17 +214,13 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         }
       }
         );
-        
-        // Get image URL from response
         imageUrl = uploadRes.data.image_url || defaultPic;
       }
 
-      // Create tag in database
       const res = await axios.post(
         `${BASE_API_URL}/api/admin/tags`,
         {
           name: newTagName,
-          // No longer using display_order since we're sorting alphabetically
           image_url: imageUrl
         },
         {
@@ -249,11 +230,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       }
       );
       
-      // Update UI
       setTags([...tags, res.data]);
       resetTagForm();
       
-      // Show success message
       alert(`New tag "${newTagName}" has been created successfully!`);
     } catch (err) {
       console.error('Error creating tag:', err);
@@ -261,18 +240,16 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
 
-  // Update an existing tag
   const updateTag = async () => {
     if (!currentTag) return;
     
     try {
-      // Handle image upload if needed
-      let imageUrl = newTagImage || defaultPic; // Use existing image or default
+      let imageUrl = newTagImage || defaultPic;
       if (imageFile) {
         const formData = new FormData();
         formData.append('file', imageFile);
         
-        // Upload to Cloudinary via backend
+        // Upload to Cloudinary
         const uploadRes = await axios.post(
           `${BASE_API_URL}/api/upload`,
           formData,
@@ -283,11 +260,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       }
         );
         
-        // Get image URL from response
         imageUrl = uploadRes.data.image_url || imageUrl;
       }
 
-      // Update tag in database
       const res = await axios.put(
         `${BASE_API_URL}/api/admin/tags/${currentTag.id}`,
         {
@@ -301,11 +276,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       }
       );
       
-      // Update UI
       setTags(tags.map(tag => tag.id === currentTag.id ? res.data : tag));
       resetTagForm();
       
-      // Show success message
       alert(`Tag has been updated successfully!`);
     } catch (err) {
       console.error('Error updating tag:', err);
@@ -313,7 +286,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
 
-  // Delete a tag
   const deleteTag = async (tagId) => {
     if (!window.confirm('Are you sure you want to permanently delete this tag?')) return;
     
@@ -326,8 +298,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
         }
       }
       );
-      
-      // Remove tag from state
+
       setTags(tags.filter(tag => tag.id !== tagId));
       
     } catch (err) {
@@ -335,17 +306,14 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
 
-  // Handle edit tag button click
   const handleEditTag = (tag) => {
     setCurrentTag(tag);
     setNewTagName(tag.name);
-    // No longer using display_order
     setNewTagImage(tag.image_url || '');
     setImageFile(null);
     setTagFormVisible(true);
   };
 
-  // Handle image upload
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
@@ -363,7 +331,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   const resetTagForm = () => {
     setCurrentTag(null);
     setNewTagName('');
-    // No longer using display_order
     setNewTagImage('');
     setImageFile(null);
     setTagFormVisible(false);
@@ -393,7 +360,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           'Authorization': `Bearer ${getAuthToken()}`
         }
       });
-      // Filter only approved posts
       const approved = res.data.filter(post => post.status === 'approved');
       setApprovedPosts(approved);
     } catch (err) {
@@ -411,7 +377,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       });
       setUsers(res.data);
       
-      // Filter administrators (users with role='admin')
+      // only admis filter
       const admins = res.data.filter(user => user.role === 'admin');
       setAdministrators(admins);
     } catch (err) {
@@ -419,13 +385,8 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
   
-  // We're now using the shared formatLocalDateTimeForInput utility
-  
-  // Fetch all announcements
   const fetchAnnouncements = async () => {
     try {
-      // First try to get all announcements from admin endpoint
-      // If that fails (possibly due to missing backend implementation), fall back to regular endpoint
       try {
         const res = await axios.get(`${BASE_API_URL}/api/announcements`, {
         headers: {
@@ -444,7 +405,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       }
     } catch (err) {
       console.error('Error fetching announcements:', err);
-      // Set empty array to prevent UI errors
+      // Set empty array
       setAnnouncements([]);
     }
   };
@@ -452,7 +413,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
   // Create a new announcement
   const createAnnouncement = async () => {
     try {
-      // Only need end date now, date_created is automatic
       let endDate = null;
       if (hasExpirationDate && newAnnouncementEndDate) {
         endDate = new Date(newAnnouncementEndDate).toISOString();
@@ -478,11 +438,9 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       
       console.log('Announcement created successfully:', res.data);
       
-      // Add new announcement to state - handle both response formats
       if (res.data.announcement) {
         setAnnouncements([res.data.announcement, ...announcements]);
       } else if (res.data.id) {
-        // If the API returns the announcement directly
         setAnnouncements([res.data, ...announcements]);
       }
       
@@ -500,7 +458,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     if (!currentAnnouncement) return;
     
     try {
-      // Only need end date now, date_created is automatic
       let endDate = null;
       if (hasExpirationDate && newAnnouncementEndDate) {
         endDate = new Date(newAnnouncementEndDate).toISOString();
@@ -526,13 +483,11 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
       
       console.log('Announcement updated successfully:', res.data);
       
-      // Update announcement in state - handle both response formats
       if (res.data.announcement) {
         setAnnouncements(announcements.map(announcement => 
           announcement.id === currentAnnouncement.id ? res.data.announcement : announcement
         ));
       } else if (res.data.id) {
-        // If the API returns the announcement directly
         setAnnouncements(announcements.map(announcement => 
           announcement.id === currentAnnouncement.id ? res.data : announcement
         ));
@@ -570,9 +525,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     }
   };
   
-  // Removed toggle functionality - announcements are now only active or expired based on dates
-  
-  // Handle edit announcement button click
   const handleEditAnnouncement = (announcement) => {
     setCurrentAnnouncement(announcement);
     setNewAnnouncementTitle(announcement.title);
@@ -648,7 +600,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
     <>
       <Nav user={user} isAuthenticated={isAuthenticated} handleLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
       <button onClick={() => setSidebarOpen(!sidebarOpen)} className="sidebar-toggle-button">
-            {sidebarOpen ? 'v' : '^'}
+        {sidebarOpen ? '▲' : '▼'}
       </button>
       <div className="admin-container">
       <div className={`admin-sidebar ${!sidebarOpen ? 'closed' : ''}`}>
@@ -669,7 +621,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           >
             Pending Posts [{pendingPosts.length}]
           </button>
-          {/* Approved Posts button removed as requested */}
           <button
             className={`sidebar-button ${activeSection === 'denied' ? 'active' : ''}`}
             onClick={() => setSection('denied')}
@@ -681,7 +632,7 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
             className={`sidebar-button ${activeSection === 'tags' ? 'active' : ''}`}
             onClick={() => {
               setSection('tags');
-              fetchTags(); // Refresh tags when clicking the tab
+              fetchTags();
             }}
             data-section="tags"
           >
@@ -694,7 +645,6 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
           >
             Announcements [{announcements.length}]
           </button>
-          {/* Users button removed as requested */}
           <button 
             className={`sidebar-button`}
             onClick={() => navigate("/archive")}

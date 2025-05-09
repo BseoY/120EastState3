@@ -15,7 +15,6 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
     message: ''
   });
   
-  // Maximum character limits (kept simple)
   const maxNameChars = 50;
   const maxMessageChars = 500;
   
@@ -150,7 +149,7 @@ function About({ user, isAuthenticated, authChecked, handleLoginSuccess, handleL
         </div>
       </div>
 
-      <div className="contact-section">
+      <div className="contact-section" id="contact-section">
         <h2>Contact Us</h2>
         <p>If you have any questions or inquiries, please contact us at:</p>
         <br></br>

@@ -1,21 +1,21 @@
 .announcement-wrapper {
   display: grid;
   padding: 0rem 4rem 4rem 4rem;
-  word-wrap: break-word; /* breaks long words */
-  overflow-wrap: break-word; /* safer for all browsers */
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
 }
 
 .announcement-data,
 .announcement-banner {
   display: grid;
-  grid-template-columns: 0.5fr 0.75fr 5fr 1fr; /* adjust based on space needs */
+  grid-template-columns: 0.5fr 0.75fr 5fr 1fr; 
   align-items: center;
   justify-content: center;
   text-align: left;
   gap: 1rem;
   padding: 1rem;
-  word-wrap: break-word; /* breaks long words */
-  overflow-wrap: break-word; /* safer for all browsers */
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
 }
 
 .announcement-data {
@@ -65,16 +65,16 @@
   flex-direction: column;
 }
 
-/* Responsive design for announcements */
+
 @media (max-width: 768px) {
   .announcement-wrapper {
-    padding: 1rem; /* Reduced padding for mobile */
+    padding: 1rem; 
   }
 
   .announcement-data,
   .announcement-banner {
-    display: flex; /* Use flex instead of grid for better stacking */
-    flex-direction: column; /* Stack items vertically */
+    display: flex; 
+    flex-direction: column; 
     gap: 0.5rem;
     padding: 0.5rem;
     text-align: left;
@@ -87,14 +87,14 @@
   }
 
   .announcement-data div {
-    font-size: 0.9rem; /* Adjusted font size for mobile */
+    font-size: 0.9rem; 
   }
 
   .announcement-title-pub {
     font-weight: 450;
     font-size: 1rem;
-    max-width: 100%; /* Ensures it doesn’t overflow */
-    word-break: break-word; /* Break long words */
+    max-width: 100%; 
+    word-break: break-word; 
   }
 
   .announcement-content-pub {
@@ -102,7 +102,7 @@
     font-size: 0.9rem;
     word-break: break-word;
     white-space: normal;
-    max-width: 100%; /* Full width on mobile */
+    max-width: 100%; 
   }
 
   .announcement-date-pub {
@@ -111,27 +111,27 @@
   }
 
   .user-profile {
-    width: 30px; /* Smaller profile picture */
+    width: 30px; 
     height: 30px;
   }
 
-  /* Adjusting the layout of grid columns on mobile */
+  
   .announcement-data,
   .announcement-banner {
-    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-columns: 1fr; 
   }
 
   .announcement-data div,
   .announcement-banner div {
-    text-align: left; /* Ensure text is aligned properly */
+    text-align: left; 
   }
 
   .announcement-banner {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
   }
 }
 
-/* Desktop View (Default) */
+
 .announcement-data,
 .announcement-banner {
   display: grid;
@@ -140,4 +140,13 @@
   justify-content: center;
   gap: 1rem;
   padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .announcement-data {
+    display: none;
+  }
+  .announcement-banner {
+    grid-template-columns: 1fr;
+  }
 }

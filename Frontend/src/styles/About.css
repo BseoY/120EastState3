@@ -5,7 +5,7 @@
 .about-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 35px 2rem 0; /* Added top padding to account for navbar height */
+  padding: 35px 2rem 0; 
 }
 
 .mission-box p {
@@ -106,7 +106,7 @@
 }
 
 .church-section li {
-  flex: 0 0 calc(33.333% - 4rem); /* fixed width: 1/3 minus gap */
+  flex: 0 0 calc(33.333% - 4rem); 
   box-sizing: border-box;
   padding: 0rem 0rem 3rem 0rem;
   border-radius: 8px;
@@ -117,7 +117,7 @@
 @media (max-width: 768px) {
   .church-section li {
     flex: 0 0 100%;
-    padding: 0rem 0rem 2rem 0rem; /* optional: adjust spacing */
+    padding: 0rem 0rem 2rem 0rem; 
   }
 }
 .church-section h4::after {
@@ -131,7 +131,7 @@
 }
 
 .church-section p {
-  flex: 0 0 calc(33.333% - 4rem); /* fixed width: 1/3 minus gap */
+  flex: 0 0 calc(33.333% - 4rem); 
   box-sizing: border-box;
   padding: 0rem 0rem 2rem 0rem;
   border-radius: 8px;
@@ -196,12 +196,12 @@
 #contact-form {
   background-color: transparent;
   display: flex;
-  flex-direction: column; /* Stack form items vertically */
+  flex-direction: column; 
   justify-content: center;
   align-items: center;
   font-family: "DM Sans", sans-serif;
   font-weight: 300;
-  gap: 12px; /* Adds spacing between form elements */
+  gap: 12px; 
   width: 100%;
   margin: auto;
 }
@@ -239,7 +239,6 @@
   margin-bottom: none;
 }
 
-/* Character Count Styling */
 .character-count {
   text-align: right;
   font-size: 0.8rem;
@@ -286,11 +285,10 @@
 }
 
 
-/* Replace existing .team-photo and hover related styles with these: */
 .team-photo-container {
   position: relative;
-  display: inline-block; /* makes container fit image size */
-  width: 40%; /* matches your original image width */
+  display: inline-block; 
+  width: 40%;
 }
 
 .team-photo, 

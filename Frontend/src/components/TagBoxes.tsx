@@ -68,7 +68,7 @@ const TagBoxes = () => {
           ))
         )}
       </div>
-      <br></br> {/* space from bottom of Tag grid to footer */}
+      <br></br>
     </div>
   );
 };

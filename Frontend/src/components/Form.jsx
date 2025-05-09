@@ -8,9 +8,9 @@ let getAuthToken = () => localStorage.getItem('authToken') || '';
 
 function Form({ onNewPost, user }) {
   const [formData, setFormData] = useState({
-    title: "",    // Add title field
-    content: "",  // Add content field
-    tag: "",      // Add tag field
+    title: "", 
+    content: "",
+    tag: "",
   });
   
   // Media state - for handling multiple media files
@@ -82,33 +82,28 @@ function Form({ onNewPost, user }) {
       return;
     }
     
-    // Check each file for Cloudinary's free tier size limits
     for (const file of files) {
       const fileExt = file.name.split('.').pop().toLowerCase();
-      
-      // Determine file type and set size limit
-      let maxSizeMB = 10; // Default size limit (10MB for most file types)
+
+      let maxSizeMB = 10;
       let fileType = "file";
       
       // Check file type and adjust max size if needed
       if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'].includes(fileExt)) {
         fileType = "image";
-        // 10MB for images
       } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExt)) {
         fileType = "video";
-        maxSizeMB = 100; // 100MB for videos
+        maxSizeMB = 100;
       } else if (['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExt)) {
         fileType = "audio";
-        // 10MB for audio
       } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExt)) {
         fileType = "document";
-        // 10MB for documents
       } else {
         alert("Unsupported file type");
         return;
       }
       
-      // Convert MB to bytes for comparison (1MB = 1024*1024 bytes)
+      // Convert MB to bytes
       const maxSizeBytes = maxSizeMB * 1024 * 1024;
       
       // Check file size
@@ -122,11 +117,9 @@ function Form({ onNewPost, user }) {
     // Process each selected file (after validation passed)
     const newMediaPromises = files.map(file => {
       return new Promise((resolve) => {
-        // Determine file type
         const fileExt = file.name.split('.').pop().toLowerCase();
-        let mediaType = 'document'; // Default type
+        let mediaType = 'document';
         
-        // Determine media type based on extension
         if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'].includes(fileExt)) {
           mediaType = 'image';
         } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExt)) {
@@ -135,7 +128,6 @@ function Form({ onNewPost, user }) {
           mediaType = 'audio';
         }
         
-        // Create preview URL
         if (mediaType === 'image') {
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -148,7 +140,6 @@ function Form({ onNewPost, user }) {
           };
           reader.readAsDataURL(file);
         } else {
-          // For video, audio, documents - use URL.createObjectURL
           const preview = URL.createObjectURL(file);
           resolve({
             file,
@@ -183,12 +174,10 @@ function Form({ onNewPost, user }) {
   
   // Update media caption
   const handleCaptionChange = (index, caption) => {
-    // Clear success message when user starts modifying captions
     if (success) {
       setSuccess(false);
     }
     
-    // Don't update if exceeding 50 char limit for caption
     if (caption.length > 50) return;
     
     setMediaFiles(prev => {
@@ -205,7 +194,6 @@ function Form({ onNewPost, user }) {
       tag: ""
     });
     
-    // Reset media files
     mediaFiles.forEach(media => {
       if (media.type !== 'image' && media.preview) {
         URL.revokeObjectURL(media.preview);
@@ -218,8 +206,7 @@ function Form({ onNewPost, user }) {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation - only title is required, content is optional
+
     if (!formData.title.trim()) {
       setError("Title is required");
       return;

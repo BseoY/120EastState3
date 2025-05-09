@@ -18,7 +18,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
 }) => {
   if (!authChecked) {
-    // Optional: render a loading spinner while checking auth
     return <div>Loading...</div>;
   }
 
