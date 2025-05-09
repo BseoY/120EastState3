@@ -495,10 +495,9 @@ textarea.form-control {
     grid-template-columns: 1fr; /* stack media items */
   }
   .post-actions {
-    justify-content: center;
+    justify-content: space-around;
     flex-direction: column;
     align-items: center;
-    gap: 5rem;
   }
 
   .share-qr-button,
