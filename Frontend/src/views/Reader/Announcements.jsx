@@ -25,27 +25,24 @@ const AnnouncementBanner = ({ announcement }) => {
 
   return (
     <>
-
-
-        <div className="announcement-banner">
-          <div className="user-profile">
-            <img 
-              src={announcement.user.profile_pic || '/default-avatar.png'} 
-              alt={announcement.user.name} 
-              className="user-profile-pic"
-            />
-          </div>
-          <div className="announcement-title-pub">
-            {announcement.title}
-          </div>
-          <div className="announcement-content-pub">
-            {announcement.content}
-          </div>
-          <div className="announcement-date-pub">
-            {formatDate(announcement.date_created)}
-          </div>
+      <div className="announcement-banner">
+        <div className="user-profile">
+          <img 
+            src={announcement.user.profile_pic || '/default-avatar.png'} 
+            alt={announcement.user.name} 
+            className="user-profile-pic"
+          />
         </div>
-
+        <div className="announcement-title-pub">
+          {announcement.title}
+        </div>
+        <div className="announcement-content-pub">
+          {announcement.content}
+        </div>
+        <div className="announcement-date-pub">
+          {formatDate(announcement.date_created)}
+        </div>
+      </div>
     </>
 
   );
@@ -115,15 +112,15 @@ const Announcements = ({ user, isAuthenticated, handleLogout }) => {
             ) : (
               <div className="announcements-list">
                 <div className="announcement-wrapper">
-                <div className="announcement-data">
-                  <div>Admin</div>
-                  <div>Title</div>
-                  <div>Announcement</div>
-                  <div>Date Created</div>
-                </div>
-                {announcements.map(announcement => (
-                  <AnnouncementBanner key={announcement.id} announcement={announcement} />
-                ))}
+                  <div className="announcement-data">
+                    <div>Admin</div>
+                    <div>Title</div>
+                    <div>Announcement</div>
+                    <div>Date Created</div>
+                  </div>
+                  {announcements.map(announcement => (
+                    <AnnouncementBanner key={announcement.id} announcement={announcement} />
+                  ))}
                 </div>
               </div>
             )}

@@ -910,57 +910,48 @@ function AdminDashboard({ user, isAuthenticated, authChecked, handleLoginSuccess
                   <i>No announcements found</i>
                 ) : (
                   <div className="announcements-container">
+                    <div className="announcement-data-admin">
+                      <div>Admin</div>
+                      <div>Title</div>
+                      <div>Announcement</div>
+                      <div>Start/End</div>
+                      <div>Actions</div>
+                    </div>
                     {announcements.map((announcement) => (
-                      <div key={announcement.id} className="announcement-card">
-                        <div className="announcement-header">
-                          <div className={`announcement-status-badge status-badge-${announcement.status}`}>
-                            {announcement.status}
-                          </div>
+                      <div className="announcement-banner-admin">
+                        <div className="user-profile">
+                          <img 
+                            src={announcement.user.profile_pic || '/default-avatar.png'} 
+                            alt={announcement.user.name} 
+                            className="user-profile-pic"
+                          />
+                        </div>
+                        <div className="announcement-title-pub">
+                          {announcement.title}
+                        </div>
+                        <div className="announcement-content-pub">
+                          {announcement.content}
+                        </div>
+                        <div className="announcement-date-pub">
+                          {formatLocalDate(announcement.date_created)} / {formatLocalDate(announcement.date_end)} 
+                        </div>
+
+                        <div className="announcement-actions">
+                          {/* Activate/Deactivate button removed */}
                           
-                          <div className="announcement-content">
-                            {/* User info with profile pic and name */}
-                            {announcement.user && (
-                              <div className="announcement-user-info">
-                                <img 
-                                  src={announcement.user.profile_pic || defaultPic} 
-                                  alt={announcement.user.name} 
-                                  className="user-profile-pic"
-                                />
-                                <span className="user-name">{announcement.user.name}</span>
-                              </div>
-                            )}
-                            
-                            <h3 className="announcement-title">{announcement.title}</h3>
-                            
-                            <div className="announcement-dates">
-                              <span>Posted: {formatLocalDate(announcement.date_created)}</span>
-                              {announcement.date_end ? (
-                                <span>End: {formatLocalDate(announcement.date_end)}</span>
-                              ) : (
-                                <span>No Expiration</span>
-                              )}
-                            </div>
-                            
-                            <p className="announcement-text">{announcement.content}</p>
-                            
-                            <div className="announcement-actions">
-                              {/* Activate/Deactivate button removed */}
-                              
-                              <button 
-                                onClick={() => handleEditAnnouncement(announcement)}
-                                className="announcement-edit-button"
-                              >
-                                Edit
-                              </button>
-                              
-                              <button 
-                                onClick={() => deleteAnnouncement(announcement.id)}
-                                className="announcement-delete-button"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
+                          <button 
+                            onClick={() => handleEditAnnouncement(announcement)}
+                            className="announcement-edit-button"
+                          >
+                            Edit
+                          </button>
+                          
+                          <button 
+                            onClick={() => deleteAnnouncement(announcement.id)}
+                            className="announcement-delete-button"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     ))}
