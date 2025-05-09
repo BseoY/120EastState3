@@ -104,11 +104,15 @@ const PostDetail: React.FC<PostDetailProps> = ({
         setLoading(false);
       } catch (err: any) {
         console.error('Error fetching post:', err);
-        setError('Failed to load post. Please try again later.');
+        if (err.response && err.response.status === 404) {
+          setError('Post not found. It might have been deleted or the link is incorrect.');
+        } else {
+          setError('Failed to load post. Please try again later.');
+        }
         setLoading(false);
       }
     };
-
+  
     if (postId) {
       fetchPost();
     }
@@ -201,12 +205,17 @@ const PostDetail: React.FC<PostDetailProps> = ({
       />
       
       <div className="post-detail-container">
-        {loading ? (
-          <div className="loading-spinner">Loading...</div>
-        ) : error ? (
-          <div className="error-message">{error}</div>
-        ) : post ? (
-          <article className="post-content">
+      {loading ? (
+        <div className="loading-spinner">Loading...</div>
+      ) : error ? (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => navigate('/archive')} className="back-button">
+            ← Back to Archive
+          </button>
+        </div>
+      ) : post ? (
+        <article className="post-content">
             {!isEditing ? (
               // VIEW MODE
               <>
@@ -413,9 +422,14 @@ const PostDetail: React.FC<PostDetailProps> = ({
               </div>
             )}
           </article>
-        ) : (
-          <div className="not-found">Post not found</div>
-        )}
+          ) : (
+            <div className="not-found">
+              Post not found.
+              <button onClick={() => navigate('/archive')} className="back-button">
+                ← Back to Archive
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );
