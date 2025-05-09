@@ -1,4 +1,4 @@
-/* Modal Overlay - darkened background */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -13,7 +13,7 @@
   backdrop-filter: blur(3px);
 }
 
-/* Modal Content */
+
 .modal-content {
   background-color: white;
   border-radius: 12px;
@@ -28,7 +28,7 @@
   animation: modalFadeIn 0.3s ease-out;
 }
 
-/* Modal Header */
+
 .modal-content h1 {
   color: #1F8CB5;
   font-size: 1.8rem;
@@ -37,13 +37,13 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
-/* Remove extra line break and horizontal rule */
+
 .modal-content hr, 
 .modal-content br {
   display: none;
 }
 
-/* Modal Text */
+
 .modal-content p {
   color: #444;
   line-height: 1.5;
@@ -51,7 +51,7 @@
   font-size: 1rem;
 }
 
-/* List Styling */
+
 #share-story-list {
   margin: 15px 0;
   padding: 0 0 0 10px;
@@ -74,7 +74,7 @@
   font-weight: bold;
 }
 
-/* Agreement Section */
+
 #agreement {
   display: flex;
   align-items: center;
@@ -87,7 +87,7 @@
   border-left: 3px solid #1F8CB5;
 }
 
-/* Checkbox Styling */
+
 #agreement-button {
   margin-left: 10px;
   width: 18px;
@@ -97,7 +97,7 @@
   margin: 0px 0px 0px 10px;
 }
 
-/* Continue Button */
+
 .modal-cancel-button {
   width: 100%;
   background-color: lightgray;
@@ -130,7 +130,7 @@
   cursor: not-allowed;
 }
 
-/* Animation */
+
 @keyframes modalFadeIn {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }

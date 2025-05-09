@@ -1,4 +1,4 @@
-/* Container for each archive card */
+
 .archive-item {
     background-color: white;
     border-radius: 12px;
@@ -13,7 +13,7 @@
     transform: scale(1.02);
   }
   
-  /* Image and media container */
+  
   .item-image {
     width: 100%;
     height: 200px;
@@ -28,7 +28,7 @@
     object-fit: cover;
   }
   
-  /* Video thumbnail */
+  
   .video-thumbnail {
     width: 100%;
     height: 100%;
@@ -58,7 +58,7 @@
     font-size: 18px;
   }
   
-  /* Audio thumbnail */
+  
   .audio-thumbnail {
     width: 100%;
     height: 100%;
@@ -86,7 +86,7 @@
     text-overflow: ellipsis;
   }
   
-  /* Document thumbnail */
+  
   .document-thumbnail {
     width: 100%;
     height: 100%;
@@ -114,7 +114,7 @@
     text-overflow: ellipsis;
   }
   
-  /* Tag label */
+  
   .item-tags {
     padding: 8px 12px;
   }
@@ -130,7 +130,7 @@
     z-index: 2;
   }
   
-  /* Metadata and title */
+  
   .item-header {
     padding: 12px 16px;
   }

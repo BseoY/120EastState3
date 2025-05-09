@@ -190,7 +190,7 @@
   right: 8px;
 }
 
-/* Make buttons and text adapt to smaller screens */
+
 @media (max-width: 600px) {
   .user-posts-container {
     padding: 1rem;
@@ -220,7 +220,7 @@
 .tab {
   padding: 0.5rem 1rem;
   border: none;
-  background-color: #ccc; /* Default gray color */
+  background-color: #ccc; 
   cursor: pointer;
   font-weight: 400;
   border-radius: 8px;
@@ -231,39 +231,39 @@
   background-color: #bbb;
 }
 .tab:first-child::before {
-  content: '\f00c'; /* Font Awesome check icon (✓) */
+  content: '\f00c'; 
   font-family: 'Font Awesome 5 Free';
-  font-weight: 900; /* Required for solid icons */
+  font-weight: 900; 
   margin-right: 0.5rem;
 }
 
 .tab:last-child::before {
-  content: '\f00d'; /* Font Awesome X icon (✕) */
+  content: '\f00d'; 
   font-family: 'Font Awesome 5 Free';
-  font-weight: 900; /* Required for solid icons */
+  font-weight: 900; 
   margin-right: 0.5rem;
 }
 
 .tab.active-approved {
-  background-color: rgb(92, 184, 92); /* Green for approved */
+  background-color: rgb(92, 184, 92); 
   color: white;
 }
 .tab.active-approved::before {
-  content: '\f00c'; /* Font Awesome check icon (✓) */
+  content: '\f00c'; 
   font-family: 'Font Awesome 5 Free';
-  font-weight: 900; /* Required for solid icons */
+  font-weight: 900; 
 }
 
 
 .tab.active-denied {
-  background-color: rgb(217, 83, 79); /* Red for denied */
+  background-color: rgb(217, 83, 79); 
   color: white;
   
 }
 .tab.active-denied::before {
-  content: '\f00d'; /* Font Awesome X icon (✕) */
+  content: '\f00d'; 
   font-family: 'Font Awesome 5 Free';
-  font-weight: 900; /* Required for solid icons */
+  font-weight: 900; 
 
 }
 

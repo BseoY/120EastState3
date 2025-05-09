@@ -1,4 +1,4 @@
-/* Sticky Footer */
+
 body, html {
   height: 100%;
   margin: 0;
@@ -16,7 +16,7 @@ body, html {
   padding: 2rem 2rem 1rem 2rem;
   background-color: #1F8CB5;
   color: white;
-  margin-top:auto; /* Push the footer to the bottom */
+  margin-top:auto; 
   flex-wrap: wrap;
   font-family: Arial, sans-serif;
 }

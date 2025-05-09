@@ -78,9 +78,9 @@
 
 .approve-button::before { content: '\f00c'; }
 .deny-button::before { content: '\f00d'; }
-.re-approve-button::before { content: '\f2f9'; } /* Undo icon */
-.download-button::before { content: '\f019'; } /* Download icon */
-.view-button::before { content: '\f06e'; } /* Eye icon */
+.re-approve-button::before { content: '\f2f9'; } 
+.download-button::before { content: '\f019'; } 
+.view-button::before { content: '\f06e'; } 
 
 .admin-actions-overlay {
   position: absolute;
@@ -112,7 +112,7 @@
   background-color: #d2372c;
 }
 
-/* Modal Textarea Styling */
+
 .modal-content textarea {
   width: 100%;
   padding: 10px;
@@ -138,12 +138,12 @@
   height: 100vh;
   background-color: #f5f7fa;
   color: #333;
-  overflow: hidden; /* Prevent scrollbars from misaligned elements */
+  overflow: hidden; 
 }
 
 .admin-sidebar {
-  width: 250px; /* Fixed width */
-  min-width: 250px; /* Prevent shrinking */
+  width: 250px; 
+  min-width: 250px; 
   background-color: #1F8CB5;
   background-image: linear-gradient(180deg, #1F8CB5 0%, #176d8c 100%);
   color: white;
@@ -154,7 +154,7 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   z-index: 10;
   top: 0;
-  overflow-y: auto; /* Allow scrolling if many menu items */
+  overflow-y: auto; 
 }
 @media (width > 768px) {
   .sidebar-toggle-button {
@@ -250,7 +250,7 @@
   border-radius: 3px;
 }
 
-/* Add this at the top of the file for icon fonts */
+
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
 .sidebar-button {
@@ -268,12 +268,12 @@
   align-items: center;
   margin-bottom: 0.5rem;
   position: relative;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap; 
   overflow: hidden;
-  text-overflow: ellipsis; /* Show ellipsis for long text */
+  text-overflow: ellipsis; 
 }
 
-/* Icon styles for sidebar buttons */
+
 .sidebar-button::before {
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
@@ -283,14 +283,14 @@
   text-align: center;
 }
 
-/* Icons for each section */
-.sidebar-button[data-section="pending"]::before { content: '\f017'; } /* Clock icon */
-.sidebar-button[data-section="approved"]::before { content: '\f00c'; } /* Check icon */
-.sidebar-button[data-section="denied"]::before { content: '\f00d'; } /* X icon */
-.sidebar-button[data-section="users"]::before { content: '\f007'; } /* User icon */
-.sidebar-button[data-section="tags"]::before { content: '\f02c'; } /* Tag icon */
-.sidebar-button[data-section="announcements"]::before { content: '\f0a1'; } /* Bullhorn icon */
-.sidebar-button[data-section="metrics"]::before { content: '\f080'; } /* Chart icon */
+
+.sidebar-button[data-section="pending"]::before { content: '\f017'; } 
+.sidebar-button[data-section="approved"]::before { content: '\f00c'; } 
+.sidebar-button[data-section="denied"]::before { content: '\f00d'; } 
+.sidebar-button[data-section="users"]::before { content: '\f007'; } 
+.sidebar-button[data-section="tags"]::before { content: '\f02c'; } 
+.sidebar-button[data-section="announcements"]::before { content: '\f0a1'; } 
+.sidebar-button[data-section="metrics"]::before { content: '\f080'; } 
 
 .sidebar-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
@@ -316,7 +316,7 @@
   border-radius: 0 2px 2px 0;
 }
 
-/* Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -372,7 +372,7 @@
 }
 
 .modal-submit-button {
-  background-color: #dc3545; /* Same as deny button */
+  background-color: #dc3545; 
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -386,7 +386,7 @@
 }
 
 .modal-respond-button {
-  background-color: #1F8CB5; /* Same as deny button */
+  background-color: #1F8CB5; 
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -423,7 +423,7 @@
   background-color: #cc3300;
 }
 
-/* Denied Post Styles */
+
 .denied-button-container {
   display: flex;
   justify-content: flex-start;
@@ -453,13 +453,13 @@
 }
 
 .denied-delete-button::before {
-  content: '\f2ed'; /* trash can icon */
+  content: '\f2ed'; 
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
 }
 
 
-/* Tag Management Styles */
+
 .tag-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -577,8 +577,8 @@
   font-size: 0.9rem;
 }
 
-.tag-edit-button::before { content: '\f044'; } /* Edit icon */
-.tag-delete-button::before { content: '\f2ed'; } /* Trash icon */
+.tag-edit-button::before { content: '\f044'; } 
+.tag-delete-button::before { content: '\f2ed'; } 
 
 .tag-edit-button {
   background-color: #F1BA55;
@@ -624,7 +624,7 @@
   padding: 15px;
 }
 
-/* User Profile Styles in Announcements */
+
 .announcement-user-info {
   display: flex;
   align-items: center;
@@ -742,7 +742,7 @@
 .add-announcement-button::before {
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
-  content: '\f067'; /* Plus icon */
+  content: '\f067'; 
 }
 
 .add-announcement-button:hover {
@@ -770,10 +770,10 @@
 .add-tag-button::before {
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
-  content: '\f067'; /* Plus icon */
+  content: '\f067'; 
 }
 
-/* Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -811,7 +811,7 @@
   margin-top: 10px;
 }
 
-/* Styled file input container */
+
 .file-input-container {
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -844,7 +844,7 @@
   margin-top: 20px;
 }
 
-/* Metrics Styles */
+
 #metrics-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
