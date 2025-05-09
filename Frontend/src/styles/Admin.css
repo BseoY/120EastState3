@@ -185,6 +185,17 @@
     background-color: #1F8CB5;
     padding: 0.5rem 1rem;
   }
+  .announcement-data-admin {
+    display: none !important;
+  }
+  .announcement-banner-admin {
+    grid-template-columns: 1fr !important;
+  }
+  .add-tag-button, .add-announcement-button {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 .admin-logo {
@@ -753,6 +764,7 @@
   margin-bottom: 25px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   font-size: 1rem;
+
 }
 
 .add-tag-button::before {

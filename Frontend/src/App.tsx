@@ -5,7 +5,7 @@ import axios from "axios";
 import "./styles/App.css";
 import Nav from "./components/Nav";
 import authService from './auth';
-import UserPosts from './components/Userposts';
+import UserPosts from './views/Writer/Userposts';
 import TagBoxes from './components/TagBoxes';
 import ProtectedRoute from './components/ProtectedRoute';
 import Archive from "./components/Archive";

@@ -141,3 +141,12 @@
   gap: 1rem;
   padding: 1rem;
 }
+
+@media (max-width: 768px) {
+  .announcement-data {
+    display: none;
+  }
+  .announcement-banner {
+    grid-template-columns: 1fr;
+  }
+}
