@@ -210,9 +210,12 @@
 }
 
 #middle-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
-  gap: 5px;
-  justify-content: center;
+  gap: 0.5rem;
 }
 
 .back-button {
@@ -505,6 +508,14 @@ textarea.form-control {
   .deny-button,
   .delete-post-btn {
     text-align: center;
+  }
+  #middle-actions {
+    position: static;
+    transform: none;
+    justify-content: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
   }
 }
 .error-message {
