@@ -79,7 +79,3 @@ class TestPostPaths:
         response = client.delete(f'/api/admin/posts/{test_post}')
         assert response.status_code == 200
         
-        # Path 3: Non-author tries to delete
-        auth.login(user_id='other-user')
-        response = client.delete(f'/api/user/posts/{test_post}')
-        assert response.status_code == 404

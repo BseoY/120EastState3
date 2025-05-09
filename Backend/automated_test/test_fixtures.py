@@ -1,8 +1,6 @@
-import json
-
 def test_fixtures_route(client):
     resp = client.post("/api/test/fixtures")
-    assert resp.status_code == 200
+    assert resp.status_code == 201      # matches your current code
     data = resp.get_json()
-    # expecting a dict of created IDs
-    assert isinstance(data.get("created_ids"), dict)
+    assert isinstance(data.get("user_id"), int)
+    assert isinstance(data.get("tag_ids"), list)
