@@ -134,10 +134,6 @@
     margin-top: 40px;
   }
   
-  .share-story-container > *:not(header) {
-    padding: 0 15px;
-  }
-  
   .login-required-message {
     padding: 25px 15px;
     width: 90%;
