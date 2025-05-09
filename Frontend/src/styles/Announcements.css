@@ -44,6 +44,8 @@
   font-weight: 450;
   font-size: 1rem;
   max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .announcement-content-pub {
   font-weight: 300;
@@ -56,6 +58,8 @@
 .announcement-date-pub {
   font-weight: 350;
   font-size: 1.1rem;
+  display: flex;
+
 }
 
 /* Responsive design for announcements */

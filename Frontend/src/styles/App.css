@@ -221,6 +221,12 @@ p#caron:hover {
   text-shadow: 2px 2px 3px rgba(16, 42, 74, 0.5);
 }
 
+@media (max-width: 768px) {
+  .video-overlay h1 {
+    font-size: 3rem;
+  }
+}
+
 .video-overlay p {
   font-size: 1.5rem;
   margin-bottom: 2rem;

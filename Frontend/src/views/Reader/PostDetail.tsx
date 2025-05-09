@@ -213,7 +213,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                 <header>
                   <div className="post-meta">
                     <Link to="/archive" className="back-button">
-                      ← Back to Archive
+                      ← Back
                     </Link>
                     <span className="post-date">{formatLocalDate(post.date_created)}</span>
                   </div>
@@ -307,7 +307,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                     {isAuthenticated && user?.role === 'admin' && (
                       <div id="middle-actions">
                         <button onClick={() => setIsEditing(true)} className="edit-button">Edit Post</button>
-                        <button onClick={() => deletePost(post.id)} className="deny-button">Delete Post</button>
+                        <button onClick={() => deletePost(post.id)} className="delete-button">Delete Post</button>
                       </div>
                     )}
                     <Link to={`/tag/${post.tag}`} className="post-tag">{post.tag}</Link>

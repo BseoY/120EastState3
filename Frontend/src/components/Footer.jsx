@@ -8,13 +8,14 @@ import {
   FaYoutube,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import logo from '../assets/Image/120ESWhite.png';
 
 export default function Footer() {
   return (
     <>
       <footer className="footer">
         <div className="footer-section left">
-          <a href="/"><img src="/120logo.png" alt="120 East State Logo" className='footer-logo'></img></a>
+          <a href="/"><img src={logo} alt="120 East State Logo" className='footer-logo'></img></a>
           <p className="tagline">Transforming the Steeple Center</p>
           <div className="social-icons">
             <a href="https://www.facebook.com/120eaststate" target='_blank'><FaFacebookF /></a>
