@@ -80,6 +80,7 @@
   left: 0;
   background-color: #4995b1;
   transition: width 0.3s;
+  margin-top: 2px;
 }
 
 .nav-profile button:hover::after {
